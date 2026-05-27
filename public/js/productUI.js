@@ -74,8 +74,34 @@ function triggerSplitAnimation(album) {
   }, 50)
 
   setTimeout(() => {
-    console.log('animation done — detail view next')
-  }, 700)
+  renderDetailView(album)
+}, 700)
+}
+
+function renderDetailView(album) {
+  const container = document.getElementById('products-container')
+
+  container.innerHTML = `
+    <div class="detail-view">
+      <div class="detail-img-wrap">
+        <img src="./images/${album.image}" alt="${album.title}">
+      </div>
+      <div class="detail-info">
+        <h2 class="detail-title">${album.title}</h2>
+        <div class="detail-row">
+          <span class="detail-label">ARTIST</span>
+          <span class="detail-value">${album.artist}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-label">GENRE</span>
+          <span class="detail-value">${album.genre}</span>
+        </div>
+        <div class="detail-price">$${album.price}</div>
+        <button class="main-btn add-btn" data-id="${album.id}">Add to Cart</button>
+      </div>
+    </div>
+  `
+  addBtnListeners()
 }
 
 // ===== Handling filtering =====

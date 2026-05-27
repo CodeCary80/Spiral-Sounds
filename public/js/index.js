@@ -5,6 +5,7 @@ import { renderProducts, applySearchFilter,renderFeaturedAlbum } from './product
 import { updateCartIcon } from './cartService.js'
 
 document.getElementById('logout-btn').addEventListener('click', logout)
+const showAllBtn = document.getElementById('show-all-btn')
 
 // ===== Initial Load =====
 
@@ -20,8 +21,15 @@ async function init() {
   if (name) await updateCartIcon()
 }
 
-document.getElementById('show-all-btn').addEventListener('click', () => {
-  renderProducts(allProducts)
+
+showAllBtn.addEventListener('click', () => {
+  if (showAllBtn.textContent === 'View Collection') {
+    renderProducts(allProducts)
+    showAllBtn.textContent = "Today's Pick"
+  } else {
+    renderFeaturedAlbum(allProducts)
+    showAllBtn.textContent = 'View Collection'
+  }
 })
 
 init()

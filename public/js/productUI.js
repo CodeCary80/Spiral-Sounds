@@ -26,14 +26,20 @@ export function renderFeaturedAlbum(products) {
   
   const random = products[Math.floor(Math.random() * products.length)]
   
-  container.innerHTML = `
+ container.innerHTML = `
   <div class="featured-album" id="featured-album" data-id="${random.id}">
     <div class="featured-mockup">
       <div class="vinyl-disc">
         <div class="vinyl-label"></div>
       </div>
-      <div class="featured-img-wrap">
-        <img src="./images/${random.image}" alt="${random.title}">
+      <div class="featured-img-wrap" id="featured-img-wrap">
+        <img src="./images/${random.image}" alt="${random.title}" class="img-main">
+        <div class="img-split top-right">
+          <img src="./images/${random.image}" alt="">
+        </div>
+        <div class="img-split bottom-left">
+          <img src="./images/${random.image}" alt="">
+        </div>
       </div>
     </div>
     <div class="featured-info">
@@ -44,8 +50,32 @@ export function renderFeaturedAlbum(products) {
 `
 
   document.getElementById('featured-album').addEventListener('click', () => {
+    console.log('clicked')
     triggerSplitAnimation(random)
   })
+}
+
+function triggerSplitAnimation(album) {
+  const topRight = document.querySelector('.top-right')
+  const bottomLeft = document.querySelector('.bottom-left')
+  const mainImg = document.querySelector('.img-main')
+
+  // fade in split pieces
+  topRight.style.opacity = '1'
+  bottomLeft.style.opacity = '1'
+
+  // hide main image
+  mainImg.style.opacity = '0'
+
+  // fly apart
+  setTimeout(() => {
+    topRight.classList.add('fly')
+    bottomLeft.classList.add('fly')
+  }, 50)
+
+  setTimeout(() => {
+    console.log('animation done — detail view next')
+  }, 700)
 }
 
 // ===== Handling filtering =====

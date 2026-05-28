@@ -322,28 +322,50 @@ footer {
   display: block;
 }
 
-.top-right {
-  clip-path: polygon(50% 0%, 100% 0%, 100% 50%, 50% 50%);
+.block-left {
+  clip-path: polygon(0% 0%, 37% 0%, 37% 100%, 0% 100%);
+}
+ 
+/* Top-right block: right 60%, top 53% */
+.block-top-right {
+  clip-path: polygon(39% 0%, 100% 0%, 100% 52%, 39% 52%);
+}
+ 
+/* Hero block: right 60%, bottom 45% */
+.block-bottom-right {
+  clip-path: polygon(39% 54%, 100% 54%, 100% 100%, 39% 100%);
 }
 
-.bottom-left {
-  clip-path: polygon(0% 50%, 50% 50%, 50% 100%, 0% 100%);
-}
 
-.top-left {
-  clip-path: polygon(0% 0%, 50% 0%, 50% 50%, 0% 50%);
+ 
+/* === Fly-out transitions === */
+ 
+.block-left {
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              opacity 0.6s ease;
 }
-
-.bottom-right {
-  clip-path: polygon(50% 50%, 100% 50%, 100% 100%, 50% 100%);
+ 
+.block-top-right {
+  transition: transform 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+              opacity 0.6s ease;
 }
-
-.top-right.fly {
+ 
+/* Clockwise: left block flies left, top-right flies up */
+.block-left.fly-left {
+  transform: translateX(-160px);
+  opacity: 0;
+}
+ 
+.block-top-right.fly-top-right {
   transform: translate(120px, -120px);
+  opacity: 0;
 }
+ 
 
-.bottom-left.fly {
-  transform: translate(-120px, 120px);
+
+.block-bottom-right.fly-bottom-right {
+  transform: translate(120px, 120px);
+  opacity: 0;
 }
 
 .featured-title {
@@ -694,4 +716,24 @@ button:active {
 @keyframes vinyl-spin {
   from { transform: translateY(-50%) rotate(0deg); }
   to   { transform: translateY(-50%) rotate(360deg); }
+}
+
+
+/* Wipe circle — spawns from album center */
+.wipe-overlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;        /* ← center of container, tune if needed */
+  transform: translate(-50%, -50%) scale(1);
+  width: 20px;
+  height: 20px;
+  background-color: var(--color-bg);
+  border-radius: 50%;
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  z-index: 10;
+  pointer-events: none;
+}
+
+.wipe-overlay.wipe-expand {
+  transform: translate(-50%, -50%) scale(200);
 }

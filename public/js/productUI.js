@@ -26,26 +26,28 @@ export function renderFeaturedAlbum(products) {
   
   const random = products[Math.floor(Math.random() * products.length)]
   
- container.innerHTML = `
+  container.innerHTML = `
   <div class="featured-album" id="featured-album" data-id="${random.id}">
     <div class="featured-mockup">
       <div class="vinyl-disc">
         <div class="vinyl-label"></div>
       </div>
       <div class="featured-img-wrap" id="featured-img-wrap">
+
         <img src="./images/${random.image}" alt="${random.title}" class="img-main">
-        <div class="img-split top-right">
+
+        <div class="img-split block-left">
           <img src="./images/${random.image}" alt="">
         </div>
-        <div class="img-split bottom-left">
+
+        <div class="img-split block-top-right">
           <img src="./images/${random.image}" alt="">
         </div>
-        <div class="img-split top-left">
+
+        <div class="img-split block-bottom-right">
           <img src="./images/${random.image}" alt="">
         </div>
-        <div class="img-split bottom-right">
-          <img src="./images/${random.image}" alt="">
-        </div>
+
       </div>
     </div>
     <div class="featured-info">
@@ -56,36 +58,54 @@ export function renderFeaturedAlbum(products) {
 `
 
   document.getElementById('featured-album').addEventListener('click', () => {
-    console.log('clicked')
     triggerSplitAnimation(random)
   })
 }
 
 function triggerSplitAnimation(album) {
-  const topRight = document.querySelector('.top-right')
-  const bottomLeft = document.querySelector('.bottom-left')
-  const topLeft = document.querySelector('.top-left')
-  const bottomRight = document.querySelector('.bottom-right')
-  const mainImg = document.querySelector('.img-main')
+  const blockLeft     = document.querySelector('.block-left')
+  const blockTopRight = document.querySelector('.block-top-right')
+  const blockHero     = document.querySelector('.block-bottom-right')
+  const mainImg       = document.querySelector('.img-main')
+  const container     = document.getElementById('products-container')
 
-  // show all 4 pieces
-  topRight.style.opacity = '1'
-  bottomLeft.style.opacity = '1'
-  topLeft.style.opacity = '1'
-  bottomRight.style.opacity = '1'
-
-  // hide main image
+  // Step 1: show all 3 blocks, hide main image
+  blockLeft.style.opacity = '1'
+  blockTopRight.style.opacity = '1'
+  blockHero.style.opacity = '1'
   mainImg.style.opacity = '0'
 
-  // only fly the two outer corners
+  // Step 2: all 3 blocks fly out simultaneously
   setTimeout(() => {
-    topRight.classList.add('fly')
-    bottomLeft.classList.add('fly')
-  }, 50)
+  blockLeft.classList.add('fly-left')
+}, 150)
 
+setTimeout(() => {
+  blockTopRight.classList.add('fly-top-right')
+}, 400)
+
+setTimeout(() => {
+  blockHero.classList.add('fly-bottom-right')
+}, 650)
+
+  // Step 3: cream circle spawns from album center
+  setTimeout(() => {
+    const overlay = document.createElement('div')
+    overlay.className = 'wipe-overlay'
+    container.style.position = 'relative'
+    container.appendChild(overlay)
+
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        overlay.classList.add('wipe-expand')
+      })
+    })
+  }, 850) 
+
+  // Step 4: render detail view
   setTimeout(() => {
     renderDetailView(album)
-  }, 700)
+  }, 1550)
 }
 
 function renderDetailView(album) {

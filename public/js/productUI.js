@@ -75,18 +75,10 @@ function triggerSplitAnimation(album) {
   blockHero.style.opacity = '1'
   mainImg.style.opacity = '0'
 
-  // Step 2: all 3 blocks fly out simultaneously
-  setTimeout(() => {
-  blockLeft.classList.add('fly-left')
-}, 150)
-
-setTimeout(() => {
-  blockTopRight.classList.add('fly-top-right')
-}, 400)
-
-setTimeout(() => {
-  blockHero.classList.add('fly-bottom-right')
-}, 650)
+  // Step 2: sequential fly-out
+  setTimeout(() => { blockLeft.classList.add('fly-left') }, 150)
+  setTimeout(() => { blockTopRight.classList.add('fly-top-right') }, 400)
+  setTimeout(() => { blockHero.classList.add('fly-bottom-right') }, 650)
 
   // Step 3: cream circle spawns from album center
   setTimeout(() => {
@@ -100,10 +92,11 @@ setTimeout(() => {
         overlay.classList.add('wipe-expand')
       })
     })
-  }, 850) 
+  }, 850)
 
   // Step 4: render detail view
   setTimeout(() => {
+    container.classList.add('detail-mode')
     renderDetailView(album)
   }, 1550)
 }
@@ -112,26 +105,75 @@ function renderDetailView(album) {
   const container = document.getElementById('products-container')
 
   container.innerHTML = `
-    <div class="detail-view">
-      <div class="detail-img-wrap">
-        <img src="./images/${album.image}" alt="${album.title}">
+  <div class="detail-wrapper">
+  <div class="detail-view">
+    <div class="detail-img-wrap">
+      <img src="./images/${album.image}" alt="${album.title}">
+    </div>
+
+    <div class="detail-info">
+      <h2 class="detail-title">${album.title}</h2>
+
+      <div class="detail-meta">
+        <div class="detail-meta-row">
+          <span class="detail-meta-value">${album.artist}</span>
+        </div>
+        <div class="detail-meta-row">
+          <span class="detail-meta-value">${album.genre}</span>
+        </div>
       </div>
-      <div class="detail-info">
-        <h2 class="detail-title">${album.title}</h2>
-        <div class="detail-row">
-          <span class="detail-label">ARTIST</span>
-          <span class="detail-value">${album.artist}</span>
-        </div>
-        <div class="detail-row">
-          <span class="detail-label">GENRE</span>
-          <span class="detail-value">${album.genre}</span>
-        </div>
-        <div class="detail-price">$${album.price}</div>
-        <button class="main-btn add-btn" data-id="${album.id}">Add to Cart</button>
+
+      <div class="detail-price">$${album.price}</div>
+
+      <button class="detail-cart-btn add-btn" data-id="${album.id}">
+        ADD TO CART <span class="detail-cart-arrow">&#8594;</span>
+      </button>
+    </div>
+
+  </div>
+
+  <div class="detail-accordion">
+    <div class="accordion-item">
+      <button class="accordion-trigger">
+        ABOUT THE ARTIST
+        <span class="accordion-icon">+</span>
+      </button>
+      <div class="accordion-body">
+        <p>${album.artist} is a recording artist known for their distinctive sound and genre-defining work. Their music has influenced countless artists and continues to resonate with audiences worldwide.</p>
       </div>
     </div>
-  `
+    <div class="accordion-item">
+      <button class="accordion-trigger">
+        ABOUT THIS ALBUM
+        <span class="accordion-icon">+</span>
+      </button>
+      <div class="accordion-body">
+        <p>This album represents a landmark moment in ${album.genre} music. Recorded with meticulous attention to detail, every track tells a story that unfolds across the full listening experience.</p>
+      </div>
+    </div>
+  </div>
+ </div> 
+`
+
   addBtnListeners()
+
+  // Accordion logic
+  document.querySelectorAll('.accordion-trigger').forEach(trigger => {
+    trigger.addEventListener('click', () => {
+      const item = trigger.parentElement
+      const isOpen = item.classList.contains('open')
+
+      // close all
+      document.querySelectorAll('.accordion-item').forEach(i => i.classList.remove('open'))
+      document.querySelectorAll('.accordion-icon').forEach(i => i.textContent = '+')
+
+      // open clicked if it wasn't open
+      if (!isOpen) {
+        item.classList.add('open')
+        trigger.querySelector('.accordion-icon').textContent = '—'
+      }
+    })
+  })
 }
 
 // ===== Handling filtering =====

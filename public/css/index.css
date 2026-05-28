@@ -36,6 +36,7 @@
   box-sizing: border-box;
 }
 
+
 body {
     margin: 0;
     padding: 0;
@@ -261,8 +262,7 @@ footer {
   cursor: pointer;
   margin: 2rem auto;
   gap: 5rem;
-  transform: translateX(-200px);
-
+    transform: translateX(-160px);
 }
 .featured-info {
   display: flex;
@@ -431,25 +431,27 @@ footer {
 }
 
 /* -----------------------------------
-   inform page
+   Detail / Info Page
+   Replace all old .detail-* classes with these
 ----------------------------------- */
+
 .detail-view {
   display: flex;
   flex-direction: row;
-  align-items: center;
+  align-items: flex-start;
   justify-content: center;
-  gap: 4rem;
-  padding: 3rem;
+  gap: 5rem;
+  padding: 4rem 3rem;
   animation: fadeIn 0.5s ease;
 }
 
+/* Left: album cover */
 .detail-img-wrap {
-  width: 400px;
-  height: 400px;
+  width: 420px;
+  height: 420px;
   flex-shrink: 0;
-  border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: -8px 8px 32px rgba(0,0,0,0.4);
+  box-shadow: -12px 12px 40px rgba(0,0,0,0.3);
 }
 
 .detail-img-wrap img {
@@ -458,47 +460,165 @@ footer {
   object-fit: cover;
 }
 
+/* Right: info panel */
 .detail-info {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
-  color: black;
+  gap: 2rem;
+  flex: 1;
+  max-width: 500px;
+}
+
+/* Title — huge, stacked, all caps */
+.detail-title {
+  font-size: clamp(2rem, 4vw, 3.5rem);
+  margin: 0;
+  color: var(--color-bg-light);
+  text-transform: uppercase;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
   white-space: nowrap;
 }
 
-.detail-title {
-  font-size: 3rem;
-  margin: 0;
+/* Metadata rows — value left, label right (editorial style) */
+.detail-meta {
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-meta-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 0;
+}
+
+.detail-meta-value {
+  font-size: 0.95rem;
+  color: var(--color-bg-light);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.detail-meta-label {
+  font-size: 0.75rem;
   color: black;
   text-transform: uppercase;
+  letter-spacing: 0.1em;
 }
 
-.detail-row {
-  display: flex;
-  gap: 2rem;
-  border-bottom: 1px solid #1A1A1A;
-  padding-bottom: 0.5rem;
-}
-
-.detail-label {
-  font-size: 0.8rem;
-  color: #888;
-  width: 80px;
-}
-
-.detail-value {
-  color: black;
-  font-weight: 600;
-}
-
+/* Price */
 .detail-price {
-  font-size: 2.5rem;
+  font-size: 2.8rem;
   font-weight: 700;
-  color: black;
+  color: var(--color-bg-light);
+  letter-spacing: -0.02em;
+}
+
+/* Add to Cart — full width bar with arrow */
+.detail-cart-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 50%;
+  padding: 1rem 1.2rem;
+  background-color: var(--color-accent);
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-base);
+  font-size: 1rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border-radius: 0;
+  transition: background-color 0.2s ease;
+}
+
+.detail-cart-btn:hover {
+  background-color: var(--color-bg-light);
+}
+
+.detail-cart-arrow {
+  font-size: 1.4rem;
+}
+
+/* Accordion */
+.detail-accordion {
+  display: flex;
+  flex-direction: column;
+  padding: 0 3rem;  
+  margin-bottom: 2rem;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.accordion-item {
+  border-bottom: 1px solid var(--color-bg-light);
+  overflow: hidden;
+}
+
+.accordion-trigger {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  padding: 1rem 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-family: var(--font-base);
+  font-size: 0.85rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-bg-light);
+  white-space: nowrap;
+}
+
+.accordion-trigger:focus {
+  outline: none;
+}
+
+.accordion-icon {
+  font-size: 1.2rem;
+  color: var(--color-accent);
+  transition: transform 0.3s ease;
+}
+
+.accordion-body {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+              padding 0.3s ease;
+  padding: 0;
+}
+
+.accordion-body p {
+  margin: 0;
+  padding-bottom: 1rem;
+  font-size: 0.9rem;
+  color: var(--color-bg-light);
+  line-height: 1.6;
+  font-family: sans-serif;
+  font-weight: 400;
+}
+
+.accordion-item.open .accordion-body {
+  max-height: 200px;
+  padding-top: 0;
 }
 
 
+.detail-wrapper {
+  display: flex;
+  flex-direction: column;
+   width: 100%; 
+}
 
+#products-container.detail-mode {
+  display: block;
+  padding: 0;
+}
 /* -----------------------------------
    Form Elements
 ----------------------------------- */

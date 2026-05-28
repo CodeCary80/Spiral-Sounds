@@ -367,6 +367,11 @@ footer {
   flex-shrink: 0;
 }
 
+.featured-mockup:hover .vinyl-disc {
+  right: -50px;
+  animation-play-state: running;
+}
+
 .vinyl-disc {
   position: absolute;
   right: 0;
@@ -387,6 +392,8 @@ footer {
   justify-content: center;
   z-index: 1;
   box-shadow: 4px 4px 20px rgba(0,0,0,0.6);
+  animation: vinyl-spin 3s linear infinite paused;
+  transition: right 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .vinyl-label {
@@ -682,4 +689,9 @@ button:active {
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(20px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes vinyl-spin {
+  from { transform: translateY(-50%) rotate(0deg); }
+  to   { transform: translateY(-50%) rotate(360deg); }
 }

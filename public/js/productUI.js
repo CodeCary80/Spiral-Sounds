@@ -40,6 +40,12 @@ export function renderFeaturedAlbum(products) {
         <div class="img-split bottom-left">
           <img src="./images/${random.image}" alt="">
         </div>
+        <div class="img-split top-left">
+          <img src="./images/${random.image}" alt="">
+        </div>
+        <div class="img-split bottom-right">
+          <img src="./images/${random.image}" alt="">
+        </div>
       </div>
     </div>
     <div class="featured-info">
@@ -58,24 +64,28 @@ export function renderFeaturedAlbum(products) {
 function triggerSplitAnimation(album) {
   const topRight = document.querySelector('.top-right')
   const bottomLeft = document.querySelector('.bottom-left')
+  const topLeft = document.querySelector('.top-left')
+  const bottomRight = document.querySelector('.bottom-right')
   const mainImg = document.querySelector('.img-main')
 
-  // fade in split pieces
+  // show all 4 pieces
   topRight.style.opacity = '1'
   bottomLeft.style.opacity = '1'
+  topLeft.style.opacity = '1'
+  bottomRight.style.opacity = '1'
 
   // hide main image
   mainImg.style.opacity = '0'
 
-  // fly apart
+  // only fly the two outer corners
   setTimeout(() => {
     topRight.classList.add('fly')
     bottomLeft.classList.add('fly')
   }, 50)
 
   setTimeout(() => {
-  renderDetailView(album)
-}, 700)
+    renderDetailView(album)
+  }, 700)
 }
 
 function renderDetailView(album) {

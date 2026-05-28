@@ -4,6 +4,8 @@ import { addBtnListeners } from './cartService.js'
 
 export function renderProducts(products) {
   const albumsContainer = document.getElementById('products-container')
+  albumsContainer.classList.remove('detail-mode')
+  albumsContainer.style.position = ''  
   const cards = products.map((album) => {
     return `
       <div class="product-card">
@@ -23,6 +25,8 @@ export function renderProducts(products) {
 
 export function renderFeaturedAlbum(products) {
   const container = document.getElementById('products-container')
+  container.classList.remove('detail-mode')
+  container.style.position = '' 
   
   const random = products[Math.floor(Math.random() * products.length)]
   

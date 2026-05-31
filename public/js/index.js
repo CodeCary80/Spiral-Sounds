@@ -1,11 +1,10 @@
 import { logout } from './logout.js'
 import { checkAuth, renderGreeting, showHideMenuItems } from './authUI.js'
 import { getProducts, populateGenreSelect } from './productService.js'
-import { renderProducts, applySearchFilter,renderFeaturedAlbum } from './productUI.js'
+import { renderProducts, renderHeaderPick, applySearchFilter } from './productUI.js'
 import { updateCartIcon } from './cartService.js'
 
 document.getElementById('logout-btn').addEventListener('click', logout)
-const showAllBtn = document.getElementById('show-all-btn')
 
 // ===== Initial Load =====
 
@@ -16,24 +15,13 @@ async function init() {
   allProducts = await getProducts()
   const name = await checkAuth()
   renderGreeting(name)
-  renderFeaturedAlbum(allProducts)
+  renderProducts(allProducts)
+  renderHeaderPick(allProducts)
   showHideMenuItems(name)
   if (name) await updateCartIcon()
 }
 
-
-showAllBtn.addEventListener('click', () => {
-  if (showAllBtn.textContent === 'View Collection') {
-    renderProducts(allProducts)
-    showAllBtn.textContent = "Today's Pick"
-  } else {
-    renderFeaturedAlbum(allProducts)
-    showAllBtn.textContent = 'View Collection'
-  }
-})
-
 init()
-
 
 // ===== Event Listeners =====
 
@@ -42,14 +30,13 @@ document.getElementById('search-input').addEventListener('input', (e) => {
   applySearchFilter()
 })
 
-// prevent 'enter' from submitting
 document.getElementById('search-input').addEventListener('submit', (e) => {
   e.preventDefault()
 })
 
 document.querySelector('form').addEventListener('submit', (e) => {
   e.preventDefault()
-  applySearchFilter() 
+  applySearchFilter()
 })
 
 document.getElementById('genre-select').addEventListener('change', async (e) => {
@@ -57,8 +44,3 @@ document.getElementById('genre-select').addEventListener('change', async (e) => 
   const products = await getProducts(genre ? { genre } : {})
   renderProducts(products)
 })
-document.getElementById('show-all-btn').addEventListener('click', () => {
-  renderProducts(products)
-})
-
- 

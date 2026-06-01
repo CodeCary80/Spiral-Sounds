@@ -13,62 +13,96 @@
 
 <body>
 
-  <!-- ===== HEADER ===== -->
-  <header class="site-header">
+  <!-- ===== HERO — Full Screen ===== -->
+  <section class="hero-section" id="hero-section">
 
-    <!-- ROW 1: main navbar -->
-    <div class="header-navbar">
+    <!-- Background image (set by JS) -->
+    <div class="hero-bg" id="hero-bg"></div>
+    <div class="hero-overlay"></div>
 
-      <!-- Logo -->
-      <div class="header-logo">
-        <span class="header-logo-text">Spiral Sounds</span>
-        <div class="header-logo-rule"></div>
+    <!-- Sticky nav inside hero -->
+    <header class="site-header">
+      <div class="header-navbar">
+
+        <!-- Logo -->
+        <div class="header-logo">
+          <a href="/">
+            <span class="header-logo-text">Spiral Sounds</span>
+          </a>
+        </div>
+
+        <!-- Search -->
+        <div class="header-search">
+          <form role="search">
+            <label for="search-input" class="visually-hidden">Search products</label>
+            <input type="text" placeholder="Search records..." id="search-input" autocomplete="off">
+          </form>
+          <span class="search-arrow">→</span>
+        </div>
+
+        <!-- Auth -->
+        <div class="header-auth">
+          <p id="greeting" class="header-greeting"></p>
+          <nav aria-label="Main menu" class="header-menu">
+            <a href="/login.html" id="login">Log in</a>
+            <a href="/signup.html" id="signup">Sign up</a>
+            <button class="header-logout-btn" id="logout-btn">Log out</button>
+            <a href="/cart.html" id="cart-banner" class="cart-link"></a>
+          </nav>
+          <button class="menu-toggle" aria-label="Toggle menu">
+            <img src="images/menu.svg" alt="">
+          </button>
+        </div>
+
+      </div>
+    </header>
+
+    <!-- Vinyl carousel -->
+    <div class="hero-stage">
+      <div class="vinyl-mockup" id="vinyl-mockup">
+        <div class="vinyl-disc" id="vinyl-disc">
+          <div class="vinyl-label-dot">
+            <div class="vinyl-label-inner"></div>
+          </div>
+        </div>
+        <img class="vinyl-cover" id="vinyl-cover" src="" alt="">
       </div>
 
-      <!-- Search -->
-      <div class="header-search">
-        <form role="search">
-          <label for="search-input" class="visually-hidden">Search products</label>
-          <input type="text" placeholder="Search records..." id="search-input" autocomplete="off">
-        </form>
-        <span class="search-arrow">→</span>
-      </div>
-
-      <!-- Auth -->
-      <div class="header-auth">
-        <p id="greeting" class="header-greeting"></p>
-        <nav aria-label="Main menu" class="header-menu">
-          <a href="/login.html" id="login">Log in</a>
-          <a href="/signup.html" id="signup">Sign up</a>
-          <button class="header-logout-btn" id="logout-btn">Log out</button>
-          <a href="/cart.html" id="cart-banner" class="cart-link"></a>
-        </nav>
-        <button class="menu-toggle" aria-label="Toggle menu">
-          <img src="images/menu.svg" alt="">
+      <div class="vinyl-info" id="vinyl-info">
+        <div class="vinyl-genre" id="vinyl-genre"></div>
+        <div class="vinyl-title" id="vinyl-title"></div>
+        <div class="vinyl-artist" id="vinyl-artist"></div>
+        <div class="vinyl-price" id="vinyl-price"></div>
+        <button class="vinyl-cart-btn add-btn" id="vinyl-cart-btn" data-id="">
+          Add to Cart
         </button>
       </div>
-
     </div>
 
-    <!-- ROW 2: Today's Pick strip -->
-    <div class="header-pick-strip" id="header-pick">
-      <!-- rendered by JS -->
+
+
+  </section>
+
+  <!-- ===== PRODUCTS SECTION ===== -->
+  <main class="products-section" id="products-section">
+
+    <!-- Genre scatter view (default) -->
+    <div id="genre-view">
+      <div class="genre-scatter-wrap" id="genre-scatter"></div>
     </div>
 
-  </header>
+    <!-- Product list view (shown after clicking a genre) -->
+    <div id="product-list-view" style="display:none;">
+      <div class="genre-back-bar" id="genre-back-bar">
+        <span class="genre-back-arrow">←</span>
+        <span class="genre-back-label">All Genres</span>
+        <span style="color:rgba(255,255,255,0.3); margin:0 0.3rem;">·</span>
+        <span class="genre-back-name" id="genre-back-name"></span>
+      </div>
+      <div class="products" id="products-container"></div>
+    </div>
 
-  <!-- ===== CONTROLS BAR ===== -->
-  <div class="top-banner" id="top-banner">
-    <section class="genre-select-container">
-      <label for="genre-select" id="viewbygenre">View by Genre</label>
-      <select id="genre-select">
-        <option value="">Show All</option>
-      </select>
-    </section>
-  </div>
-
-  <!-- ===== PRODUCT GRID / DETAIL VIEW ===== -->
-  <main class="products" id="products-container"></main>
+  </main>
 
   <footer>
     <p>© Spiral Sounds</p>
@@ -76,6 +110,6 @@
 
   <script src="js/index.js" type="module"></script>
   <script src="js/menu.js" type="module"></script>
-</body>
 
+</body>
 </html>

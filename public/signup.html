@@ -7,64 +7,103 @@
   <link rel="stylesheet" href="css/index.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Plaster&family=Poppins:wght@400;600;700&display=swap"
-    rel="stylesheet">
-  <title>Spiral Sounds</title>
+  <link rel="stylesheet" href="https://use.typekit.net/ynr0vvq.css">
+  <title>Sign Up — Spiral Sounds</title>
 </head>
 
 <body>
-  <div class="top-banner">
-  <button class="menu-toggle" aria-label="Toggle menu"><img src="images/menu.svg"></button>
-    <nav class="header-menu" aria-label="Main menu">
-      <a href="/login.html">Login</a>
-      <a href="/signup.html" aria-current="page">Sign up</a>
-    </nav>
-  </div>
 
-  <header>
-    <a href="/"><img src="/images/spiral_logo.png" alt="Spiral Sounds Logo"></a>
-    <div class="header-text">
-      <h1>Spiral Sounds</h1>
-      <p class="subhead">The best in vinyl</p>
+  <!-- ===== HEADER ===== -->
+  <header class="site-header">
+    <div class="header-navbar">
+
+      <a href="/" class="header-logo">
+        <span class="header-logo-text">← Spiral Sounds</span>
+        <div class="header-logo-rule"></div>
+      </a>
+
+      <div class="header-auth" style="margin-left:auto;">
+        <nav aria-label="Main menu" class="header-menu">
+          <a href="/login.html">Log in</a>
+        </nav>
+      </div>
+
     </div>
   </header>
 
-  <main class="sign-forms">
+  <!-- ===== SIGNUP FORM ===== -->
+  <main class="auth-page">
+    <div class="auth-box">
 
-    <!-- Sign Up Form -->
-    <form class="sign-form" id="signup-form" autocomplete="off">
-      <div class="form-inner">
-        <h2>Sign Up</h2> 
-        <label for="signup-name">Full Name</label>
-        <input type="text" id="signup-name" name="name" required/>
+      <div class="auth-title">Create Account</div>
+      <div class="auth-subtitle">Join Spiral Sounds</div>
 
-        <label for="signup-email">Email</label>
-        <input type="email" id="signup-email" name="email" required/>
+      <form id="signup-form" autocomplete="off">
+        <div class="auth-field">
+          <label class="auth-label" for="signup-name">Full Name</label>
+          <input
+            class="auth-input"
+            type="text"
+            id="signup-name"
+            name="name"
+            required
+          >
+        </div>
 
-        <label for="signup-username">Username</label>
-        <input 
-        type="text" 
-        id="signup-username" 
-        name="username"
-        pattern="^[a-zA-Z0-9_\-]{1,20}$" 
-        title="Username must be 1–20 characters and can only include letters, numbers, underscores (_), or hyphens (-)."
-        required
-        />
+        <div class="auth-field">
+          <label class="auth-label" for="signup-email">Email</label>
+          <input
+            class="auth-input"
+            type="email"
+            id="signup-email"
+            name="email"
+            required
+          >
+        </div>
 
-        <label for="signup-password">Password</label>
-        <input type="password" id="signup-password" name="password" required/>
+        <div class="auth-field">
+          <label class="auth-label" for="signup-username">Username</label>
+          <input
+            class="auth-input"
+            type="text"
+            id="signup-username"
+            name="username"
+            required
+            pattern="^[a-zA-Z0-9_\-]{1,20}$"
+            title="1–20 characters: letters, numbers, underscores or hyphens."
+          >
+        </div>
 
-        <button type="submit" class="form-btn">Create Account</button>
-        <p>Already registered? <a href="/login.html" class="sign-link">Sign in here</a>.</p>
-        <p id="error-message" class="error"></p>
+        <div class="auth-field">
+          <label class="auth-label" for="signup-password">Password</label>
+          <input
+            class="auth-input"
+            type="password"
+            id="signup-password"
+            name="password"
+            required
+          >
+        </div>
+
+        <p id="error-message" class="auth-error"></p>
+
+        <button type="submit" class="auth-btn">Create Account</button>
+      </form>
+
+      <div class="auth-divider"></div>
+
+      <div class="auth-link-row">
+        Already registered? <a class="auth-link" href="/login.html">Sign in here</a>
       </div>
-    </form>
+
+    </div>
   </main>
+
   <footer>
     <p>© Spiral Sounds</p>
   </footer>
-  <script src="js/menu.js" type="module"></script>
-  <script src="js/signup.js" type="module"></script>
-</body>
 
-</html>  
+  <script src="js/signup.js" type="module"></script>
+
+</body>
+</html>

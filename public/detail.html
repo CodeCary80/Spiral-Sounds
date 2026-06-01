@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://use.typekit.net/ynr0vvq.css">
-  <title>Your Basket — Spiral Sounds</title>
+  <title>Spiral Sounds</title>
 </head>
 
 <body>
@@ -17,7 +17,7 @@
   <header class="site-header">
     <div class="header-navbar">
 
-      <!-- Logo / back -->
+      <!-- Back -->
       <a href="/" class="header-logo">
         <span class="header-logo-text">← Spiral Sounds</span>
         <div class="header-logo-rule"></div>
@@ -40,49 +40,17 @@
     </div>
   </header>
 
-  <!-- ===== CART ===== -->
-  <main class="cart-page">
-    <div class="cart-wrapper">
-
-      <!-- Left: item list -->
-      <div class="cart-left">
-        <div class="cart-section-label">Your Basket</div>
-        <ul id="cart-list" style="list-style:none; padding:0; margin:0;"></ul>
-        <p id="user-message" class="cart-message" style="display:none;"></p>
-      </div>
-
-      <!-- Right: order summary -->
-      <div class="cart-right">
-        <div>
-          <div class="cart-section-label">Order Summary</div>
-          <div class="cart-summary-row">
-            <span class="cart-summary-key">Subtotal</span>
-            <span class="cart-summary-val" id="cart-subtotal">—</span>
-          </div>
-          <div class="cart-summary-row">
-            <span class="cart-summary-key">Shipping</span>
-            <span class="cart-summary-val">Free</span>
-          </div>
-          <div class="cart-total-row">
-            <span class="cart-total-key">Total</span>
-            <span class="cart-total-val" id="cart-total"></span>
-          </div>
-          <button class="cart-checkout-btn" id="checkout-btn">
-            Checkout →
-          </button>
-          <a href="/" class="cart-continue">← Continue Shopping</a>
-        </div>
-      </div>
-
-    </div>
+  <!-- ===== DETAIL VIEW ===== -->
+  <main id="detail-main">
+    <!-- Rendered by JS -->
   </main>
 
   <footer>
     <p>© Spiral Sounds</p>
   </footer>
 
+  <script src="js/detail.js" type="module"></script>
   <script src="js/menu.js" type="module"></script>
-  <script src="js/cart.js" type="module"></script>
 
 </body>
 </html>

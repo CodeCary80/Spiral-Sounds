@@ -1,4 +1,4 @@
-// ===== Fetching products =====
+// ===== Fetch products =====
 
 export async function getProducts(filters = {}) {
   const queryParams = new URLSearchParams(filters)
@@ -6,12 +6,19 @@ export async function getProducts(filters = {}) {
   return await res.json()
 }
 
-// ===== Populate the genre dropdown =====
+// ===== Fetch genres =====
+
+export async function getGenres() {
+  const res = await fetch('/api/products/genres')
+  return await res.json() // expects array of genre strings
+}
+
+// ===== Populate genre select (kept for backwards compat) =====
 
 export async function populateGenreSelect() {
-  const res = await fetch('/api/products/genres')
-  const genres = await res.json() // expects an array of genres as strings: ['rock', 'pop', ...]
+  const genres = await getGenres()
   const select = document.getElementById('genre-select')
+  if (!select) return
 
   genres.forEach(genre => {
     const option = document.createElement('option')

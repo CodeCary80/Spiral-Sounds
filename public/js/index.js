@@ -25,23 +25,23 @@ function buildGenreScatter(genres) {
   // Define layout as [leftPct, topPct, widthPct, heightPct]
   // Container is 820px tall, full viewport wide
   // These match pic2 proportions exactly
-  const layout = [
-    // [left%, top_px, width%, height_px]
-    // Rock: left, medium-high start
-    [  5,  40, 30, 280],
-    // Indie: center-left, tallest, starts near top
-    [ 40,  10, 20, 400],
-    // Ambient: center-right, medium, starts mid
-    [ 12,  360, 20, 270],
-    // Folk: far right, tall, starts high
-    [ 70,  20, 20, 350],
-    // Punk: center, small, much lower — isolated
-    [ 48, 450,  39, 210],
-  ]
+const layout = [
+  // [left%, top_px, width%, height_px]
+  // Rock: left, medium-high start
+  [  6,  140, 22, 400],
+  // Indie: center-left, tallest, starts near top
+  [ 30,  30, 40, 140],
+  // Ambient: center-right, medium, starts mid
+  [ 40, 240, 18, 220],
+   // Folk: far right, tall, starts high
+  [ 68, 340, 18, 220],
+  // Punk: center, small, much lower — isolated
+  [ 32, 510, 32, 160],
+]
 
   const W = wrap.offsetWidth
 
-  genres.slice(0, layout.length).forEach((genre, i) => {
+genres.slice(0, layout.length).forEach((genre, i) => {
     const [lp, tp_px, wp, hp_px] = layout[i]
     const el = document.createElement('div')
     el.className = 'genre-block'
@@ -68,6 +68,46 @@ function buildGenreScatter(genres) {
     el.addEventListener('click', () => showGenreProducts(genre))
     wrap.appendChild(el)
   })
+
+  // Vinyl decoration — outside forEach, only created once
+  const vinyl = document.createElement('div')
+  vinyl.style.cssText = `
+    position: absolute;
+    left: ${0.72 * W}px;
+    top: 140px;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: repeating-radial-gradient(
+      circle at center,
+      #080808 0px, #080808 2px,
+      #141414 2px, #1a1a1a 4px
+    );
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+  `
+  const label = document.createElement('div')
+  label.style.cssText = `
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: var(--color-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  `
+  const dot = document.createElement('div')
+  dot.style.cssText = `
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #999;
+  `
+  label.appendChild(dot)
+  vinyl.appendChild(label)
+  wrap.appendChild(vinyl)
 }
 
 // ===== Show products for a genre =====
@@ -87,7 +127,7 @@ async function showGenreProducts(genre) {
 
   // Genre title row
   const title = document.createElement('div')
-  title.style.cssText = 'display:block;width:100%;padding:2rem 2.5rem 1.5rem;border-bottom:2px solid #1C1C1C;box-sizing:border-box;'
+ title.style.cssText = 'display:block;width:100%;padding:1.2rem 1.5rem;border-bottom:2px solid #1C1C1C;box-sizing:border-box;'
   title.innerHTML = `<span style="font-family:var(--font-heading);font-size:clamp(2rem,5vw,4.5rem);font-weight:900;color:#1C1C1C;text-transform:uppercase;letter-spacing:-0.03em;display:block;">${genre}</span>`
   wrapper.appendChild(title)
 
@@ -107,11 +147,13 @@ async function showGenreProducts(genre) {
   const grid = document.createElement('div')
   grid.style.cssText = [
     'display:grid',
-    'grid-template-columns:repeat(4,minmax(0,1fr))',
-    'width:100%',
-    'box-sizing:border-box',
-    'border-left:1px solid #D4C9B8',
-    'border-top:1px solid #D4C9B8',
+'grid-template-columns:repeat(4,minmax(0,1fr))',
+'width:100%',
+'box-sizing:border-box',
+'border-left:1px solid #D4C9B8',
+'border-top:1px solid #D4C9B8',
+'margin:0',
+'padding:0',
   ].join(';')
 
   products.forEach(album => {
@@ -130,7 +172,7 @@ async function showGenreProducts(genre) {
     img.src = `./images/${album.image}`
     img.alt = album.title
     img.loading = 'lazy'
-    img.style.cssText = 'width:100%;aspect-ratio:1/1;object-fit:cover;display:block;border-bottom:2px solid #1C1C1C;'
+    img.style.cssText = 'width:100%;aspect-ratio:3/2;object-fit:cover;display:block;border-bottom:2px solid #1C1C1C;'
 
     const link = document.createElement('a')
     link.href = `/detail.html?id=${album.id}`

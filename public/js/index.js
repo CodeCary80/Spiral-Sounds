@@ -29,49 +29,60 @@ function genreColor(genre) {
   return GENRE_COLORS[genre.toLowerCase()] || '#1C1C1C'
 }
 
-// Freeform layout inspired by pic2 — hand-crafted, varied sizes, natural scatter
-// Values are fractions of container W/H
-const FREEFORM = [
-  { x: 0.03,  y: 0.04,  w: 0.26, h: 0.46 },  // Rock  — tall left
-  { x: 0.32,  y: 0.02,  w: 0.34, h: 0.28 },  // Indie — wide top centre
-  { x: 0.70,  y: 0.05,  w: 0.27, h: 0.36 },  // Ambient — top right
-  { x: 0.03,  y: 0.54,  w: 0.18, h: 0.36 },  // Folk  — narrow bottom left
-  { x: 0.24,  y: 0.36,  w: 0.30, h: 0.42 },  // Punk  — centre tall
-  { x: 0.58,  y: 0.47,  w: 0.22, h: 0.30 },  // Jazz  — centre-right mid
-  { x: 0.82,  y: 0.46,  w: 0.16, h: 0.40 },  // Electronic — slim right
+// Genre scatter — pic1 style
+// Hard-coded pixel positions scaled to container width
+// 7 blocks, no overlap guaranteed by design
+const SCATTER = [
+  // Rock: tall portrait, top-left        R=0.22 B=0.60
+  { left: 0.03, top: 0.02, width: 0.19, height: 0.58 },
+  // Indie: landscape, top-center         L=0.27 R=0.57 B=0.30
+  { left: 0.27, top: 0.04, width: 0.30, height: 0.26 },
+  // Ambient: tall portrait, top-right    L=0.68 R=0.87 B=0.55
+  { left: 0.68, top: 0.03, width: 0.19, height: 0.52 },
+  // Folk: narrow tall, bottom-left       L=0.03 R=0.16 B=0.95
+  { left: 0.03, top: 0.66, width: 0.13, height: 0.28 },
+  // Punk: tall portrait, center          L=0.27 R=0.54 B=0.85
+  { left: 0.27, top: 0.36, width: 0.27, height: 0.48 },
+  // Jazz: wide landscape, right-center   L=0.58 R=0.86 B=0.80
+  { left: 0.58, top: 0.62, width: 0.28, height: 0.22 },
+  // Electronic: slim tall, far right     L=0.89 R=1.00 B=0.90
+  { left: 0.89, top: 0.38, width: 0.09, height: 0.45 },
 ]
 
 function buildGenreScatter(genres) {
   const wrap = document.getElementById('genre-scatter')
   if (!wrap) return
 
-  const W = wrap.offsetWidth || 900
-  const H = wrap.offsetHeight || 800
+  // Wait for layout then measure
+  requestAnimationFrame(() => {
+    const W = wrap.offsetWidth
+    const H = wrap.offsetHeight
 
-  genres.slice(0, FREEFORM.length).forEach((genre, i) => {
-    const pos = FREEFORM[i]
-    const block = document.createElement('div')
-    block.className = 'genre-block'
-    block.dataset.genre = genre
-    block.style.cssText = `
-      left: ${Math.round(pos.x * W)}px;
-      top: ${Math.round(pos.y * H)}px;
-      width: ${Math.round(pos.w * W)}px;
-      height: ${Math.round(pos.h * H)}px;
-      background: ${genreColor(genre)};
-    `
-    block.innerHTML = `
-      <span class="genre-block-arrow" aria-hidden="true">↗</span>
-      <div class="genre-block-label">
-        <div class="genre-block-name">${genre}</div>
-      </div>
-    `
-    block.addEventListener('click', () => showGenreProducts(genre))
-    wrap.appendChild(block)
+    genres.slice(0, SCATTER.length).forEach((genre, i) => {
+      const s = SCATTER[i]
+      const block = document.createElement('div')
+      block.className = 'genre-block'
+      block.dataset.genre = genre
+      block.style.cssText = [
+        `left:${Math.round(s.left * W)}px`,
+        `top:${Math.round(s.top * H)}px`,
+        `width:${Math.round(s.width * W)}px`,
+        `height:${Math.round(s.height * H)}px`,
+        `background:${genreColor(genre)}`,
+      ].join(';')
+      block.innerHTML = `
+        <span class="genre-block-arrow" aria-hidden="true">↗</span>
+        <div class="genre-block-label">
+          <div class="genre-block-name">${genre}</div>
+        </div>
+      `
+      block.addEventListener('click', () => showGenreProducts(genre))
+      wrap.appendChild(block)
+    })
   })
 }
 
-// ===== Show products for a genre — pic4 style =====
+// ===== Show products for a genre — pic3 style =====
 
 async function showGenreProducts(genre) {
   document.getElementById('genre-view').style.display = 'none'
@@ -79,53 +90,47 @@ async function showGenreProducts(genre) {
   document.getElementById('genre-back-name').textContent = genre
 
   const products = await getProducts({ genre })
-
   const container = document.getElementById('products-container')
   container.innerHTML = ''
 
+  const wrapper = document.createElement('div')
+  wrapper.className = 'product-list-view-inner'
+
+  // Left column
+  const left = document.createElement('div')
+  left.className = 'plv-left'
+  left.innerHTML = `<div class="plv-genre-title">${genre}</div>`
+
+  // Right grid
+  const right = document.createElement('div')
+  right.className = 'plv-right'
+
   if (products.length === 0) {
-    container.innerHTML = `
-      <div class="product-list-inner">
-        <div class="product-list-left">
-          <div class="product-list-genre-title">${genre}</div>
+    right.innerHTML = `<p style="padding:2rem;color:var(--color-text-muted);font-size:0.85rem;text-transform:uppercase;letter-spacing:0.1em;grid-column:1/-1;">No records found.</p>`
+  } else {
+    products.forEach(album => {
+      const card = document.createElement('div')
+      card.className = 'plv-card'
+      card.innerHTML = `
+        <div class="plv-card-img-wrap">
+          <a href="/detail.html?id=${album.id}">
+            <img src="./images/${album.image}" alt="${album.title}" loading="lazy">
+          </a>
         </div>
-        <div class="product-list-right" style="padding:3rem; color:var(--color-text-muted); font-size:0.85rem; text-transform:uppercase; letter-spacing:0.1em;">
-          No records found.
+        <div class="plv-card-body">
+          <div class="plv-card-title">${album.title}</div>
+          <div class="plv-card-artist">${album.artist}</div>
+          <div class="plv-card-price">$${Number(album.price).toFixed(2)}</div>
+          <button class="main-btn add-btn plv-card-btn" data-id="${album.id}">Add to Cart</button>
         </div>
-      </div>
-    `
-    return
+      `
+      right.appendChild(card)
+    })
   }
 
-  const inner = document.createElement('div')
-  inner.className = 'product-list-inner'
-
-  inner.innerHTML = `
-    <div class="product-list-left">
-      <div class="product-list-genre-title">${genre}</div>
-    </div>
-    <div class="product-list-right" id="product-grid"></div>
-  `
-  container.appendChild(inner)
-
-  const grid = document.getElementById('product-grid')
-  products.forEach(album => {
-    const card = document.createElement('div')
-    card.className = 'product-card-pic4'
-    card.innerHTML = `
-      <a href="/detail.html?id=${album.id}">
-        <img class="product-card-pic4-img" src="./images/${album.image}" alt="${album.title}" loading="lazy">
-      </a>
-      <div class="product-card-pic4-info">
-        <div class="product-card-pic4-title">${album.title}</div>
-        <div class="product-card-pic4-artist">${album.artist}</div>
-        <div class="product-card-pic4-price">$${Number(album.price).toFixed(2)}</div>
-        <button class="main-btn add-btn product-card-pic4-btn" data-id="${album.id}">Add to Cart</button>
-      </div>
-    `
-    grid.appendChild(card)
-  })
-
+  wrapper.appendChild(left)
+  wrapper.appendChild(right)
+  container.appendChild(wrapper)
   addBtnListeners()
 }
 

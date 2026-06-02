@@ -553,177 +553,31 @@ button:active {
 .anim-info     { animation: info-in      0.35s 0.2s ease forwards; opacity: 0; }
 
 /* ============================================
-   GENRE SCATTER — pic1 style
-   Free-floating blocks with lots of cream space
-   Using position:absolute with hard px values
-   Container is fixed height so blocks don't need to stack
-============================================ */
-
-.genre-scatter-wrap {
-  position: relative;
-  width: 100%;
-  height: 820px;
-  background: var(--color-bg);
-  overflow: visible;
-}
-
-.genre-block {
-  position: absolute;
-  cursor: pointer;
-  overflow: hidden;
-  transition: opacity 0.2s ease;
-}
-
-.genre-block:hover { opacity: 0.8; }
-
-.genre-block-arrow {
-  position: absolute;
-  top: 10px;
-  right: 12px;
-  font-size: 0.75rem;
-  color: rgba(255,255,255,0.5);
-}
-
-.genre-block-label {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  padding: 10px 14px;
-}
-
-.genre-block-name {
-  font-size: 0.9rem;
-  font-weight: 900;
-  color: #fff;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-  line-height: 1;
-}
-
-/* ============================================
-   PRODUCT LIST — pic3 style
-   Left: narrow column with text
-   Right: 2-column image+caption grid
+   GENRE SCATTER + PRODUCT LIST
 ============================================ */
 
 .products-section {
+  background: var(--color-bg);
   width: 100%;
   display: block;
 }
 
+/* Scatter wrap: fixed height, relative for absolute children */
+#genre-scatter {
+  position: relative;
+  width: 100%;
+  height: 750px;
+  background: var(--color-bg);
+}
+
+/* Product list view */
 #product-list-view {
   width: 100%;
-  display: block;
 }
 
 #products-container {
   width: 100%;
-  display: block;
 }
-
-.product-list-view-inner {
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  box-sizing: border-box;
-}
-
-.plv-left {
-  width: 200px;
-  min-width: 200px;
-  max-width: 200px;
-  flex-shrink: 0;
-  padding: 3rem 1.5rem 2.5rem 2rem;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-}
-
-.plv-genre-title {
-  font-family: var(--font-heading);
-  font-size: clamp(1.5rem, 3vw, 2.8rem);
-  font-weight: 900;
-  color: var(--color-text);
-  text-transform: uppercase;
-  letter-spacing: -0.03em;
-  line-height: 0.9;
-}
-
-.plv-right {
-  flex: 1;
-  min-width: 0;
-  max-width: calc(100% - 200px);
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  align-content: start;
-  border-left: 1px solid var(--color-border);
-}
-
-.plv-card {
-  border-bottom: 1px solid var(--color-border);
-  border-right: 1px solid var(--color-border);
-  background: var(--color-bg);
-  display: flex;
-  flex-direction: column;
-}
-
-.plv-card:nth-child(even) {
-  border-right: none;
-}
-
-.plv-card-img-wrap {
-  overflow: hidden;
-}
-
-.plv-card-img-wrap a {
-  display: block;
-}
-
-.plv-card img {
-  width: 100%;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  display: block;
-  transition: transform 0.4s ease;
-}
-
-.plv-card:hover img {
-  transform: scale(1.03);
-}
-
-.plv-card-body {
-  padding: 0.8rem 1rem 1.2rem;
-}
-
-.plv-card-title {
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--color-text);
-  text-transform: uppercase;
-  letter-spacing: -0.01em;
-  margin-bottom: 2px;
-}
-
-.plv-card-artist {
-  font-size: 0.72rem;
-  color: var(--color-text-muted);
-  margin-bottom: 3px;
-}
-
-.plv-card-price {
-  font-size: 0.82rem;
-  font-weight: 700;
-  color: var(--color-text);
-  margin-bottom: 0.5rem;
-}
-
-.plv-card-btn {
-  padding: 0.5rem 0;
-  font-size: 0.65rem;
-  width: 100%;
-}
-
 
 /* -----------------------------------
    Genre Product List (back view)

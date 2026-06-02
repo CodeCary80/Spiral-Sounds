@@ -124,6 +124,10 @@ async function init() {
   const params = new URLSearchParams(window.location.search)
   const id = params.get('id')
 
+  const genres = await getGenres()
+const all = await getProducts()
+buildGenreScatter(genres, all)
+
   if (!id) {
     renderError()
     return

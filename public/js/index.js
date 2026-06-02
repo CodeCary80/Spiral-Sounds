@@ -14,35 +14,29 @@ const GENRE_COLORS = {
   pop: '#1a0a18', metal: '#0a0a0a', blues: '#0a100a',
 }
 function genreColor(g) { return GENRE_COLORS[g.toLowerCase()] || '#1C1C1C' }
-
 // ===== Genre Scatter =====
 // Layout copied from pic2: varied sizes, lots of cream space, no overlap
 // All values are % of container — converted to px after render
-function buildGenreScatter(genres) {
+function buildGenreScatter(genres, allProducts) {
   const wrap = document.getElementById('genre-scatter')
   if (!wrap) return
 
-  // Define layout as [leftPct, topPct, widthPct, heightPct]
-  // Container is 820px tall, full viewport wide
-  // These match pic2 proportions exactly
-const layout = [
-  // [left%, top_px, width%, height_px]
-  // Rock: left, medium-high start
-  [  6,  140, 22, 400],
-  // Indie: center-left, tallest, starts near top
-  [ 30,  30, 40, 140],
-  // Ambient: center-right, medium, starts mid
-  [ 40, 240, 18, 220],
-   // Folk: far right, tall, starts high
-  [ 68, 340, 18, 220],
-  // Punk: center, small, much lower — isolated
-  [ 32, 510, 32, 160],
-]
+  const layout = [
+    [  6, 140, 22, 400],
+    [ 30,  30, 40, 140],
+    [ 40, 240, 18, 220],
+    [ 68, 340, 18, 220],
+    [ 32, 510, 32, 160],
+  ]
 
   const W = wrap.offsetWidth
 
-genres.slice(0, layout.length).forEach((genre, i) => {
+  genres.slice(0, layout.length).forEach((genre, i) => {
     const [lp, tp_px, wp, hp_px] = layout[i]
+
+    const album = allProducts.find(p => p.genre.toLowerCase() === genre.toLowerCase())
+    const bgImage = album ? `url('./images/${album.image}')` : 'none'
+
     const el = document.createElement('div')
     el.className = 'genre-block'
     el.dataset.genre = genre
@@ -52,13 +46,17 @@ genres.slice(0, layout.length).forEach((genre, i) => {
       top: ${tp_px}px;
       width: ${(wp/100)*W}px;
       height: ${hp_px}px;
-      background: ${genreColor(genre)};
+      background-color: ${genreColor(genre)};
+      background-image: ${bgImage};
+      background-size: cover;
+      background-position: center;
       cursor: pointer;
       overflow: hidden;
       transition: opacity 0.2s;
     `
     el.innerHTML = `
-      <span style="position:absolute;top:10px;right:12px;font-size:0.7rem;color:rgba(255,255,255,0.45);">↗</span>
+      <div style="position:absolute;inset:0;background:rgba(0,0,0,0.35);"></div>
+      <span style="position:absolute;top:10px;right:12px;font-size:0.7rem;color:rgba(255,255,255,0.6);">↗</span>
       <div style="position:absolute;bottom:0;left:0;right:0;padding:10px 14px;">
         <div style="font-size:0.85rem;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:0.05em;">${genre}</div>
       </div>
@@ -69,7 +67,7 @@ genres.slice(0, layout.length).forEach((genre, i) => {
     wrap.appendChild(el)
   })
 
-  // Vinyl decoration — outside forEach, only created once
+  // Vinyl decoration
   const vinyl = document.createElement('div')
   vinyl.style.cssText = `
     position: absolute;
@@ -297,14 +295,12 @@ async function init() {
   if (name) await updateCartIcon()
 
   const genres = await getGenres()
-  buildGenreScatter(genres)
-
   const all = await getProducts()
-  if (all.length) {
-    carouselProducts = all.sort(() => Math.random() - 0.5).slice(0, 5)
-    updateCarousel(1)
-  }
+  carouselProducts = all.sort(() => Math.random() - 0.5).slice(0, 5)
+  if (carouselProducts.length) updateCarousel(1)
+  buildGenreScatter(genres, all)
   addBtnListeners()
 }
+
 
 init()

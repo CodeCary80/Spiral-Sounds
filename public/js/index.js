@@ -57,6 +57,9 @@ function buildGenreScatter(genres, allProducts,carouselIds = new Set()) {
       overflow: hidden;
       transition: opacity 0.2s;
     `
+    el.style.animation = `fadeUp 0.5s ease ${i * 0.1}s both`
+    el.style.animationPlayState = 'paused'
+    
     el.innerHTML = `
       <div style="position:absolute;inset:0;background:rgba(0,0,0,0.35);"></div>
       <span style="position:absolute;top:10px;right:12px;font-size:0.7rem;color:rgba(255,255,255,0.6);">↗</span>
@@ -109,6 +112,21 @@ function buildGenreScatter(genres, allProducts,carouselIds = new Set()) {
   label.appendChild(dot)
   vinyl.appendChild(label)
   wrap.appendChild(vinyl)
+
+  requestAnimationFrame(() => {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.animationPlayState = 'running'
+        observer.unobserve(e.target)
+      }
+    })
+  }, { threshold: 0.1 })
+
+  wrap.querySelectorAll('.genre-block').forEach(el => {
+    observer.observe(el)
+  })
+})
 }
 
 // ===== Show products for a genre =====

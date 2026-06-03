@@ -1261,3 +1261,27 @@ select {
   from { opacity: 0; transform: translateY(24px); }
   to   { opacity: 1; transform: translateY(0); }
 }
+/* -----------------------------------
+   Hero Card-Deal Animation
+----------------------------------- */
+
+/* Prevent hero content flash while products are loading */
+.hero-section > .hero-bg,
+.hero-section > .hero-overlay,
+.hero-section > .hero-stage {
+  opacity: 0;
+}
+
+/* Navbar fills the full height of the center gap */
+.site-header.anim-centered .header-navbar {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+/* GPU hint for strip scroll tracks */
+.hero-track-left,
+.hero-track-right {
+  will-change: transform;
+}

@@ -292,6 +292,179 @@ document.getElementById('search-input').addEventListener('input', async () => {
 
 document.querySelector('form[role="search"]').addEventListener('submit', e => e.preventDefault())
 
+// ===== Hero Header — Card Deal Animation =====
+function animateHeroHeader(allProducts) {
+  const hero    = document.getElementById('hero-section')
+  const heroBg  = document.getElementById('hero-bg')
+  const heroOv  = hero.querySelector('.hero-overlay')
+  const heroStg = hero.querySelector('.hero-stage')
+  const siteHdr = hero.querySelector('.site-header')
+
+  const W  = hero.offsetWidth
+  const H  = hero.offsetHeight || window.innerHeight
+  const cx = W / 2
+  const cy = H / 2
+
+  const STRIP_H      = Math.round(H * 0.36)   // height of each image strip
+  const DECK_CARD_W  = 110                     // deck card width (px)
+  const DECK_CARD_H  = 140                     // deck card height (px)
+  const STRIP_CARD_W = Math.round(W / 7.5)     // each card width inside strip
+
+  // ── Hide existing hero content ──────────────────────────────────────────
+  hero.style.background = '#000'
+  gsap.set([heroBg, heroOv, heroStg], { autoAlpha: 0 })
+  gsap.set(siteHdr, { autoAlpha: 0 })
+
+  // ── Inject animation styles ─────────────────────────────────────────────
+  if (!document.getElementById('hero-anim-styles')) {
+    const s = document.createElement('style')
+    s.id = 'hero-anim-styles'
+    s.textContent = `
+      @keyframes heroStripLeft  { from { transform: translateX(0) }    to { transform: translateX(-50%) } }
+      @keyframes heroStripRight { from { transform: translateX(-50%) } to { transform: translateX(0) }    }
+      .hero-track-left  { animation: heroStripLeft  22s linear infinite; }
+      .hero-track-right { animation: heroStripRight 22s linear infinite; }
+      .site-header.anim-centered {
+        position:   absolute !important;
+        top:        ${STRIP_H}px !important;
+        left:       0 !important;
+        right:      0 !important;
+        height:     ${H - STRIP_H * 2}px !important;
+        display:    flex !important;
+        align-items: center !important;
+      }
+    `
+    document.head.appendChild(s)
+  }
+
+  // ── Build a strip row ───────────────────────────────────────────────────
+  function buildStrip(products) {
+    const wrap  = document.createElement('div')
+    const track = document.createElement('div')
+    wrap.style.cssText  = `position:absolute;left:0;right:0;height:${STRIP_H}px;overflow:hidden;opacity:0;z-index:2;pointer-events:none;`
+    track.style.cssText = `display:flex;gap:3px;width:max-content;`
+    // Duplicate for seamless loop
+    ;[...products, ...products].forEach(p => {
+      const c = document.createElement('div')
+      c.style.cssText = `width:${STRIP_CARD_W}px;height:${STRIP_H}px;flex-shrink:0;` +
+        `background:url('./images/${p.image}') center/cover no-repeat;`
+      track.appendChild(c)
+    })
+    wrap.appendChild(track)
+    return { wrap, track }
+  }
+
+  // Shuffle products and split into pools.
+  // pickFrom wraps with modulo so small catalogs always fill every slot.
+  const shuffled = [...allProducts].sort(() => Math.random() - 0.5)
+  const pickFrom = (arr, n, start = 0) =>
+    Array.from({ length: n }, (_, i) => arr[(start + i) % arr.length])
+  const deckPool = pickFrom(shuffled, 6)
+  const topPool  = pickFrom(shuffled, 14, 6)
+  const botPool  = pickFrom(shuffled, 14, 20)
+
+  const topStrip = buildStrip(topPool)
+  const botStrip = buildStrip(botPool)
+
+  topStrip.wrap.style.top    = '0'
+  botStrip.wrap.style.bottom = '0'
+  hero.appendChild(topStrip.wrap)
+  hero.appendChild(botStrip.wrap)
+
+  // ── Build deck of 6 cards ───────────────────────────────────────────────
+  // Deals alternate top / bottom, 3 to each strip
+  const DEALS = [
+    { dest: 'top',    pos: 0, img: deckPool[0]?.image },
+    { dest: 'bottom', pos: 0, img: deckPool[1]?.image },
+    { dest: 'top',    pos: 1, img: deckPool[2]?.image },
+    { dest: 'bottom', pos: 1, img: deckPool[3]?.image },
+    { dest: 'top',    pos: 2, img: deckPool[4]?.image },
+    { dest: 'bottom', pos: 2, img: deckPool[5]?.image },
+  ]
+
+  // Visual stack offsets — each card slightly shifted so the pile is visible
+  const STACK_OFFSETS = [
+    { dx:  0, dy: 0, rot: -1.5 },
+    { dx:  2, dy: 2, rot:  2.0 },
+    { dx: -3, dy: 3, rot: -3.0 },
+    { dx:  4, dy: 5, rot:  3.5 },
+    { dx: -4, dy: 6, rot: -4.0 },
+    { dx:  5, dy: 8, rot:  4.5 },
+  ]
+
+  const deckLayer = document.createElement('div')
+  deckLayer.style.cssText = 'position:absolute;inset:0;z-index:10;pointer-events:none;'
+  hero.appendChild(deckLayer)
+
+  // Append deepest card first so the top card renders in front
+  const cardEls = [...DEALS].reverse().map((d, ri) => {
+    const i   = DEALS.length - 1 - ri
+    const off = STACK_OFFSETS[i]
+    const el  = document.createElement('div')
+    el.style.cssText = [
+      'position:absolute',
+      `width:${DECK_CARD_W}px`,
+      `height:${DECK_CARD_H}px`,
+      `left:${cx - DECK_CARD_W / 2}px`,
+      `top:${cy - DECK_CARD_H / 2}px`,
+      'border-radius:10px',
+      `z-index:${i + 1}`,
+      d.img
+        ? `background:url('./images/${d.img}') center/cover no-repeat`
+        : `background:#1a1a2e`,
+    ].join(';')
+    gsap.set(el, { x: off.dx, y: off.dy, rotation: off.rot })
+    deckLayer.appendChild(el)
+    return { el, d }
+  }).reverse() // restore deal order
+
+  // ── GSAP deal timeline ──────────────────────────────────────────────────
+  // 3 landing columns spread evenly across the strip width
+  const dealXs = [W * 0.05, W * 0.38, W * 0.71]
+  const startL = cx - DECK_CARD_W / 2
+  const startT = cy - DECK_CARD_H / 2
+
+  const tl = gsap.timeline({ delay: 0.5 })
+
+  DEALS.forEach((d, i) => {
+    const { el } = cardEls[i]
+    const isTop  = d.dest === 'top'
+
+    tl.to(el, {
+      x:            dealXs[d.pos] - startL,
+      y:            (isTop ? 0 : H - STRIP_H) - startT,
+      width:        STRIP_CARD_W,
+      height:       STRIP_H,
+      rotation:     0,
+      borderRadius: 0,
+      duration:     0.32,
+      ease:         'power3.out',
+    }, i * 0.18)  // 0.18 s stagger between each deal
+  })
+
+  // ── Reveal phase — strips + header ──────────────────────────────────────
+  const endT = (DEALS.length - 1) * 0.18 + 0.38
+
+  tl.call(() => {
+    // Fade in full looping strips
+    gsap.to([topStrip.wrap, botStrip.wrap], { opacity: 1, duration: 0.25 })
+
+    // Fade out and remove the individual deal cards
+    gsap.to(cardEls.map(c => c.el), {
+      opacity: 0, duration: 0.2,
+      onComplete: () => deckLayer.remove(),
+    })
+
+    // Start CSS scroll animations
+    topStrip.track.classList.add('hero-track-left')
+    botStrip.track.classList.add('hero-track-right')
+
+    // Move site-header into the center gap and fade it in
+    siteHdr.classList.add('anim-centered')
+    gsap.to(siteHdr, { autoAlpha: 1, duration: 0.5, ease: 'power2.out' })
+  }, [], endT)
+}
+
 // ===== Init =====
 async function init() {
   const name = await checkAuth()
@@ -300,32 +473,31 @@ async function init() {
   if (name) await updateCartIcon()
 
   const genres = await getGenres()
-  const all = await getProducts()
-  
-  carouselProducts = [...all].sort(() => Math.random() - 0.5).slice(0, 5)
-  if (carouselProducts.length) updateCarousel(1)
-  
-  const carouselIds = new Set(carouselProducts.map(p => p.id))
-  buildGenreScatter(genres, all, carouselIds)
+  const all    = await getProducts()
+
+  // Hero header card-deal animation (replaces vinyl carousel)
+  animateHeroHeader(all)
+
+  // Genre scatter section (kept as-is)
+  buildGenreScatter(genres, all)
   addBtnListeners()
 
-setTimeout(() => {
-  let triggered = false
-  window.addEventListener('scroll', () => {
-    if (!triggered && window.scrollY > 400) {
-      triggered = true
-
-      document.querySelectorAll('#genre-scatter .genre-block').forEach((el, i) => {
-        const fromX = i % 2 === 0 ? -60 : 60
-        gsap.fromTo(el,
-          { opacity: 0, x: fromX, scale: 0.85 },
-          { opacity: 1, x: 0, scale: 1, duration: 0.8, delay: i * 0.15, ease: 'back.out(1.4)' }
-        )
-      })
-    }
-  })
-}, 500)
+  // Scroll-triggered genre block animation (kept as-is)
+  setTimeout(() => {
+    let triggered = false
+    window.addEventListener('scroll', () => {
+      if (!triggered && window.scrollY > 400) {
+        triggered = true
+        document.querySelectorAll('#genre-scatter .genre-block').forEach((el, i) => {
+          const fromX = i % 2 === 0 ? -60 : 60
+          gsap.fromTo(el,
+            { opacity: 0, x: fromX, scale: 0.85 },
+            { opacity: 1, x: 0, scale: 1, duration: 0.8, delay: i * 0.15, ease: 'back.out(1.4)' }
+          )
+        })
+      }
+    })
+  }, 500)
 }
-
 
 init()

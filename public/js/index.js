@@ -4,6 +4,11 @@ import { getProducts, getGenres } from './productService.js'
 import { addBtnListeners, updateCartIcon } from './cartService.js'
 gsap.registerPlugin(ScrollTrigger)
 
+// ===== Editorial — browse CTA =====
+document.getElementById('browse-btn').addEventListener('click', () => {
+  document.getElementById('products-section').scrollIntoView({ behavior: 'smooth' })
+})
+
 // ===== Auth =====
 document.getElementById('logout-btn').addEventListener('click', logout)
 
@@ -482,22 +487,21 @@ async function init() {
   buildGenreScatter(genres, all)
   addBtnListeners()
 
-  // Scroll-triggered genre block animation (kept as-is)
-  setTimeout(() => {
-    let triggered = false
-    window.addEventListener('scroll', () => {
-      if (!triggered && window.scrollY > 400) {
-        triggered = true
-        document.querySelectorAll('#genre-scatter .genre-block').forEach((el, i) => {
-          const fromX = i % 2 === 0 ? -60 : 60
-          gsap.fromTo(el,
-            { opacity: 0, x: fromX, scale: 0.85 },
-            { opacity: 1, x: 0, scale: 1, duration: 0.8, delay: i * 0.15, ease: 'back.out(1.4)' }
-          )
-        })
-      }
-    })
-  }, 500)
+  // Genre scatter — animate in when it actually enters the viewport
+  ScrollTrigger.create({
+    trigger: '#genre-scatter',
+    start: 'top 80%',
+    once: true,
+    onEnter: () => {
+      document.querySelectorAll('#genre-scatter .genre-block').forEach((el, i) => {
+        const fromX = i % 2 === 0 ? -60 : 60
+        gsap.fromTo(el,
+          { opacity: 0, x: fromX, scale: 0.85 },
+          { opacity: 1, x: 0, scale: 1, duration: 0.8, delay: i * 0.15, ease: 'back.out(1.4)' }
+        )
+      })
+    }
+  })
 }
 
 init()

@@ -45,19 +45,20 @@ function buildGenreScatter(genres, allProducts,carouselIds = new Set()) {
     el.className = 'genre-block'
     el.dataset.genre = genre
     el.style.cssText = `
-      position: absolute;
-      left: ${(lp/100)*W}px;
-      top: ${tp_px}px;
-      width: ${(wp/100)*W}px;
-      height: ${hp_px}px;
-      background-color: ${genreColor(genre)};
-      background-image: ${bgImage};
-      background-size: cover;
-      background-position: center;
-      cursor: pointer;
-      overflow: hidden;
-      opacity: 0;
-    `
+  position: absolute;
+  left: ${(lp/100)*W}px;
+  top: ${tp_px}px;
+  width: ${(wp/100)*W}px;
+  height: ${hp_px}px;
+  background-color: ${genreColor(genre)};
+  background-image: ${bgImage};
+  background-size: cover;
+  background-position: center;
+  cursor: pointer;
+  overflow: hidden;
+  opacity: 0;
+`
+
 
     el.innerHTML = `
       <div style="position:absolute;inset:0;background:rgba(0,0,0,0.35);"></div>
@@ -313,16 +314,14 @@ setTimeout(() => {
   window.addEventListener('scroll', () => {
     if (!triggered && window.scrollY > 400) {
       triggered = true
-      gsap.fromTo('#genre-scatter .genre-block',
-        { opacity: 0, y: 40 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 0.7,
-          stagger: 0.12,
-          ease: 'power3.out',
-        }
-      )
+
+      document.querySelectorAll('#genre-scatter .genre-block').forEach((el, i) => {
+        const fromX = i % 2 === 0 ? -60 : 60
+        gsap.fromTo(el,
+          { opacity: 0, x: fromX, scale: 0.85 },
+          { opacity: 1, x: 0, scale: 1, duration: 0.8, delay: i * 0.15, ease: 'back.out(1.4)' }
+        )
+      })
     }
   })
 }, 500)

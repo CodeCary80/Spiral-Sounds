@@ -120,13 +120,8 @@ async function init() {
   showHideMenuItems(name)
   if (name) await updateCartIcon()
 
-  // Get album id from URL
   const params = new URLSearchParams(window.location.search)
   const id = params.get('id')
-
-  const genres = await getGenres()
-const all = await getProducts()
-buildGenreScatter(genres, all)
 
   if (!id) {
     renderError()

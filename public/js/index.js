@@ -235,10 +235,8 @@ function updateCarousel(dir) {
   document.getElementById('vinyl-genre').textContent  = album.genre
   document.getElementById('vinyl-title').textContent  = album.title
   document.getElementById('vinyl-artist').textContent = album.artist
-  document.getElementById('vinyl-price').textContent  = `$${Number(album.price).toFixed(2)}`
   cover.src = `./images/${album.image}`
   cover.alt = album.title
-  document.getElementById('vinyl-cart-btn').dataset.id = album.id
   bg.style.backgroundImage = `url('./images/${album.image}')`
   bg.style.backgroundSize = 'cover'
   bg.style.backgroundPosition = 'center'
@@ -306,6 +304,17 @@ async function init() {
   const carouselIds = new Set(carouselProducts.map(p => p.id))
   buildGenreScatter(genres, all, carouselIds)
   addBtnListeners()
+
+  const observer = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) e.target.classList.add('visible')
+  })
+}, { threshold: 0.1 })
+
+document.querySelectorAll('.genre-block, .plg-card').forEach(el => {
+  el.classList.add('fade-in')
+  observer.observe(el)
+})
 }
 
 

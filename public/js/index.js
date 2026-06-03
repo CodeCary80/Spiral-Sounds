@@ -2,6 +2,7 @@ import { logout } from './logout.js'
 import { checkAuth, renderGreeting, showHideMenuItems } from './authUI.js'
 import { getProducts, getGenres } from './productService.js'
 import { addBtnListeners, updateCartIcon } from './cartService.js'
+gsap.registerPlugin(ScrollTrigger)
 
 // ===== Auth =====
 document.getElementById('logout-btn').addEventListener('click', logout)
@@ -55,11 +56,9 @@ function buildGenreScatter(genres, allProducts,carouselIds = new Set()) {
       background-position: center;
       cursor: pointer;
       overflow: hidden;
-      transition: opacity 0.2s;
+      opacity: 0;
     `
-    el.style.animation = `fadeUp 0.5s ease ${i * 0.1}s both`
-    el.style.animationPlayState = 'paused'
-    
+
     el.innerHTML = `
       <div style="position:absolute;inset:0;background:rgba(0,0,0,0.35);"></div>
       <span style="position:absolute;top:10px;right:12px;font-size:0.7rem;color:rgba(255,255,255,0.6);">↗</span>
@@ -67,8 +66,8 @@ function buildGenreScatter(genres, allProducts,carouselIds = new Set()) {
         <div style="font-size:0.85rem;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:0.05em;">${genre}</div>
       </div>
     `
-    el.addEventListener('mouseenter', () => { el.style.opacity = '0.8' })
-    el.addEventListener('mouseleave', () => { el.style.opacity = '1' })
+    el.addEventListener('mouseenter', () => { gsap.to(el, { opacity: 0.8, duration: 0.2 }) })
+el.addEventListener('mouseleave', () => { gsap.to(el, { opacity: 1, duration: 0.2 }) })
     el.addEventListener('click', () => showGenreProducts(genre))
     wrap.appendChild(el)
   })
@@ -113,20 +112,6 @@ function buildGenreScatter(genres, allProducts,carouselIds = new Set()) {
   vinyl.appendChild(label)
   wrap.appendChild(vinyl)
 
-  requestAnimationFrame(() => {
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(e => {
-      if (e.isIntersecting) {
-        e.target.style.animationPlayState = 'running'
-        observer.unobserve(e.target)
-      }
-    })
-  }, { threshold: 0.1 })
-
-  wrap.querySelectorAll('.genre-block').forEach(el => {
-    observer.observe(el)
-  })
-})
 }
 
 // ===== Show products for a genre =====
@@ -323,16 +308,24 @@ async function init() {
   buildGenreScatter(genres, all, carouselIds)
   addBtnListeners()
 
-  const observer = new IntersectionObserver((entries) => {
-  entries.forEach(e => {
-    if (e.isIntersecting) e.target.classList.add('visible')
+setTimeout(() => {
+  let triggered = false
+  window.addEventListener('scroll', () => {
+    if (!triggered && window.scrollY > 400) {
+      triggered = true
+      gsap.fromTo('#genre-scatter .genre-block',
+        { opacity: 0, y: 40 },
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.7,
+          stagger: 0.12,
+          ease: 'power3.out',
+        }
+      )
+    }
   })
-}, { threshold: 0.1 })
-
-document.querySelectorAll('.genre-block, .plg-card').forEach(el => {
-  el.classList.add('fade-in')
-  observer.observe(el)
-})
+}, 500)
 }
 
 

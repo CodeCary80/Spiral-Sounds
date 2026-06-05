@@ -34,83 +34,34 @@ gsap.registerPlugin(ScrollTrigger)
   }, 0)
 })()
 
-// ===== Client Stories =====
+// ===== Client Stories — each story animates in individually =====
 ;(function () {
-  const TOTAL   = 4
-  let cur       = 0
-  let going     = false
-
-  function updateCounter(n) {
-    document.getElementById('stories-counter').innerHTML =
-      `<b>${String(n + 1).padStart(2, '0')}</b> / 0${TOTAL}`
-  }
-
-  function goTo(idx, dir) {
-    if (going) return
-    going = true
-    const wipe = document.getElementById('stories-wipe')
-    const out  = document.getElementById(`story-${cur}`)
-    const inn  = document.getElementById(`story-${idx}`)
-
-    const tl = gsap.timeline({ onComplete: () => going = false })
-
-    tl.fromTo(wipe,
-      { x: dir > 0 ? '-101%' : '101%' },
-      { x: '0%', duration: 0.28, ease: 'power2.in' }
-    )
-    tl.call(() => {
-      out.classList.remove('story-active')
-      out.style.display = 'none'
-      inn.style.display = 'flex'
-      inn.classList.add('story-active')
-      cur = idx
-      updateCounter(idx)
-    })
-    tl.to(wipe, { x: dir > 0 ? '101%' : '-101%', duration: 0.32, ease: 'power2.out' })
-    tl.fromTo(inn.querySelector('.story-photo'),
-      { opacity: 0, y: -30 },
-      { opacity: 1, y: 0, duration: 0.4, ease: 'power3.out' },
-      '-=0.25'
-    )
-    tl.fromTo(inn.querySelector('.story-quote'),
-      { opacity: 0, y: -16 },
-      { opacity: 1, y: 0, duration: 0.38, ease: 'power3.out' },
-      '-=0.22'
-    )
-    tl.fromTo(inn.querySelector('.story-meta'),
-      { opacity: 0, y: 10 },
-      { opacity: 1, y: 0, duration: 0.3, ease: 'power3.out' },
-      '-=0.28'
-    )
-  }
-
-  // Click wrap to advance
-  document.getElementById('stories-wrap').addEventListener('click', () => {
-    goTo((cur + 1) % TOTAL, 1)
-  })
-
-  // Set initial hidden state via GSAP only (not CSS, so later stories aren't affected)
-  gsap.set('.stories-header',       { opacity: 0, y: -16 })
-  gsap.set('#story-0 .story-photo', { opacity: 0, y: -50 })
-  gsap.set('#story-0 .story-quote', { opacity: 0 })
-  gsap.set('#story-0 .story-meta',  { opacity: 0 })
-
-  // once:true — fires cleanly without scrub to avoid text blur
+  gsap.set('.stories-header', { opacity: 0, y: -16 })
   ScrollTrigger.create({
     trigger: '#stories-section',
-    start: 'top 60%',
+    start: 'top 80%',
     once: true,
-    onEnter: () => {
-      const tl = gsap.timeline()
-      tl.to('.stories-header',
-        { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' })
-      tl.to('#story-0 .story-photo',
-        { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, '-=0.2')
-      tl.to('#story-0 .story-quote',
-        { opacity: 1, duration: 0.65, ease: 'power3.out' }, '-=0.35')
-      tl.to('#story-0 .story-meta',
-        { opacity: 1, duration: 0.5, ease: 'power3.out' }, '-=0.35')
-    }
+    onEnter: () => gsap.to('.stories-header', { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' })
+  })
+
+  document.querySelectorAll('.story').forEach(story => {
+    const photo = story.querySelector('.story-photo')
+    const quote = story.querySelector('.story-quote')
+    const meta  = story.querySelector('.story-meta')
+    gsap.set([photo, quote, meta], { opacity: 0 })
+    gsap.set(photo, { y: -30 })
+
+    ScrollTrigger.create({
+      trigger: story,
+      start: 'top 85%',
+      once: true,
+      onEnter: () => {
+        const tl = gsap.timeline()
+        tl.to(photo, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' })
+        tl.to(quote, { opacity: 1, duration: 0.6, ease: 'power3.out' }, '-=0.2')
+        tl.to(meta,  { opacity: 1, duration: 0.5, ease: 'power3.out' }, '-=0.3')
+      }
+    })
   })
 })()
 

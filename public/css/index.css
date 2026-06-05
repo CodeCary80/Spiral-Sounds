@@ -46,7 +46,6 @@
 
 html {
   overflow-y: scroll;
-  scroll-behavior: smooth;
 }
 
 body {
@@ -1430,16 +1429,21 @@ select {
 ----------------------------------- */
 .stories-section {
   background: var(--color-bg);
-  min-height: 100vh;
 }
+
+.stories-top-bar,
+.stories-spacer,
+.stories-bottom-bar,
+.stories-tip,
+.stories-hint { display: none }   /* removed */
 
 /* Header bar — same pattern as editorial bottom bar */
 .stories-header {
+  border-top: 2px solid var(--color-text);
   padding: 14px 48px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  border-top: 2px solid var(--color-text);
   margin-top: 20px;
 }
 
@@ -1470,16 +1474,18 @@ select {
   z-index: 5;
 }
 
-/* Individual story */
+/* Individual story — all visible, stacked */
 .story {
-  display: none;
+  display: flex;
   flex-direction: row;
   align-items: flex-start;
   gap: 36px;
+  padding: 48px 0;
+  border-bottom: 1px solid var(--color-border);
 }
 
-.story-active {
-  display: flex;
+.story:last-child {
+  border-bottom: none;
 }
 
 .story-photo {
@@ -1524,14 +1530,12 @@ select {
   font-family: Georgia, serif;
 }
 
-
 .story-name {
   font-size: 0.95rem;
   font-weight: 500;
   color: var(--color-text);
   margin-bottom: 4px;
 }
-
 
 .story-role {
   font-size: 0.58rem;
@@ -1547,8 +1551,6 @@ select {
   color: var(--color-accent);
   margin-top: 4px;
 }
-
-
 
 /* Bottom bar */
 .stories-bottom-bar {
@@ -1596,7 +1598,7 @@ select {
 .showcase-section {
   height: 250vh;
   background: var(--color-bg-light);
-  border-top: 1px solid white;
+  border-top: 2px solid rgba(255, 255, 255, 0.12);
 }
 
 /* Sticky viewport — stays pinned while user scrolls through the section */
@@ -1627,7 +1629,7 @@ select {
   font-size: 0.58rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: white;
+  color: rgba(255, 255, 255, 0.35);
   display: flex;
   align-items: center;
   gap: 7px;
@@ -1672,6 +1674,7 @@ select {
   color: rgba(255, 255, 255, 0.15);
 }
 
+/* Overlay — fixed position in the sticky container, right side */
 .showcase-overlay {
   position: absolute;
   right: 48px;

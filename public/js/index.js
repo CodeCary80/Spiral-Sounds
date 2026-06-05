@@ -502,6 +502,61 @@ async function init() {
       })
     }
   })
+
+  // Editorial section — scroll-linked scrub, option B: lines alternate left / right
+  const edTl = gsap.timeline({
+    scrollTrigger: {
+      trigger: '#editorial-section',
+      start: 'top 60%',
+      end: 'center 40%',
+      scrub: 1.2,
+    }
+  })
+
+  const lines = document.querySelectorAll('.ed-line')
+
+  edTl
+    // Eyebrow fades in from above
+    .fromTo('.editorial-eyebrow',
+      { opacity: 0, y: -16 },
+      { opacity: 1, y: 0,  duration: 1, ease: 'power2.out' },
+      0
+    )
+    // Line 1 — drops from above
+    .fromTo(lines[0],
+      { opacity: 0, y: -70 },
+      { opacity: 1, y: 0,  duration: 1, ease: 'power3.out' },
+      0.6
+    )
+    // Line 2 — drops from above
+    .fromTo(lines[1],
+      { opacity: 0, y: -70 },
+      { opacity: 1, y: 0,  duration: 1, ease: 'power3.out' },
+      1.0
+    )
+    // Line 3 (red) — drops from above
+    .fromTo(lines[2],
+      { opacity: 0, y: -70 },
+      { opacity: 1, y: 0,  duration: 1, ease: 'power3.out' },
+      1.4
+    )
+    // CTA fades up
+    .fromTo('.editorial-cta',
+      { opacity: 0, y: 14 },
+      { opacity: 1, y: 0,  duration: 1, ease: 'power2.out' },
+      2.0
+    )
+    // Bottom bar — tip from left, hint from right
+    .fromTo('.editorial-tip',
+      { opacity: 0, x: -14 },
+      { opacity: 1, x: 0,  duration: 0.8, ease: 'power2.out' },
+      2.5
+    )
+    .fromTo('.editorial-scroll-hint',
+      { opacity: 0, x: 14 },
+      { opacity: 1, x: 0,  duration: 0.8, ease: 'power2.out' },
+      2.5
+    )
 }
 
 init()

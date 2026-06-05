@@ -1335,6 +1335,20 @@ select {
   font-style: normal;
 }
 
+/* Each line is its own block for horizontal slide animation */
+.ed-line {
+  display: block;
+}
+
+/* Initial hidden state — ScrollTrigger scrub handles reveal */
+.editorial-eyebrow,
+.ed-line,
+.editorial-cta,
+.editorial-tip,
+.editorial-scroll-hint {
+  opacity: 0;
+}
+
 .editorial-cta-wrap {
   display: flex;
   justify-content: center;

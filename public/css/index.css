@@ -1399,13 +1399,13 @@ select {
 .editorial-bottom-bar {
   position: absolute;
   bottom: 0;
-  left: 48px;
-  right: 48px;
+  left: 0;
+  right: 0;
   display: flex;
   align-items: center;
   justify-content: space-between;
   border-top: 2px solid var(--color-text);
-  padding: 14px 0;
+  padding: 14px 48px;
 }
 
 .editorial-tip {
@@ -1432,19 +1432,14 @@ select {
   background: var(--color-bg);
 }
 
-.stories-top-bar,
-.stories-spacer,
-.stories-bottom-bar,
-.stories-tip,
-.stories-hint { display: none }   /* removed */
-
 /* Header bar — same pattern as editorial bottom bar */
 .stories-header {
-  border-top: 2px solid var(--color-text);
   padding: 14px 48px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  border-top: 2px solid var(--color-text);
+  margin-top: 20px;
 }
 
 .stories-label {
@@ -1528,12 +1523,14 @@ select {
   font-family: Georgia, serif;
 }
 
+
 .story-name {
   font-size: 0.95rem;
   font-weight: 500;
   color: var(--color-text);
   margin-bottom: 4px;
 }
+
 
 .story-role {
   font-size: 0.58rem;

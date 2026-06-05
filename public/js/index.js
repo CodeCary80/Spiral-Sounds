@@ -95,27 +95,24 @@ gsap.registerPlugin(ScrollTrigger)
   gsap.set('#story-0 .story-quote', { opacity: 0, y: -70 })
   gsap.set('#story-0 .story-meta',  { opacity: 0, y: -40 })
 
-  // Fire once when section enters viewport — drop from above like editorial section
-  ScrollTrigger.create({
-    trigger: '#stories-section',
-    start: 'top 85%',
-    once: true,
-    onEnter: () => {
-      const tl = gsap.timeline()
-      tl.to('.stories-header',
-        { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }
-      )
-      tl.to('#story-0 .story-photo',
-        { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, '-=0.2'
-      )
-      tl.to('#story-0 .story-quote',
-        { opacity: 1, y: 0, duration: 0.65, ease: 'power3.out' }, '-=0.35'
-      )
-      tl.to('#story-0 .story-meta',
-        { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }, '-=0.35'
-      )
+  // Scrub timeline — reverses on scroll-up like editorial
+  const storiesEntranceTl = gsap.timeline({
+    scrollTrigger: {
+      trigger: '#stories-section',
+      start: 'top 80%',
+      end: 'top 10%',
+      scrub: 1.2,
     }
   })
+  storiesEntranceTl
+    .fromTo('.stories-header',
+      { opacity: 0, y: -16 }, { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }, 0)
+    .fromTo('#story-0 .story-photo',
+      { opacity: 0, y: -50 }, { opacity: 1, y: 0, duration: 1.2, ease: 'power3.out' }, 0.5)
+    .fromTo('#story-0 .story-quote',
+      { opacity: 0, y: -70 }, { opacity: 1, y: 0, duration: 1.2, ease: 'power3.out' }, 0.8)
+    .fromTo('#story-0 .story-meta',
+      { opacity: 0, y: -40 }, { opacity: 1, y: 0, duration: 1,   ease: 'power3.out' }, 1.2)
 })()
 
 // ===== Editorial — browse CTA =====
@@ -601,20 +598,22 @@ async function init() {
   buildGenreScatter(genres, all)
   addBtnListeners()
 
-  // Genre scatter — animate in when it actually enters the viewport
-  ScrollTrigger.create({
-    trigger: '#genre-scatter',
-    start: 'top 80%',
-    once: true,
-    onEnter: () => {
-      document.querySelectorAll('#genre-scatter .genre-block').forEach((el, i) => {
-        const fromX = i % 2 === 0 ? -60 : 60
-        gsap.fromTo(el,
-          { opacity: 0, x: fromX, scale: 0.85 },
-          { opacity: 1, x: 0, scale: 1, duration: 0.8, delay: i * 0.15, ease: 'back.out(1.4)' }
-        )
-      })
+  // Genre scatter — scrub timeline so it reverses on scroll-up
+  const scatterTl = gsap.timeline({
+    scrollTrigger: {
+      trigger: '#genre-scatter',
+      start: 'top 80%',
+      end: 'top 10%',
+      scrub: 1,
     }
+  })
+  document.querySelectorAll('#genre-scatter .genre-block').forEach((el, i) => {
+    const fromX = i % 2 === 0 ? -60 : 60
+    scatterTl.fromTo(el,
+      { opacity: 0, x: fromX, scale: 0.85 },
+      { opacity: 1, x: 0, scale: 1, duration: 0.8, ease: 'back.out(1.4)' },
+      i * 0.12
+    )
   })
 
   // Editorial section — scroll-linked scrub, option B: lines alternate left / right
@@ -671,6 +670,9 @@ async function init() {
       { opacity: 1, x: 0,  duration: 0.8, ease: 'power2.out' },
       2.5
     )
+  // Refresh all ScrollTrigger positions after everything loads
+  // (needed because the showcase sticky section shifts offsets for sections below it)
+  ScrollTrigger.refresh()
 }
 
 init()

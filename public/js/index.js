@@ -4,6 +4,73 @@ import { getProducts, getGenres } from './productService.js'
 import { addBtnListeners, updateCartIcon } from './cartService.js'
 gsap.registerPlugin(ScrollTrigger)
 
+// ===== Client Stories =====
+;(function () {
+  const TOTAL   = 4
+  let cur       = 0
+  let going     = false
+
+  function updateCounter(n) {
+    document.getElementById('stories-counter').innerHTML =
+      `<b>${String(n + 1).padStart(2, '0')}</b> / 0${TOTAL}`
+  }
+
+  function goTo(idx, dir) {
+    if (going) return
+    going = true
+    const wipe = document.getElementById('stories-wipe')
+    const out  = document.getElementById(`story-${cur}`)
+    const inn  = document.getElementById(`story-${idx}`)
+
+    const tl = gsap.timeline({ onComplete: () => going = false })
+
+    tl.fromTo(wipe,
+      { x: dir > 0 ? '-101%' : '101%' },
+      { x: '0%', duration: 0.28, ease: 'power2.in' }
+    )
+    tl.call(() => {
+      out.classList.remove('story-active')
+      out.style.display = 'none'
+      inn.style.display = 'flex'
+      inn.classList.add('story-active')
+      cur = idx
+      updateCounter(idx)
+    })
+    tl.to(wipe, { x: dir > 0 ? '101%' : '-101%', duration: 0.32, ease: 'power2.out' })
+    tl.fromTo(inn.querySelector('.story-quote'),
+      { opacity: 0, y: -16 },
+      { opacity: 1, y: 0, duration: 0.38, ease: 'power3.out' },
+      '-=0.22'
+    )
+    tl.fromTo(inn.querySelector('.story-meta'),
+      { opacity: 0, y: 10 },
+      { opacity: 1, y: 0, duration: 0.3, ease: 'power3.out' },
+      '-=0.28'
+    )
+  }
+
+  // Click wrap to advance
+  document.getElementById('stories-wrap').addEventListener('click', () => {
+    goTo((cur + 1) % TOTAL, 1)
+  })
+
+  // Scroll-triggered entrance
+  ScrollTrigger.create({
+    trigger: '#stories-section',
+    start: 'top 80%',
+    once: true,
+    onEnter: () => {
+      gsap.fromTo('#stories-section',
+        { opacity: 0, y: 30 },
+        { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' }
+      )
+    }
+  })
+
+  // Set initial opacity for entrance
+  gsap.set('#stories-section', { opacity: 0, y: 30 })
+})()
+
 // ===== Editorial — browse CTA =====
 document.getElementById('browse-btn').addEventListener('click', () => {
   document.getElementById('products-section').scrollIntoView({ behavior: 'smooth' })

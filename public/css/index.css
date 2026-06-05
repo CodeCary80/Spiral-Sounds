@@ -1403,3 +1403,167 @@ select {
   text-transform: uppercase;
   color: var(--color-text-muted);
 }
+
+/* -----------------------------------
+   Client Stories Section
+----------------------------------- */
+.stories-section {
+  background: var(--color-bg);
+}
+
+.stories-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 48px;
+  border-bottom: 0.5px solid var(--color-border);
+}
+
+.stories-label {
+  font-size: 0.58rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.stories-diamond {
+  color: var(--color-accent);
+}
+
+.stories-counter {
+  font-size: 0.65rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.stories-counter b {
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+.stories-spacer {
+  width: 80px;
+}
+
+/* Story wrap — overflow hidden for wipe transition */
+.stories-wrap {
+  position: relative;
+  padding: 44px 48px 52px;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.stories-wipe {
+  position: absolute;
+  inset: 0;
+  background: var(--color-bg-light);
+  transform: translateX(-101%);
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* Individual story */
+.story {
+  display: none;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 36px;
+}
+
+.story-active {
+  display: flex;
+}
+
+.story-photo {
+  width: 160px;
+  height: 190px;
+  border-radius: 2px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.story-initial {
+  font-size: 52px;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.12);
+  text-transform: uppercase;
+}
+
+.story-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.story-quote {
+  font-family: var(--font-heading);
+  font-size: clamp(1.2rem, 2.8vw, 2rem);
+  font-weight: 900;
+  color: var(--color-text);
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin-bottom: 32px;
+}
+
+.story-quote::before {
+  content: '\201C';
+  color: var(--color-accent);
+  font-size: 1.3em;
+  line-height: 0;
+  vertical-align: -0.15em;
+  margin-right: 4px;
+  font-family: Georgia, serif;
+}
+
+.story-name {
+  font-size: 0.95rem;
+  font-weight: 500;
+  color: var(--color-text);
+  margin-bottom: 4px;
+}
+
+.story-role {
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.story-album {
+  font-size: 0.58rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-accent);
+  margin-top: 4px;
+}
+
+/* Bottom bar */
+.stories-bottom-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-top: 2px solid var(--color-text);
+  padding: 14px 48px;
+}
+
+.stories-tip {
+  font-size: 0.58rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.stories-hint {
+  font-size: 0.58rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}

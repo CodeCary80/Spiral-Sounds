@@ -4,6 +4,36 @@ import { getProducts, getGenres } from './productService.js'
 import { addBtnListeners, updateCartIcon } from './cartService.js'
 gsap.registerPlugin(ScrollTrigger)
 
+// ===== Showcase — scroll-driven image expansion =====
+;(function () {
+  const section = document.getElementById('showcase-section')
+  const frame   = document.getElementById('showcase-frame')
+  if (!section || !frame) return
+
+  const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: section,
+      start: 'top top',
+      end: 'bottom bottom',
+      scrub: 1.5,
+    }
+  })
+
+  // Frame expands from 62% to full viewport
+  tl.to(frame, {
+    width:  '100%',
+    height: '100vh',
+    ease: 'none'
+  }, 0)
+
+  // Header label fades out as image takes over
+  tl.to('.showcase-header', {
+    opacity: 0,
+    ease: 'none',
+    duration: 0.25
+  }, 0)
+})()
+
 // ===== Client Stories =====
 ;(function () {
   const TOTAL   = 4
@@ -37,6 +67,11 @@ gsap.registerPlugin(ScrollTrigger)
       updateCounter(idx)
     })
     tl.to(wipe, { x: dir > 0 ? '101%' : '-101%', duration: 0.32, ease: 'power2.out' })
+    tl.fromTo(inn.querySelector('.story-photo'),
+      { opacity: 0, y: -30 },
+      { opacity: 1, y: 0, duration: 0.4, ease: 'power3.out' },
+      '-=0.25'
+    )
     tl.fromTo(inn.querySelector('.story-quote'),
       { opacity: 0, y: -16 },
       { opacity: 1, y: 0, duration: 0.38, ease: 'power3.out' },
@@ -54,21 +89,33 @@ gsap.registerPlugin(ScrollTrigger)
     goTo((cur + 1) % TOTAL, 1)
   })
 
-  // Scroll-triggered entrance
+  // Set initial hidden state via GSAP only (not CSS, so later stories aren't affected)
+  gsap.set('.stories-header',       { opacity: 0, y: -16 })
+  gsap.set('#story-0 .story-photo', { opacity: 0, y: -50 })
+  gsap.set('#story-0 .story-quote', { opacity: 0, y: -70 })
+  gsap.set('#story-0 .story-meta',  { opacity: 0, y: -40 })
+
+  // Fire once when section enters viewport — drop from above like editorial section
   ScrollTrigger.create({
     trigger: '#stories-section',
-    start: 'top 80%',
+    start: 'top 85%',
     once: true,
     onEnter: () => {
-      gsap.fromTo('#stories-section',
-        { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' }
+      const tl = gsap.timeline()
+      tl.to('.stories-header',
+        { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }
+      )
+      tl.to('#story-0 .story-photo',
+        { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, '-=0.2'
+      )
+      tl.to('#story-0 .story-quote',
+        { opacity: 1, y: 0, duration: 0.65, ease: 'power3.out' }, '-=0.35'
+      )
+      tl.to('#story-0 .story-meta',
+        { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' }, '-=0.35'
       )
     }
   })
-
-  // Set initial opacity for entrance
-  gsap.set('#stories-section', { opacity: 0, y: 30 })
 })()
 
 // ===== Editorial — browse CTA =====

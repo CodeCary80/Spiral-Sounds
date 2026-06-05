@@ -92,27 +92,26 @@ gsap.registerPlugin(ScrollTrigger)
   // Set initial hidden state via GSAP only (not CSS, so later stories aren't affected)
   gsap.set('.stories-header',       { opacity: 0, y: -16 })
   gsap.set('#story-0 .story-photo', { opacity: 0, y: -50 })
-  gsap.set('#story-0 .story-quote', { opacity: 0, y: -70 })
-  gsap.set('#story-0 .story-meta',  { opacity: 0, y: -40 })
+  gsap.set('#story-0 .story-quote', { opacity: 0 })
+  gsap.set('#story-0 .story-meta',  { opacity: 0 })
 
-  // Scrub timeline — reverses on scroll-up like editorial
-  const storiesEntranceTl = gsap.timeline({
-    scrollTrigger: {
-      trigger: '#stories-section',
-      start: 'top 80%',
-      end: 'top 10%',
-      scrub: 1.2,
+  // once:true — fires cleanly without scrub to avoid text blur
+  ScrollTrigger.create({
+    trigger: '#stories-section',
+    start: 'top 60%',
+    once: true,
+    onEnter: () => {
+      const tl = gsap.timeline()
+      tl.to('.stories-header',
+        { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' })
+      tl.to('#story-0 .story-photo',
+        { opacity: 1, y: 0, duration: 0.6, ease: 'power3.out' }, '-=0.2')
+      tl.to('#story-0 .story-quote',
+        { opacity: 1, duration: 0.65, ease: 'power3.out' }, '-=0.35')
+      tl.to('#story-0 .story-meta',
+        { opacity: 1, duration: 0.5, ease: 'power3.out' }, '-=0.35')
     }
   })
-  storiesEntranceTl
-    .fromTo('.stories-header',
-      { opacity: 0, y: -16 }, { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }, 0)
-    .fromTo('#story-0 .story-photo',
-      { opacity: 0, y: -50 }, { opacity: 1, y: 0, duration: 1.2, ease: 'power3.out' }, 0.5)
-    .fromTo('#story-0 .story-quote',
-      { opacity: 0, y: -70 }, { opacity: 1, y: 0, duration: 1.2, ease: 'power3.out' }, 0.8)
-    .fromTo('#story-0 .story-meta',
-      { opacity: 0, y: -40 }, { opacity: 1, y: 0, duration: 1,   ease: 'power3.out' }, 1.2)
 })()
 
 // ===== Editorial — browse CTA =====

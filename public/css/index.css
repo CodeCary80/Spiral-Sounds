@@ -1430,6 +1430,7 @@ select {
 ----------------------------------- */
 .stories-section {
   background: var(--color-bg);
+  min-height: 100vh;
 }
 
 /* Header bar — same pattern as editorial bottom bar */
@@ -1546,6 +1547,8 @@ select {
   color: var(--color-accent);
   margin-top: 4px;
 }
+
+
 
 /* Bottom bar */
 .stories-bottom-bar {

@@ -46,6 +46,7 @@
 
 html {
   overflow-y: scroll;
+  scroll-behavior: smooth;
 }
 
 body {
@@ -340,9 +341,24 @@ button:active {
   left: 50%;
   transform: translate(-50%, -50%);
   z-index: 10;
+  width: 100%;
   display: flex;
   align-items: center;
-  gap: 5rem;
+  justify-content: center;
+  padding: 0 48px;
+}
+
+.hero-tagline {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 5vw, 4.5rem);
+  font-weight: 400;
+  color: var(--color-text-on-dark);
+  text-align: center;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  text-transform: none;
+  max-width: 900px;
+  margin: 0;
 }
 
 .vinyl-mockup {
@@ -1156,40 +1172,157 @@ button:active {
 }
 
 /* -----------------------------------
-   Footer
+   Footer rise — footer slides up over pinned content
+----------------------------------- */
+.page-content {
+  position: relative;
+  z-index: 1;
+  background: var(--color-bg);
+}
+
+/* -----------------------------------
+   Footer — Rising card with map
 ----------------------------------- */
 footer {
-  padding: 2.4rem 3rem;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 100;
+  transform: translateY(100%);
+  will-change: transform;
+  background: #0a0a0a;
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 2rem;
-  background-color: var(--color-bg-light);
-  color: var(--color-text-on-dark);
-  flex-wrap: wrap;
+  flex-direction: column;
+  border-top: none;
+  border-radius: 20px 20px 0 0;
+  overflow: hidden;
 }
 
-.footer-brand {
-  font-size: 0.7rem;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.4);
-  align-self: flex-end;
+.footer-inner {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 48px 40px;
+  gap: 40px;
 }
 
-.footer-col-label {
-  font-size: 0.52rem;
+.footer-logo-area {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.65rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.3);
+}
+
+.footer-logo-diamond { color: var(--color-accent); }
+.footer-logo-name    { color: rgba(255, 255, 255, 0.3); }
+
+/* Central info card */
+.footer-card {
+  display: flex;
+  width: 100%;
+  max-width: 860px;
+  min-height: 300px;
+  background: #1a1a1a;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.footer-card-left {
+  flex: 1;
+  padding: 36px 32px;
+  display: flex;
+  flex-direction: column;
+}
+
+.footer-card-label {
+  font-size: 0.52rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.28);
   margin: 0 0 8px;
 }
 
-.footer-col-text {
-  font-size: 0.75rem;
+.footer-card-text {
+  font-size: 0.82rem;
   color: rgba(255, 255, 255, 0.6);
   line-height: 1.8;
   margin: 0;
+}
+
+.footer-card-btn {
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: transparent;
+  border: 0.5px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.6);
+  font-family: var(--font-base);
+  font-size: 0.6rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 10px 16px;
+  cursor: pointer;
+  width: fit-content;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.footer-card-btn:hover {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #fff;
+}
+
+/* Google Map */
+.footer-card-map {
+  flex: 1;
+  position: relative;
+  min-height: 280px;
+}
+
+.footer-card-map iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+/* Bottom bar */
+.footer-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 48px;
+  border-top: 0.5px solid rgba(255, 255, 255, 0.08);
+}
+
+.footer-brand {
+  font-size: 0.62rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.22);
+}
+
+.footer-scroll-top {
+  font-size: 0.62rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.22);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.footer-scroll-top:hover {
+  color: rgba(255, 255, 255, 0.7);
 }
 
 /* -----------------------------------
@@ -1429,6 +1562,9 @@ select {
 ----------------------------------- */
 .stories-section {
   background: var(--color-bg);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 .stories-top-bar,
@@ -1457,12 +1593,15 @@ select {
   gap: 7px;
 }
 
-/* Story wrap — overflow hidden for wipe transition */
+/* Story wrap — overflow hidden for wipe transition, centered */
 .stories-wrap {
+  flex: 1;
   position: relative;
   padding: 44px 48px 52px;
   overflow: hidden;
   cursor: pointer;
+  display: flex;
+  align-items: center;
 }
 
 .stories-wipe {
@@ -1474,18 +1613,17 @@ select {
   z-index: 5;
 }
 
-/* Individual story — all visible, stacked */
+/* Individual story — slider: only active one shown */
 .story {
-  display: flex;
+  display: none;
   flex-direction: row;
   align-items: flex-start;
   gap: 36px;
-  padding: 48px 0;
-  border-bottom: 1px solid var(--color-border);
+  width: 100%;
 }
 
-.story:last-child {
-  border-bottom: none;
+.story-active {
+  display: flex;
 }
 
 .story-photo {
@@ -1725,7 +1863,76 @@ select {
 /* -----------------------------------
    Consistent section dividers
 ----------------------------------- */
-.editorial-section,
-footer {
+.editorial-section {
   border-top: 2px solid var(--color-text);
+}
+
+/* -----------------------------------
+   Genre Page Overlay — rises on click
+----------------------------------- */
+.genre-page {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  background: var(--color-bg);
+  transform: translateY(100%);
+  will-change: transform;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border-radius: 16px 16px 0 0;
+}
+
+.genre-page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 48px;
+  border-bottom: 2px solid var(--color-text);
+  background: var(--color-bg);
+  flex-shrink: 0;
+}
+
+.genre-page-back {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  font-size: 0.58rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-text);
+  transition: color 0.2s ease;
+}
+
+.genre-page-back:hover {
+  color: var(--color-accent);
+}
+
+.genre-page-back-arrow {
+  color: var(--color-accent);
+}
+
+.genre-page-label {
+  font-size: 0.58rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.genre-page-body {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.genre-page-genre-title {
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 5vw, 4.5rem);
+  font-weight: 900;
+  color: var(--color-text);
+  text-transform: uppercase;
+  letter-spacing: -0.03em;
+  padding: 1.2rem 1.5rem;
+  border-bottom: 2px solid var(--color-text);
+  display: block;
 }

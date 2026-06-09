@@ -13,6 +13,8 @@
 
 <body>
 
+  <div class="page-content">
+
   <!-- ===== HERO — Full Screen ===== -->
   <section class="hero-section" id="hero-section">
 
@@ -58,26 +60,10 @@
       </div>
     </header>
 
-    <!-- Vinyl carousel -->
+    <!-- Hero tagline -->
     <div class="hero-stage">
-      <h1>Today's Picks</h1>
-      <div class="vinyl-mockup" id="vinyl-mockup">
-        <div class="vinyl-disc" id="vinyl-disc">
-          <div class="vinyl-label-dot">
-            <div class="vinyl-label-inner"></div>
-          </div>
-        </div>
-        <img class="vinyl-cover" id="vinyl-cover" src="" alt="">
-      </div>
-
-      <div class="vinyl-info" id="vinyl-info">
-        <div class="vinyl-genre" id="vinyl-genre"></div>
-        <div class="vinyl-title" id="vinyl-title"></div>
-        <div class="vinyl-artist" id="vinyl-artist"></div>
-      </div>
+      <h1 class="hero-tagline">Records for those<br>who listen with vision.</h1>
     </div>
-
-
 
   </section>
 
@@ -131,7 +117,6 @@
 
   </main>
 
-
   <!-- ===== SHOWCASE ===== -->
   <section class="showcase-section" id="showcase-section">
     <div class="showcase-sticky" id="showcase-sticky">
@@ -168,11 +153,15 @@
       <div class="stories-label">
         <span class="stories-diamond">♦</span> Client stories
       </div>
+      <div class="stories-counter" id="stories-counter">
+        <b>01</b> / 03
+      </div>
     </div>
 
     <div class="stories-wrap" id="stories-wrap">
+      <div class="stories-wipe" id="stories-wipe"></div>
 
-      <div class="story" id="story-0">
+      <div class="story story-active" id="story-0">
         <div class="story-photo" style="background:#2a1a12"><span class="story-initial">M</span></div>
         <div class="story-content">
           <p class="story-quote">Every record I've bought from Spiral Sounds has become the soundtrack to something I'll never forget. This isn't just a store — it's a curation.</p>
@@ -212,19 +201,56 @@
 
   </section>
 
-  <footer>
-    <div class="footer-brand">© Spiral Sounds</div>
+  </div><!-- /.page-content -->
 
-    <div>
-      <p class="footer-col-label">Address</p>
-      <p class="footer-col-text">155 Ossington Ave<br>Toronto, ON M6J 2Z8<br>Canada</p>
+  <footer id="site-footer">
+
+    <div class="footer-inner">
+      <div class="footer-logo-area">
+        <span class="footer-logo-diamond">♦</span>
+        <span class="footer-logo-name">Spiral Sounds</span>
+      </div>
+
+      <div class="footer-card">
+        <div class="footer-card-left">
+          <p class="footer-card-label">Address</p>
+          <p class="footer-card-text">155 Ossington Ave<br>Toronto, ON M6J 2Z8<br>Canada</p>
+
+          <p class="footer-card-label" style="margin-top:24px">Hours</p>
+          <p class="footer-card-text">Mon – Sat &nbsp; 11am – 8pm<br>Sunday &nbsp;&nbsp;&nbsp;&nbsp; 12pm – 6pm</p>
+
+          <button class="footer-card-btn">↳ &nbsp; Get directions</button>
+        </div>
+        <div class="footer-card-map">
+          <iframe
+            src="https://maps.google.com/maps?q=155+Ossington+Ave,+Toronto,+ON+M6J+2Z8,+Canada&output=embed&z=15"
+            allowfullscreen=""
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade">
+          </iframe>
+        </div>
+      </div>
     </div>
 
-    <div>
-      <p class="footer-col-label">Hours</p>
-      <p class="footer-col-text">Mon – Sat &nbsp; 11am – 8pm<br>Sunday &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 12pm – 6pm</p>
+    <div class="footer-bottom">
+      <span class="footer-brand">© Spiral Sounds</span>
+      <span class="footer-scroll-top" id="footer-scroll-top">↑ Back to top</span>
     </div>
+
   </footer>
+
+  <!-- ===== GENRE PAGE OVERLAY — rises on genre click ===== -->
+  <div id="genre-page" class="genre-page">
+    <div class="genre-page-header">
+      <div class="genre-page-back" id="genre-page-back">
+        <span class="genre-page-back-arrow">←</span>
+        <span class="genre-page-back-label">All genres</span>
+      </div>
+      <span class="genre-page-label" id="genre-page-label"></span>
+      <div style="width:80px"></div>
+    </div>
+    <div class="genre-page-body" id="genre-page-body"></div>
+  </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>

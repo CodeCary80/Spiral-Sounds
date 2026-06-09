@@ -4,65 +4,58 @@ import { getProducts, getGenres } from './productService.js'
 import { addBtnListeners, updateCartIcon } from './cartService.js'
 gsap.registerPlugin(ScrollTrigger)
 
-// ===== Showcase — scroll-driven image expansion =====
+// ===== Client Stories — 3-card slider with wipe transition =====
 ;(function () {
-  const section = document.getElementById('showcase-section')
-  const frame   = document.getElementById('showcase-frame')
-  if (!section || !frame) return
+  const TOTAL = 3
+  let cur = 0
+  let going = false
 
-  const tl = gsap.timeline({
-    scrollTrigger: {
-      trigger: section,
-      start: 'top top',
-      end: 'bottom bottom',
-      scrub: 1.5,
-    }
-  })
+  function updateCounter(n) {
+    const el = document.getElementById('stories-counter')
+    if (el) el.innerHTML = `<b>${String(n + 1).padStart(2, '0')}</b> / 0${TOTAL}`
+  }
 
-  // Frame expands from 62% to full viewport
-  tl.to(frame, {
-    width:  '100%',
-    height: '100vh',
-    ease: 'none'
-  }, 0)
+  function goTo(idx, dir) {
+    if (going || idx === cur) return
+    going = true
+    const wipe = document.getElementById('stories-wipe')
+    const out  = document.getElementById(`story-${cur}`)
+    const inn  = document.getElementById(`story-${idx}`)
 
-  // Header label fades out as image takes over
-  tl.to('.showcase-header', {
-    opacity: 0,
-    ease: 'none',
-    duration: 0.25
-  }, 0)
+    const tl = gsap.timeline({ onComplete: () => going = false })
+    tl.fromTo(wipe,
+      { x: dir > 0 ? '-101%' : '101%' },
+      { x: '0%', duration: 0.28, ease: 'power2.in' })
+    tl.call(() => {
+      out.classList.remove('story-active')
+      inn.classList.add('story-active')
+      cur = idx
+      updateCounter(idx)
+    })
+    tl.to(wipe, { x: dir > 0 ? '101%' : '-101%', duration: 0.32, ease: 'power2.out' })
+    tl.fromTo(inn.querySelector('.story-photo'),
+      { opacity: 0, y: -30 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power3.out' }, '-=0.25')
+    tl.fromTo(inn.querySelector('.story-quote'),
+      { opacity: 0 }, { opacity: 1, duration: 0.4, ease: 'power3.out' }, '-=0.2')
+    tl.fromTo(inn.querySelector('.story-meta'),
+      { opacity: 0 }, { opacity: 1, duration: 0.35, ease: 'power3.out' }, '-=0.25')
+  }
+
+  // Click to advance
+  const wrap = document.getElementById('stories-wrap')
+  if (wrap) {
+    wrap.addEventListener('click', () => goTo((cur + 1) % TOTAL, 1))
+  }
 })()
 
-// ===== Client Stories — each story animates in individually =====
+// ===== Footer — scroll to top button =====
 ;(function () {
-  gsap.set('.stories-header', { opacity: 0, y: -16 })
-  ScrollTrigger.create({
-    trigger: '#stories-section',
-    start: 'top 80%',
-    once: true,
-    onEnter: () => gsap.to('.stories-header', { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' })
-  })
-
-  document.querySelectorAll('.story').forEach(story => {
-    const photo = story.querySelector('.story-photo')
-    const quote = story.querySelector('.story-quote')
-    const meta  = story.querySelector('.story-meta')
-    gsap.set([photo, quote, meta], { opacity: 0 })
-    gsap.set(photo, { y: -30 })
-
-    ScrollTrigger.create({
-      trigger: story,
-      start: 'top 85%',
-      once: true,
-      onEnter: () => {
-        const tl = gsap.timeline()
-        tl.to(photo, { opacity: 1, y: 0, duration: 0.5, ease: 'power3.out' })
-        tl.to(quote, { opacity: 1, duration: 0.6, ease: 'power3.out' }, '-=0.2')
-        tl.to(meta,  { opacity: 1, duration: 0.5, ease: 'power3.out' }, '-=0.3')
-      }
+  const scrollTopBtn = document.getElementById('footer-scroll-top')
+  if (scrollTopBtn) {
+    scrollTopBtn.addEventListener('click', () => {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
     })
-  })
+  }
 })()
 
 // ===== Editorial — browse CTA =====
@@ -81,10 +74,9 @@ const GENRE_COLORS = {
   pop: '#1a0a18', metal: '#0a0a0a', blues: '#0a100a',
 }
 function genreColor(g) { return GENRE_COLORS[g.toLowerCase()] || '#1C1C1C' }
+
 // ===== Genre Scatter =====
-// Layout copied from pic2: varied sizes, lots of cream space, no overlap
-// All values are % of container — converted to px after render
-function buildGenreScatter(genres, allProducts,carouselIds = new Set()) {
+function buildGenreScatter(genres, allProducts, carouselIds = new Set()) {
   const wrap = document.getElementById('genre-scatter')
   if (!wrap) return
 
@@ -101,9 +93,9 @@ function buildGenreScatter(genres, allProducts,carouselIds = new Set()) {
   genres.slice(0, layout.length).forEach((genre, i) => {
     const [lp, tp_px, wp, hp_px] = layout[i]
 
-    const album = 
-  allProducts.find(p => p.genre.toLowerCase() === genre.toLowerCase() && !carouselIds.has(p.id))
-  || allProducts.find(p => p.genre.toLowerCase() === genre.toLowerCase())
+    const album =
+      allProducts.find(p => p.genre.toLowerCase() === genre.toLowerCase() && !carouselIds.has(p.id))
+      || allProducts.find(p => p.genre.toLowerCase() === genre.toLowerCase())
 
     const bgImage = album ? `url('./images/${album.image}')` : 'none'
 
@@ -111,20 +103,19 @@ function buildGenreScatter(genres, allProducts,carouselIds = new Set()) {
     el.className = 'genre-block'
     el.dataset.genre = genre
     el.style.cssText = `
-  position: absolute;
-  left: ${(lp/100)*W}px;
-  top: ${tp_px}px;
-  width: ${(wp/100)*W}px;
-  height: ${hp_px}px;
-  background-color: ${genreColor(genre)};
-  background-image: ${bgImage};
-  background-size: cover;
-  background-position: center;
-  cursor: pointer;
-  overflow: hidden;
-  opacity: 0;
-`
-
+      position: absolute;
+      left: ${(lp/100)*W}px;
+      top: ${tp_px}px;
+      width: ${(wp/100)*W}px;
+      height: ${hp_px}px;
+      background-color: ${genreColor(genre)};
+      background-image: ${bgImage};
+      background-size: cover;
+      background-position: center;
+      cursor: pointer;
+      overflow: hidden;
+      opacity: 0;
+    `
 
     el.innerHTML = `
       <div style="position:absolute;inset:0;background:rgba(0,0,0,0.35);"></div>
@@ -134,8 +125,8 @@ function buildGenreScatter(genres, allProducts,carouselIds = new Set()) {
       </div>
     `
     el.addEventListener('mouseenter', () => { gsap.to(el, { opacity: 0.8, duration: 0.2 }) })
-el.addEventListener('mouseleave', () => { gsap.to(el, { opacity: 1, duration: 0.2 }) })
-    el.addEventListener('click', () => showGenreProducts(genre))
+    el.addEventListener('mouseleave', () => { gsap.to(el, { opacity: 1, duration: 0.2 }) })
+    el.addEventListener('click', () => openGenreOverlay(genre))
     wrap.appendChild(el)
   })
 
@@ -178,7 +169,6 @@ el.addEventListener('mouseleave', () => { gsap.to(el, { opacity: 1, duration: 0.
   label.appendChild(dot)
   vinyl.appendChild(label)
   wrap.appendChild(vinyl)
-
 }
 
 // ===== Show products for a genre =====
@@ -192,13 +182,11 @@ async function showGenreProducts(genre) {
   const container = document.getElementById('products-container')
   container.innerHTML = ''
 
-  // Wrapper: block layout, no flex overlap
   const wrapper = document.createElement('div')
   wrapper.style.cssText = 'display:block;width:100%;'
 
-  // Genre title row
   const title = document.createElement('div')
- title.style.cssText = 'display:block;width:100%;padding:1.2rem 1.5rem;border-bottom:2px solid #1C1C1C;box-sizing:border-box;'
+  title.style.cssText = 'display:block;width:100%;padding:1.2rem 1.5rem;border-bottom:2px solid #1C1C1C;box-sizing:border-box;'
   title.innerHTML = `<span style="font-family:var(--font-heading);font-size:clamp(2rem,5vw,4.5rem);font-weight:900;color:#1C1C1C;text-transform:uppercase;letter-spacing:-0.03em;display:block;">${genre}</span>`
   wrapper.appendChild(title)
 
@@ -211,20 +199,19 @@ async function showGenreProducts(genre) {
     return
   }
 
-  // Grid row — completely separate from title
   const gridWrap = document.createElement('div')
   gridWrap.style.cssText = 'display:block;width:100%;box-sizing:border-box;'
 
   const grid = document.createElement('div')
   grid.style.cssText = [
     'display:grid',
-'grid-template-columns:repeat(4,minmax(0,1fr))',
-'width:100%',
-'box-sizing:border-box',
-'border-left:1px solid #D4C9B8',
-'border-top:1px solid #D4C9B8',
-'margin:0',
-'padding:0',
+    'grid-template-columns:repeat(4,minmax(0,1fr))',
+    'width:100%',
+    'box-sizing:border-box',
+    'border-left:1px solid #D4C9B8',
+    'border-top:1px solid #D4C9B8',
+    'margin:0',
+    'padding:0',
   ].join(';')
 
   products.forEach(album => {
@@ -282,63 +269,104 @@ document.getElementById('genre-back-bar').addEventListener('click', () => {
   document.getElementById('genre-view').style.display = 'block'
 })
 
-// ===== Vinyl Carousel =====
-let carouselProducts = []
-let carouselIndex = 0
-let carouselAnimating = false
+// ===== Genre page overlay — rises on genre click =====
+async function openGenreOverlay(genre) {
+  const page  = document.getElementById('genre-page')
+  const body  = document.getElementById('genre-page-body')
+  const label = document.getElementById('genre-page-label')
 
-function updateCarousel(dir) {
-  if (carouselAnimating || !carouselProducts.length) return
-  carouselAnimating = true
+  label.textContent = genre
 
-  const disc  = document.getElementById('vinyl-disc')
-  const cover = document.getElementById('vinyl-cover')
-  const info  = document.getElementById('vinyl-info')
-  const bg    = document.getElementById('hero-bg')
+  // Show loading and rise immediately — don't wait for fetch
+  body.innerHTML = '<p style="padding:2rem 1.5rem;color:#8A7F72;font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;">Loading…</p>'
+  document.body.style.overflow = 'hidden'
+  gsap.to(page, { y: '0%', duration: 0.45, ease: 'power4.out' })
 
-  disc.classList.remove('anim-disc','anim-disc-rev')
-  cover.classList.remove('anim-cover','anim-cover-rev')
-  info.classList.remove('anim-info')
-  void disc.offsetWidth
+  const products = await getProducts({ genre })
 
-  const album = carouselProducts[carouselIndex]
-  document.getElementById('vinyl-genre').textContent  = album.genre
-  document.getElementById('vinyl-title').textContent  = album.title
-  document.getElementById('vinyl-artist').textContent = album.artist
-  cover.src = `./images/${album.image}`
-  cover.alt = album.title
-  bg.style.backgroundImage = `url('./images/${album.image}')`
-  bg.style.backgroundSize = 'cover'
-  bg.style.backgroundPosition = 'center'
+  body.innerHTML = ''
 
-  const fwd = dir >= 0
-  disc.classList.add(fwd  ? 'anim-disc'  : 'anim-disc-rev')
-  cover.classList.add(fwd ? 'anim-cover' : 'anim-cover-rev')
-  info.classList.add('anim-info')
-  setTimeout(() => { carouselAnimating = false }, 650)
+  // Big genre title
+  const titleEl = document.createElement('div')
+  titleEl.className = 'genre-page-genre-title'
+  titleEl.textContent = genre
+  body.appendChild(titleEl)
+
+  if (!products.length) {
+    const empty = document.createElement('p')
+    empty.style.cssText = 'padding:2rem 1.5rem;color:#8A7F72;font-size:0.85rem;text-transform:uppercase;'
+    empty.textContent = 'No records found.'
+    body.appendChild(empty)
+    return
+  }
+
+  // 4-column product grid
+  const grid = document.createElement('div')
+  grid.style.cssText = [
+    'display:grid',
+    'grid-template-columns:repeat(4,minmax(0,1fr))',
+    'width:100%',
+    'box-sizing:border-box',
+    'border-left:1px solid #D4C9B8',
+    'border-top:1px solid #D4C9B8',
+  ].join(';')
+
+  products.forEach(album => {
+    const card = document.createElement('div')
+    card.style.cssText = [
+      'border-right:1px solid #D4C9B8',
+      'border-bottom:1px solid #D4C9B8',
+      'background:#F7F3EC',
+      'display:flex',
+      'flex-direction:column',
+      'min-width:0',
+      'overflow:hidden',
+    ].join(';')
+
+    const img = document.createElement('img')
+    img.src = `./images/${album.image}`
+    img.alt = album.title
+    img.loading = 'lazy'
+    img.style.cssText = 'width:100%;aspect-ratio:3/2;object-fit:cover;display:block;border-bottom:2px solid #1C1C1C;'
+
+    const link = document.createElement('a')
+    link.href = `/detail.html?id=${album.id}`
+    link.style.cssText = 'display:block;overflow:hidden;'
+    link.appendChild(img)
+
+    const info = document.createElement('div')
+    info.style.cssText = 'padding:0.6rem 0.8rem 0.9rem;display:flex;flex-direction:column;flex:1;'
+    info.innerHTML = `
+      <div style="font-size:0.75rem;font-weight:700;color:#1C1C1C;text-transform:uppercase;letter-spacing:-0.01em;">${album.title}</div>
+      <div style="font-size:0.65rem;color:#C0392B;margin-top:2px;">${album.artist}</div>
+      <div style="font-size:0.72rem;font-weight:700;color:#1C1C1C;margin-top:3px;">$${Number(album.price).toFixed(2)}</div>
+    `
+
+    const btn = document.createElement('button')
+    btn.className = 'main-btn add-btn'
+    btn.dataset.id = album.id
+    btn.style.cssText = 'margin-top:auto;padding:0.45rem 0;font-size:0.6rem;'
+    btn.textContent = 'Add to Cart'
+
+    info.appendChild(btn)
+    card.appendChild(link)
+    card.appendChild(info)
+    grid.appendChild(card)
+  })
+
+  body.appendChild(grid)
+  addBtnListeners()
 }
 
-function carouselNext() {
-  carouselIndex = (carouselIndex + 1) % carouselProducts.length
-  updateCarousel(1)
-}
-function carouselPrev() {
-  carouselIndex = (carouselIndex - 1 + carouselProducts.length) % carouselProducts.length
-  updateCarousel(-1)
-}
-
-let autoRotate = setInterval(carouselNext, 4000)
-
-document.addEventListener('keydown', e => {
-  if (e.key === 'ArrowRight') { clearInterval(autoRotate); carouselNext(); autoRotate = setInterval(carouselNext, 4000) }
-  if (e.key === 'ArrowLeft')  { clearInterval(autoRotate); carouselPrev(); autoRotate = setInterval(carouselNext, 4000) }
+// Back button — slide the overlay back down
+document.getElementById('genre-page-back').addEventListener('click', () => {
+  gsap.to(document.getElementById('genre-page'), {
+    y: '100%',
+    duration: 0.38,
+    ease: 'power3.in',
+    onComplete: () => { document.body.style.overflow = '' }
+  })
 })
-
-document.getElementById('vinyl-cover').addEventListener('click', () => {
-  if (!carouselProducts.length) return
-  window.location.href = `/detail.html?id=${carouselProducts[carouselIndex].id}`
-})
-document.getElementById('vinyl-mockup').style.cursor = 'pointer'
 
 // ===== Search =====
 document.getElementById('search-input').addEventListener('input', async () => {
@@ -358,179 +386,6 @@ document.getElementById('search-input').addEventListener('input', async () => {
 
 document.querySelector('form[role="search"]').addEventListener('submit', e => e.preventDefault())
 
-// ===== Hero Header — Card Deal Animation =====
-function animateHeroHeader(allProducts) {
-  const hero    = document.getElementById('hero-section')
-  const heroBg  = document.getElementById('hero-bg')
-  const heroOv  = hero.querySelector('.hero-overlay')
-  const heroStg = hero.querySelector('.hero-stage')
-  const siteHdr = hero.querySelector('.site-header')
-
-  const W  = hero.offsetWidth
-  const H  = hero.offsetHeight || window.innerHeight
-  const cx = W / 2
-  const cy = H / 2
-
-  const STRIP_H      = Math.round(H * 0.36)   // height of each image strip
-  const DECK_CARD_W  = 110                     // deck card width (px)
-  const DECK_CARD_H  = 140                     // deck card height (px)
-  const STRIP_CARD_W = Math.round(W / 7.5)     // each card width inside strip
-
-  // ── Hide existing hero content ──────────────────────────────────────────
-  hero.style.background = '#000'
-  gsap.set([heroBg, heroOv, heroStg], { autoAlpha: 0 })
-  gsap.set(siteHdr, { autoAlpha: 0 })
-
-  // ── Inject animation styles ─────────────────────────────────────────────
-  if (!document.getElementById('hero-anim-styles')) {
-    const s = document.createElement('style')
-    s.id = 'hero-anim-styles'
-    s.textContent = `
-      @keyframes heroStripLeft  { from { transform: translateX(0) }    to { transform: translateX(-50%) } }
-      @keyframes heroStripRight { from { transform: translateX(-50%) } to { transform: translateX(0) }    }
-      .hero-track-left  { animation: heroStripLeft  22s linear infinite; }
-      .hero-track-right { animation: heroStripRight 22s linear infinite; }
-      .site-header.anim-centered {
-        position:   absolute !important;
-        top:        ${STRIP_H}px !important;
-        left:       0 !important;
-        right:      0 !important;
-        height:     ${H - STRIP_H * 2}px !important;
-        display:    flex !important;
-        align-items: center !important;
-      }
-    `
-    document.head.appendChild(s)
-  }
-
-  // ── Build a strip row ───────────────────────────────────────────────────
-  function buildStrip(products) {
-    const wrap  = document.createElement('div')
-    const track = document.createElement('div')
-    wrap.style.cssText  = `position:absolute;left:0;right:0;height:${STRIP_H}px;overflow:hidden;opacity:0;z-index:2;pointer-events:none;`
-    track.style.cssText = `display:flex;gap:3px;width:max-content;`
-    // Duplicate for seamless loop
-    ;[...products, ...products].forEach(p => {
-      const c = document.createElement('div')
-      c.style.cssText = `width:${STRIP_CARD_W}px;height:${STRIP_H}px;flex-shrink:0;` +
-        `background:url('./images/${p.image}') center/cover no-repeat;`
-      track.appendChild(c)
-    })
-    wrap.appendChild(track)
-    return { wrap, track }
-  }
-
-  // Shuffle products and split into pools.
-  // pickFrom wraps with modulo so small catalogs always fill every slot.
-  const shuffled = [...allProducts].sort(() => Math.random() - 0.5)
-  const pickFrom = (arr, n, start = 0) =>
-    Array.from({ length: n }, (_, i) => arr[(start + i) % arr.length])
-  const deckPool = pickFrom(shuffled, 6)
-  const topPool  = pickFrom(shuffled, 14, 6)
-  const botPool  = pickFrom(shuffled, 14, 20)
-
-  const topStrip = buildStrip(topPool)
-  const botStrip = buildStrip(botPool)
-
-  topStrip.wrap.style.top    = '0'
-  botStrip.wrap.style.bottom = '0'
-  hero.appendChild(topStrip.wrap)
-  hero.appendChild(botStrip.wrap)
-
-  // ── Build deck of 6 cards ───────────────────────────────────────────────
-  // Deals alternate top / bottom, 3 to each strip
-  const DEALS = [
-    { dest: 'top',    pos: 0, img: deckPool[0]?.image },
-    { dest: 'bottom', pos: 0, img: deckPool[1]?.image },
-    { dest: 'top',    pos: 1, img: deckPool[2]?.image },
-    { dest: 'bottom', pos: 1, img: deckPool[3]?.image },
-    { dest: 'top',    pos: 2, img: deckPool[4]?.image },
-    { dest: 'bottom', pos: 2, img: deckPool[5]?.image },
-  ]
-
-  // Visual stack offsets — each card slightly shifted so the pile is visible
-  const STACK_OFFSETS = [
-    { dx:  0, dy: 0, rot: -1.5 },
-    { dx:  2, dy: 2, rot:  2.0 },
-    { dx: -3, dy: 3, rot: -3.0 },
-    { dx:  4, dy: 5, rot:  3.5 },
-    { dx: -4, dy: 6, rot: -4.0 },
-    { dx:  5, dy: 8, rot:  4.5 },
-  ]
-
-  const deckLayer = document.createElement('div')
-  deckLayer.style.cssText = 'position:absolute;inset:0;z-index:10;pointer-events:none;'
-  hero.appendChild(deckLayer)
-
-  // Append deepest card first so the top card renders in front
-  const cardEls = [...DEALS].reverse().map((d, ri) => {
-    const i   = DEALS.length - 1 - ri
-    const off = STACK_OFFSETS[i]
-    const el  = document.createElement('div')
-    el.style.cssText = [
-      'position:absolute',
-      `width:${DECK_CARD_W}px`,
-      `height:${DECK_CARD_H}px`,
-      `left:${cx - DECK_CARD_W / 2}px`,
-      `top:${cy - DECK_CARD_H / 2}px`,
-      'border-radius:10px',
-      `z-index:${i + 1}`,
-      d.img
-        ? `background:url('./images/${d.img}') center/cover no-repeat`
-        : `background:#1a1a2e`,
-    ].join(';')
-    gsap.set(el, { x: off.dx, y: off.dy, rotation: off.rot })
-    deckLayer.appendChild(el)
-    return { el, d }
-  }).reverse() // restore deal order
-
-  // ── GSAP deal timeline ──────────────────────────────────────────────────
-  // 3 landing columns spread evenly across the strip width
-  const dealXs = [W * 0.05, W * 0.38, W * 0.71]
-  const startL = cx - DECK_CARD_W / 2
-  const startT = cy - DECK_CARD_H / 2
-
-  const tl = gsap.timeline({ delay: 0.5 })
-
-  DEALS.forEach((d, i) => {
-    const { el } = cardEls[i]
-    const isTop  = d.dest === 'top'
-
-    tl.to(el, {
-      x:            dealXs[d.pos] - startL,
-      y:            (isTop ? 0 : H - STRIP_H) - startT,
-      width:        STRIP_CARD_W,
-      height:       STRIP_H,
-      rotation:     0,
-      borderRadius: 0,
-      duration:     0.32,
-      ease:         'power3.out',
-    }, i * 0.18)  // 0.18 s stagger between each deal
-  })
-
-  // ── Reveal phase — strips + header ──────────────────────────────────────
-  const endT = (DEALS.length - 1) * 0.18 + 0.38
-
-  tl.call(() => {
-    // Fade in full looping strips
-    gsap.to([topStrip.wrap, botStrip.wrap], { opacity: 1, duration: 0.25 })
-
-    // Fade out and remove the individual deal cards
-    gsap.to(cardEls.map(c => c.el), {
-      opacity: 0, duration: 0.2,
-      onComplete: () => deckLayer.remove(),
-    })
-
-    // Start CSS scroll animations
-    topStrip.track.classList.add('hero-track-left')
-    botStrip.track.classList.add('hero-track-right')
-
-    // Move site-header into the center gap and fade it in
-    siteHdr.classList.add('anim-centered')
-    gsap.to(siteHdr, { autoAlpha: 1, duration: 0.5, ease: 'power2.out' })
-  }, [], endT)
-}
-
 // ===== Init =====
 async function init() {
   const name = await checkAuth()
@@ -541,14 +396,20 @@ async function init() {
   const genres = await getGenres()
   const all    = await getProducts()
 
-  // Hero header card-deal animation (replaces vinyl carousel)
-  animateHeroHeader(all)
+  // Hero — static background image + centered tagline
+  const heroBg = document.getElementById('hero-bg')
+  if (heroBg && all.length) {
+    heroBg.style.backgroundImage = `url('./images/${all[0].image}')`
+    heroBg.style.backgroundSize = 'cover'
+    heroBg.style.backgroundPosition = 'center'
+  }
+  gsap.set(['#hero-bg', '.hero-overlay', '.hero-stage'], { autoAlpha: 1 })
 
-  // Genre scatter section (kept as-is)
+  // Genre scatter
   buildGenreScatter(genres, all)
   addBtnListeners()
 
-  // Genre scatter — scrub timeline so it reverses on scroll-up
+  // Genre scatter — scrub animation
   const scatterTl = gsap.timeline({
     scrollTrigger: {
       trigger: '#genre-scatter',
@@ -566,7 +427,7 @@ async function init() {
     )
   })
 
-  // Editorial section — scroll-linked scrub, option B: lines alternate left / right
+  // Editorial section scrub
   const edTl = gsap.timeline({
     scrollTrigger: {
       trigger: '#editorial-section',
@@ -575,53 +436,65 @@ async function init() {
       scrub: 1.2,
     }
   })
-
   const lines = document.querySelectorAll('.ed-line')
-
   edTl
-    // Eyebrow fades in from above
     .fromTo('.editorial-eyebrow',
-      { opacity: 0, y: -16 },
-      { opacity: 1, y: 0,  duration: 1, ease: 'power2.out' },
-      0
-    )
-    // Line 1 — drops from above
+      { opacity: 0, y: -16 }, { opacity: 1, y: 0, duration: 1, ease: 'power2.out' }, 0)
     .fromTo(lines[0],
-      { opacity: 0, y: -70 },
-      { opacity: 1, y: 0,  duration: 1, ease: 'power3.out' },
-      0.6
-    )
-    // Line 2 — drops from above
+      { opacity: 0, y: -70 }, { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }, 0.6)
     .fromTo(lines[1],
-      { opacity: 0, y: -70 },
-      { opacity: 1, y: 0,  duration: 1, ease: 'power3.out' },
-      1.0
-    )
-    // Line 3 (red) — drops from above
+      { opacity: 0, y: -70 }, { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }, 1.0)
     .fromTo(lines[2],
-      { opacity: 0, y: -70 },
-      { opacity: 1, y: 0,  duration: 1, ease: 'power3.out' },
-      1.4
-    )
-    // CTA fades up
+      { opacity: 0, y: -70 }, { opacity: 1, y: 0, duration: 1, ease: 'power3.out' }, 1.4)
     .fromTo('.editorial-cta',
-      { opacity: 0, y: 14 },
-      { opacity: 1, y: 0,  duration: 1, ease: 'power2.out' },
-      2.0
-    )
-    // Bottom bar — tip from left, hint from right
+      { opacity: 0, y: 14 }, { opacity: 1, y: 0, duration: 1, ease: 'power2.out' }, 2.0)
     .fromTo('.editorial-tip',
-      { opacity: 0, x: -14 },
-      { opacity: 1, x: 0,  duration: 0.8, ease: 'power2.out' },
-      2.5
-    )
+      { opacity: 0, x: -14 }, { opacity: 1, x: 0, duration: 0.8, ease: 'power2.out' }, 2.5)
     .fromTo('.editorial-scroll-hint',
-      { opacity: 0, x: 14 },
-      { opacity: 1, x: 0,  duration: 0.8, ease: 'power2.out' },
-      2.5
-    )
-  // Refresh all ScrollTrigger positions after everything loads
-  // (needed because the showcase sticky section shifts offsets for sections below it)
+      { opacity: 0, x: 14 }, { opacity: 1, x: 0, duration: 0.8, ease: 'power2.out' }, 2.5)
+
+  // ===== Showcase — image expands as it scrolls (CSS-sticky frame) =====
+  ;(function () {
+    const section = document.getElementById('showcase-section')
+    const frame   = document.getElementById('showcase-frame')
+    if (!section || !frame) return
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: section,
+        start: 'top top',
+        end: () => '+=' + window.innerHeight,
+        scrub: 1.5,
+        invalidateOnRefresh: true,
+      }
+    })
+    tl.to(frame, { width: '100%', height: '100vh', ease: 'none' }, 0)
+    tl.to('.showcase-header', { opacity: 0, ease: 'none', duration: 0.25 }, 0)
+  })()
+
+  // ===== Footer rises up over the pinned stories section (last section) =====
+  ;(function () {
+    const footer  = document.getElementById('site-footer')
+    const stories = document.getElementById('stories-section')
+    if (!footer || !stories) return
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: stories,
+        start: 'top top',
+        end: '+=100%',
+        scrub: 1,
+        pin: stories,
+        pinSpacing: true,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+      }
+    })
+    // y:'100%'→'0%' overrides the CSS transform cleanly (yPercent would stack on it)
+    tl.fromTo(footer, { y: '100%' }, { y: '0%', ease: 'none' })
+  })()
+
+  // Refresh all ScrollTrigger positions after content is built
   ScrollTrigger.refresh()
 }
 

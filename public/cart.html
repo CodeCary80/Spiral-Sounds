@@ -51,7 +51,7 @@
         <p id="user-message" class="cart-message" style="display:none;"></p>
       </div>
 
-      <!-- Right: order summary -->
+      <!-- Right: order summary + Stripe payment form -->
       <div class="cart-right">
         <div>
           <div class="cart-section-label">Order Summary</div>
@@ -67,10 +67,31 @@
             <span class="cart-total-key">Total</span>
             <span class="cart-total-val" id="cart-total"></span>
           </div>
+
           <button class="cart-checkout-btn" id="checkout-btn">
             Checkout →
           </button>
           <a href="/" class="cart-continue">← Continue Shopping</a>
+
+          <!-- ===== STRIPE PAYMENT SECTION ===== -->
+          <!-- Revealed when "Checkout" is clicked by js/checkout.js -->
+          <div id="payment-section" class="payment-section">
+            <div class="cart-section-label" style="margin-bottom:1.2rem;">
+              Payment Details
+            </div>
+
+            <!-- Stripe mounts its Payment Element here -->
+            <div id="payment-element"></div>
+
+            <!-- Inline error / success messages -->
+            <div id="payment-message" class="payment-message" style="display:none;"></div>
+
+            <button class="cart-checkout-btn" id="pay-btn" style="margin-top:1.2rem;">
+              <span id="pay-btn-text">↳ &nbsp;Pay now</span>
+            </button>
+          </div>
+          <!-- ===== END STRIPE SECTION ===== -->
+
         </div>
       </div>
 
@@ -83,6 +104,10 @@
 
   <script src="js/menu.js" type="module"></script>
   <script src="js/cart.js" type="module"></script>
+
+  <!-- Stripe.js must load BEFORE checkout.js -->
+  <script src="https://js.stripe.com/v3/"></script>
+  <script src="js/checkout.js" type="module"></script>
 
 </body>
 </html>

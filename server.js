@@ -1,9 +1,13 @@
+import 'dotenv/config'
+
 import express from 'express'
 import { productsRouter } from './routes/products.js'
 import { authRouter } from './routes/auth.js'
 import { meRouter } from './routes/me.js'
 import { cartRouter } from './routes/cart.js' 
 import session from 'express-session'
+import { paymentsRouter } from './routes/payments.js'
+
 
 const app = express() 
 const PORT = 8000
@@ -31,6 +35,8 @@ app.use('/api/auth/me', meRouter)
 app.use('/api/auth', authRouter)
 
 app.use('/api/cart', cartRouter)
+
+app.use('/api/payments', paymentsRouter)
  
 app.listen(PORT, () => { 
   console.log(`Server running at http://localhost:${PORT}`)

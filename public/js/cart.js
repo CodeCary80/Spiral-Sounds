@@ -19,14 +19,7 @@ dom.cartList.addEventListener('click', async event => {
   await removeItem(btn.dataset.id)
 })
 
-// ===== Checkout =====
-
-dom.checkoutBtn.addEventListener('click', async () => {
-  await removeAll()
-  showMessage('Your order has been sent for processing.')
-  dom.checkoutBtn.classList.add('disabled')
-  dom.checkoutBtn.disabled = true
-})
+// NOTE: checkout button handler removed — checkout.js (Stripe) owns it now.
 
 // ===== Fetch & render cart =====
 
@@ -97,9 +90,9 @@ function renderSummary(items) {
   dom.checkoutBtn.classList.toggle('disabled', empty)
 }
 
-function showMessage(text) {
-  dom.userMessage.textContent    = text
-  dom.userMessage.style.display  = 'block'
+export function showMessage(text) {
+  dom.userMessage.textContent   = text
+  dom.userMessage.style.display = 'block'
 }
 
 // ===== API calls =====
@@ -117,22 +110,6 @@ async function removeItem(itemId) {
     }
   } catch (err) {
     console.error('Error removing item:', err)
-  }
-}
-
-async function removeAll() {
-  try {
-    const res = await fetch('/api/cart/all', {
-      method: 'DELETE',
-      credentials: 'include',
-    })
-    if (res.status === 204) {
-      await loadCart()
-    } else {
-      console.error('Error clearing cart:', await res.text())
-    }
-  } catch (err) {
-    console.error('Error clearing cart:', err)
   }
 }
 

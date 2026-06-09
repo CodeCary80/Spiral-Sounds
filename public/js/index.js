@@ -399,6 +399,7 @@ async function openGenreOverlay(genre) {
 
   document.body.style.overflow = 'hidden'
   gsap.to(page, { y: '0%', duration: 0.45, ease: 'power4.out' })
+  refreshCartSidebar() // show any pre-existing cart items
 
   const products = await getProducts({ genre })
   const countEl  = document.getElementById('genre-page-count')
@@ -415,14 +416,72 @@ async function openGenreOverlay(genre) {
   addBtnListeners()
 }
 
-// Back button — slide the overlay back down
+// Back button — slide the overlay back down, close cart sidebar
 document.getElementById('genre-page-back').addEventListener('click', () => {
+  const sidebar = document.getElementById('genre-cart-sidebar')
+  if (sidebar) sidebar.classList.remove('open')
   gsap.to(document.getElementById('genre-page'), {
     y: '100%',
     duration: 0.38,
     ease: 'power3.in',
     onComplete: () => { document.body.style.overflow = '' }
   })
+})
+
+// ===== Genre overlay cart sidebar =====
+async function refreshCartSidebar() {
+  const sidebar = document.getElementById('genre-cart-sidebar')
+  if (!sidebar) return
+
+  try {
+    const res = await fetch('/api/cart', { credentials: 'include' })
+    if (!res.ok) return
+    const data = await res.json()
+    // Handle both {items:[]} and [] response shapes
+    const items = Array.isArray(data) ? data : (data.items || data.cart || [])
+
+    sidebar.classList.toggle('open', items.length > 0)
+    if (!items.length) { sidebar.innerHTML = ''; return }
+
+    const total   = items.reduce((s, i) => s + Number(i.price) * (i.quantity || 1), 0)
+    const qty     = items.reduce((s, i) => s + (i.quantity || 1), 0)
+
+    sidebar.innerHTML = `
+      <div class="gcart-header">
+        <span class="gcart-title">♦ Cart</span>
+        <span class="gcart-count">${qty} item${qty !== 1 ? 's' : ''}</span>
+      </div>
+      <div class="gcart-items">
+        ${items.map(it => `
+          <div class="gcart-item">
+            <img src="./images/${it.image}" alt="${it.title}" class="gcart-img">
+            <div class="gcart-info">
+              <div class="gcart-name">${it.title}</div>
+              <div class="gcart-artist">${it.artist}</div>
+              <div class="gcart-qty">$${Number(it.price).toFixed(2)} &times; ${it.quantity || 1}</div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+      <div class="gcart-footer">
+        <div class="gcart-total">
+          <span class="gcart-total-label">Total</span>
+          <span class="gcart-total-amount">$${total.toFixed(2)}</span>
+        </div>
+        <a href="/cart.html" class="gcart-checkout-btn">↳ &nbsp;View cart & checkout</a>
+      </div>
+    `
+  } catch (e) {
+    console.warn('Cart sidebar:', e)
+  }
+}
+
+// Detect add-to-cart clicks inside the overlay and refresh the sidebar
+// (delay 500ms to let cartService finish its API call first)
+document.getElementById('genre-page').addEventListener('click', e => {
+  if (e.target.closest('.add-btn')) {
+    setTimeout(refreshCartSidebar, 500)
+  }
 })
 
 // ===== Search =====

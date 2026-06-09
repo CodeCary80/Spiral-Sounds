@@ -6,8 +6,6 @@ database.db
 
 # Environment variables
 .env
-
-# Mac系统文件
 .DS_Store
 
 # Logs

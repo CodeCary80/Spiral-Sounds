@@ -1221,7 +1221,7 @@ footer {
 }
 
 .footer-logo-diamond { color: var(--color-accent); }
-.footer-logo-name    { color: white; }
+.footer-logo-name    { color: rgba(255, 255, 255, 0.3); }
 
 /* Central info card */
 .footer-card {
@@ -1309,7 +1309,7 @@ footer {
   font-size: 0.62rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: white;
+  color: rgba(255, 255, 255, 0.22);
 }
 
 .footer-scroll-top {
@@ -1949,10 +1949,164 @@ select {
 }
 
 /* Body: left sticky editorial + right scrollable grid */
+.genre-page-content {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+/* genre-page-body fills the content area */
 .genre-page-body {
   flex: 1;
   display: flex;
   overflow: hidden;
+}
+
+/* Cart sidebar — slides in from right when items exist */
+.genre-cart-sidebar {
+  width: 0;
+  flex-shrink: 0;
+  overflow: hidden;
+  background: var(--color-bg-secondary);
+  border-left: 1px solid var(--color-border);
+  display: flex;
+  flex-direction: column;
+  transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.genre-cart-sidebar.open {
+  width: 272px;
+}
+
+/* Cart sidebar internals */
+.gcart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 2px solid var(--color-text);
+  flex-shrink: 0;
+}
+
+.gcart-title {
+  font-size: 0.58rem;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--color-text);
+}
+
+.gcart-count {
+  font-size: 0.55rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.gcart-items {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.gcart-item {
+  display: flex;
+  gap: 10px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.gcart-img {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.gcart-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.gcart-name {
+  font-size: 0.65rem;
+  font-weight: 700;
+  color: var(--color-text);
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.gcart-artist {
+  font-size: 0.58rem;
+  color: var(--color-accent);
+}
+
+.gcart-qty {
+  font-size: 0.55rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.05em;
+  margin-top: 2px;
+}
+
+.gcart-footer {
+  padding: 16px 20px;
+  border-top: 2px solid var(--color-text);
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.gcart-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+}
+
+.gcart-total-label {
+  font-size: 0.55rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.gcart-total-amount {
+  font-size: 1rem;
+  font-weight: 900;
+  color: var(--color-text);
+  letter-spacing: -0.02em;
+}
+
+.gcart-checkout-btn {
+  display: block;
+  background: var(--color-text);
+  color: var(--color-text-on-dark);
+  font-family: var(--font-base);
+  font-size: 0.58rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  text-align: center;
+  padding: 12px;
+  text-decoration: none;
+  transition: background 0.2s ease;
+}
+
+.gcart-checkout-btn:hover {
+  background: var(--color-accent);
+  color: #fff;
+}
+
+.gcart-empty {
+  padding: 24px 16px;
+  font-size: 0.62rem;
+  color: var(--color-text-muted);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: center;
 }
 
 /* Left column — 45% of overlay width */
@@ -2079,4 +2233,41 @@ select {
 
 .genre-card-btn:hover {
   background-color: var(--color-hover);
+}
+
+/* -----------------------------------
+   Stripe Payment Section (cart.html)
+----------------------------------- */
+.payment-section {
+  display: none;
+  margin-top: 1.8rem;
+  padding-top: 1.8rem;
+  border-top: 2px solid var(--color-text);
+}
+
+.payment-section.visible {
+  display: block;
+}
+
+/* Message box — info / error / success */
+.payment-message {
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  margin-top: 1rem;
+  padding: 0.75rem 1rem;
+  border-left: 3px solid var(--color-text);
+  background: var(--color-bg-secondary);
+  color: var(--color-text);
+  display: none;
+}
+
+.payment-message.error {
+  border-color: var(--color-accent);
+  color: var(--color-accent);
+}
+
+.payment-message.success {
+  border-color: #276749;
+  color: #276749;
+  background: #f0fff6;
 }

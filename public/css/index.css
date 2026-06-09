@@ -1221,7 +1221,7 @@ footer {
 }
 
 .footer-logo-diamond { color: var(--color-accent); }
-.footer-logo-name    { color: rgba(255, 255, 255, 0.3); }
+.footer-logo-name    { color: white; }
 
 /* Central info card */
 .footer-card {
@@ -1309,7 +1309,7 @@ footer {
   font-size: 0.62rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.22);
+  color: white;
 }
 
 .footer-scroll-top {

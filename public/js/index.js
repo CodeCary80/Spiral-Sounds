@@ -285,59 +285,40 @@ const GENRE_DESC = {
   blues:      'The root of it all. Raw emotion poured over twelve honest bars.',
 }
 
-// ===== Genre page overlay — rises on genre click =====
-async function openGenreOverlay(genre) {
-  const page  = document.getElementById('genre-page')
-  const body  = document.getElementById('genre-page-body')
-  const label = document.getElementById('genre-page-label')
+// Genres populated in init() — used to render the tab strip
+let _allGenres = []
 
-  label.textContent = genre
+// Render / refresh the tab strip, marking activeGenre
+function renderGenreTabs(activeGenre) {
+  const tabs = document.getElementById('genre-page-tabs')
+  if (!tabs || !_allGenres.length) return
+  tabs.innerHTML = ''
+  _allGenres.forEach(g => {
+    const btn = document.createElement('button')
+    btn.className = 'genre-tab-btn' + (g.toLowerCase() === activeGenre.toLowerCase() ? ' active' : '')
+    btn.textContent = g
+    btn.addEventListener('click', () => switchGenreContent(g))
+    tabs.appendChild(btn)
+    if (g.toLowerCase() === activeGenre.toLowerCase()) {
+      requestAnimationFrame(() => btn.scrollIntoView({ inline: 'nearest', block: 'nearest' }))
+    }
+  })
+}
 
-  const desc = GENRE_DESC[genre.toLowerCase()] || 'A curated selection of records chosen for their depth, craft, and lasting sound.'
-
-  // Build skeleton immediately so the panel rises with content
-  body.innerHTML = `
-    <div class="genre-page-left">
-      <div class="genre-page-big-name">${genre}</div>
-      <p class="genre-page-desc">${desc}</p>
-      <div class="genre-page-count" id="genre-page-count">Loading…</div>
-    </div>
-    <div class="genre-page-right" id="genre-page-right">
-      <div class="genre-page-grid" id="genre-page-grid"></div>
-    </div>
-  `
-
-  // Rise the panel immediately — don't wait for fetch
-  document.body.style.overflow = 'hidden'
-  gsap.to(page, { y: '0%', duration: 0.45, ease: 'power4.out' })
-
-  const products = await getProducts({ genre })
-
-  const countEl = document.getElementById('genre-page-count')
-  const grid    = document.getElementById('genre-page-grid')
-
-  if (countEl) countEl.textContent = `${products.length} record${products.length !== 1 ? 's' : ''}`
-
-  if (!products.length) {
-    if (grid) grid.innerHTML = '<p style="padding:1rem;color:#8A7F72;font-size:0.8rem;text-transform:uppercase;grid-column:1/-1;">No records found.</p>'
-    return
-  }
-
+// Build product cards into an existing grid element
+function buildProductCards(products, grid) {
   products.forEach(album => {
     const card = document.createElement('div')
     card.className = 'genre-card'
 
     const imgWrap = document.createElement('div')
     imgWrap.className = 'genre-card-img-wrap'
-
     const link = document.createElement('a')
     link.href = `/detail.html?id=${album.id}`
-
     const img = document.createElement('img')
     img.src = `./images/${album.image}`
     img.alt = album.title
     img.loading = 'lazy'
-
     link.appendChild(img)
     imgWrap.appendChild(link)
 
@@ -348,18 +329,89 @@ async function openGenreOverlay(genre) {
       <div class="genre-card-artist">${album.artist}</div>
       <div class="genre-card-price">$${Number(album.price).toFixed(2)}</div>
     `
-
     const btn = document.createElement('button')
     btn.className = 'genre-card-btn main-btn add-btn'
     btn.dataset.id = album.id
     btn.textContent = 'Add to Cart'
-
     info.appendChild(btn)
+
     card.appendChild(imgWrap)
     card.appendChild(info)
     grid.appendChild(card)
   })
+}
 
+// Render the body layout for a genre (shared by open + switch)
+async function renderGenreBody(genre) {
+  const body = document.getElementById('genre-page-body')
+  const desc = GENRE_DESC[genre.toLowerCase()] || 'A curated selection of records chosen for their depth, craft, and lasting sound.'
+
+  body.innerHTML = `
+    <div class="genre-page-left">
+      <div class="genre-page-big-name">${genre}</div>
+      <p class="genre-page-desc">${desc}</p>
+      <div class="genre-page-count" id="genre-page-count">Loading…</div>
+    </div>
+    <div class="genre-page-right">
+      <div class="genre-page-grid" id="genre-page-grid"></div>
+    </div>
+  `
+
+  const products = await getProducts({ genre })
+  const countEl  = document.getElementById('genre-page-count')
+  const grid     = document.getElementById('genre-page-grid')
+
+  if (countEl) countEl.textContent = `${products.length} record${products.length !== 1 ? 's' : ''}`
+
+  if (!products.length) {
+    if (grid) grid.innerHTML = '<p style="padding:1rem;color:#8A7F72;font-size:0.8rem;text-transform:uppercase;grid-column:1/-1;">No records found.</p>'
+    return
+  }
+
+  buildProductCards(products, grid)
+  addBtnListeners()
+}
+
+// Tab click — update active tab + re-render body (no slide animation)
+async function switchGenreContent(genre) {
+  renderGenreTabs(genre)
+  await renderGenreBody(genre)
+}
+
+// Genre block click — slide the overlay up then load content
+async function openGenreOverlay(genre) {
+  const page = document.getElementById('genre-page')
+
+  renderGenreTabs(genre)
+
+  // Build skeleton right away so the panel has content as it rises
+  const desc = GENRE_DESC[genre.toLowerCase()] || 'A curated selection of records chosen for their depth, craft, and lasting sound.'
+  document.getElementById('genre-page-body').innerHTML = `
+    <div class="genre-page-left">
+      <div class="genre-page-big-name">${genre}</div>
+      <p class="genre-page-desc">${desc}</p>
+      <div class="genre-page-count" id="genre-page-count">Loading…</div>
+    </div>
+    <div class="genre-page-right">
+      <div class="genre-page-grid" id="genre-page-grid"></div>
+    </div>
+  `
+
+  document.body.style.overflow = 'hidden'
+  gsap.to(page, { y: '0%', duration: 0.45, ease: 'power4.out' })
+
+  const products = await getProducts({ genre })
+  const countEl  = document.getElementById('genre-page-count')
+  const grid     = document.getElementById('genre-page-grid')
+
+  if (countEl) countEl.textContent = `${products.length} record${products.length !== 1 ? 's' : ''}`
+
+  if (!products.length) {
+    if (grid) grid.innerHTML = '<p style="padding:1rem;color:#8A7F72;font-size:0.8rem;text-transform:uppercase;grid-column:1/-1;">No records found.</p>'
+    return
+  }
+
+  buildProductCards(products, grid)
   addBtnListeners()
 }
 
@@ -400,6 +452,7 @@ async function init() {
 
   const genres = await getGenres()
   const all    = await getProducts()
+  _allGenres = genres
 
   // Hero — static background image + centered tagline
   const heroBg = document.getElementById('hero-bg')

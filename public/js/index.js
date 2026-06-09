@@ -269,6 +269,22 @@ document.getElementById('genre-back-bar').addEventListener('click', () => {
   document.getElementById('genre-view').style.display = 'block'
 })
 
+// ===== Genre descriptions =====
+const GENRE_DESC = {
+  rock:       'Raw energy, distorted guitars, and records that hit hard. Music built to last.',
+  indie:      'Off the beaten path. Handpicked artists who make music entirely on their own terms.',
+  ambient:    'Atmospheric and immersive. Made for thinking, drifting, and deep listening.',
+  folk:       'Acoustic tradition. Stories passed down through strings, voice, and time.',
+  punk:       'Fast, loud, and deliberate. No polish — all conviction.',
+  jazz:       'Improvisation and soul. The ongoing conversation between exceptional musicians.',
+  electronic: 'Synthesised landscapes from studio to dance floor and everywhere between.',
+  soul:       'Deep feeling and warm grooves. Music that moves the body and stirs the spirit.',
+  classical:  'Centuries of composition. Timeless orchestral and chamber works on vinyl.',
+  pop:        'Hooks, melodies, moments. Music crafted to stay with you long after it ends.',
+  metal:      'Heavy, precise, and relentless. For listeners who want more from their records.',
+  blues:      'The root of it all. Raw emotion poured over twelve honest bars.',
+}
+
 // ===== Genre page overlay — rises on genre click =====
 async function openGenreOverlay(genre) {
   const page  = document.getElementById('genre-page')
@@ -277,84 +293,73 @@ async function openGenreOverlay(genre) {
 
   label.textContent = genre
 
-  // Show loading and rise immediately — don't wait for fetch
-  body.innerHTML = '<p style="padding:2rem 1.5rem;color:#8A7F72;font-size:0.7rem;letter-spacing:0.15em;text-transform:uppercase;">Loading…</p>'
+  const desc = GENRE_DESC[genre.toLowerCase()] || 'A curated selection of records chosen for their depth, craft, and lasting sound.'
+
+  // Build skeleton immediately so the panel rises with content
+  body.innerHTML = `
+    <div class="genre-page-left">
+      <div class="genre-page-big-name">${genre}</div>
+      <p class="genre-page-desc">${desc}</p>
+      <div class="genre-page-count" id="genre-page-count">Loading…</div>
+    </div>
+    <div class="genre-page-right" id="genre-page-right">
+      <div class="genre-page-grid" id="genre-page-grid"></div>
+    </div>
+  `
+
+  // Rise the panel immediately — don't wait for fetch
   document.body.style.overflow = 'hidden'
   gsap.to(page, { y: '0%', duration: 0.45, ease: 'power4.out' })
 
   const products = await getProducts({ genre })
 
-  body.innerHTML = ''
+  const countEl = document.getElementById('genre-page-count')
+  const grid    = document.getElementById('genre-page-grid')
 
-  // Big genre title
-  const titleEl = document.createElement('div')
-  titleEl.className = 'genre-page-genre-title'
-  titleEl.textContent = genre
-  body.appendChild(titleEl)
+  if (countEl) countEl.textContent = `${products.length} record${products.length !== 1 ? 's' : ''}`
 
   if (!products.length) {
-    const empty = document.createElement('p')
-    empty.style.cssText = 'padding:2rem 1.5rem;color:#8A7F72;font-size:0.85rem;text-transform:uppercase;'
-    empty.textContent = 'No records found.'
-    body.appendChild(empty)
+    if (grid) grid.innerHTML = '<p style="padding:1rem;color:#8A7F72;font-size:0.8rem;text-transform:uppercase;grid-column:1/-1;">No records found.</p>'
     return
   }
 
-  // 4-column product grid
-  const grid = document.createElement('div')
-  grid.style.cssText = [
-    'display:grid',
-    'grid-template-columns:repeat(4,minmax(0,1fr))',
-    'width:100%',
-    'box-sizing:border-box',
-    'border-left:1px solid #D4C9B8',
-    'border-top:1px solid #D4C9B8',
-  ].join(';')
-
   products.forEach(album => {
     const card = document.createElement('div')
-    card.style.cssText = [
-      'border-right:1px solid #D4C9B8',
-      'border-bottom:1px solid #D4C9B8',
-      'background:#F7F3EC',
-      'display:flex',
-      'flex-direction:column',
-      'min-width:0',
-      'overflow:hidden',
-    ].join(';')
+    card.className = 'genre-card'
+
+    const imgWrap = document.createElement('div')
+    imgWrap.className = 'genre-card-img-wrap'
+
+    const link = document.createElement('a')
+    link.href = `/detail.html?id=${album.id}`
 
     const img = document.createElement('img')
     img.src = `./images/${album.image}`
     img.alt = album.title
     img.loading = 'lazy'
-    img.style.cssText = 'width:100%;aspect-ratio:3/2;object-fit:cover;display:block;border-bottom:2px solid #1C1C1C;'
 
-    const link = document.createElement('a')
-    link.href = `/detail.html?id=${album.id}`
-    link.style.cssText = 'display:block;overflow:hidden;'
     link.appendChild(img)
+    imgWrap.appendChild(link)
 
     const info = document.createElement('div')
-    info.style.cssText = 'padding:0.6rem 0.8rem 0.9rem;display:flex;flex-direction:column;flex:1;'
+    info.className = 'genre-card-info'
     info.innerHTML = `
-      <div style="font-size:0.75rem;font-weight:700;color:#1C1C1C;text-transform:uppercase;letter-spacing:-0.01em;">${album.title}</div>
-      <div style="font-size:0.65rem;color:#C0392B;margin-top:2px;">${album.artist}</div>
-      <div style="font-size:0.72rem;font-weight:700;color:#1C1C1C;margin-top:3px;">$${Number(album.price).toFixed(2)}</div>
+      <div class="genre-card-title">${album.title}</div>
+      <div class="genre-card-artist">${album.artist}</div>
+      <div class="genre-card-price">$${Number(album.price).toFixed(2)}</div>
     `
 
     const btn = document.createElement('button')
-    btn.className = 'main-btn add-btn'
+    btn.className = 'genre-card-btn main-btn add-btn'
     btn.dataset.id = album.id
-    btn.style.cssText = 'margin-top:auto;padding:0.45rem 0;font-size:0.6rem;'
     btn.textContent = 'Add to Cart'
 
     info.appendChild(btn)
-    card.appendChild(link)
+    card.appendChild(imgWrap)
     card.appendChild(info)
     grid.appendChild(card)
   })
 
-  body.appendChild(grid)
   addBtnListeners()
 }
 

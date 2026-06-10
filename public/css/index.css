@@ -988,9 +988,9 @@ button:active {
 
 /* Order summary */
 .cart-right {
-  width: 300px;
+  width: 460px;
   flex-shrink: 0;
-  padding: 1.8rem 2rem;
+  padding: 1.8rem 2.4rem;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;

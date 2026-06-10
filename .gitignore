@@ -14,4 +14,4 @@ npm-debug.log*
 
 # Build output
 dist/
-build/
+build/database.db

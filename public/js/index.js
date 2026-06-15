@@ -4,6 +4,9 @@ import { getProducts, getGenres } from './productService.js'
 import { addBtnListeners, updateCartIcon } from './cartService.js'
 gsap.registerPlugin(ScrollTrigger)
 
+
+
+
 // ===== Client Stories — 3-card slider with wipe transition =====
 ;(function () {
   const TOTAL = 3
@@ -424,7 +427,7 @@ document.getElementById('genre-page-back').addEventListener('click', () => {
     y: '100%',
     duration: 0.38,
     ease: 'power3.in',
-    onComplete: () => { document.body.style.overflow = '' }
+    onComplete: () => { document.body.style.overflow = ''}
   })
 })
 

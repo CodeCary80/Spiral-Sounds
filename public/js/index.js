@@ -175,13 +175,13 @@ function buildGenreScatter(genres, allProducts, carouselIds = new Set()) {
 }
 
 // ===== Show products for a genre =====
-async function showGenreProducts(genre) {
+async function showGenreProducts(label, preloadedProducts = null) {
   document.getElementById('genre-view').style.display = 'none'
   const plv = document.getElementById('product-list-view')
   plv.style.display = 'block'
-  document.getElementById('genre-back-name').textContent = genre
+  document.getElementById('genre-back-name').textContent = label
 
-  const products = await getProducts({ genre })
+  const products = preloadedProducts ?? await getProducts({ genre: label })
   const container = document.getElementById('products-container')
   container.innerHTML = ''
 
@@ -190,7 +190,7 @@ async function showGenreProducts(genre) {
 
   const title = document.createElement('div')
   title.style.cssText = 'display:block;width:100%;padding:1.2rem 1.5rem;border-bottom:2px solid #1C1C1C;box-sizing:border-box;'
-  title.innerHTML = `<span style="font-family:var(--font-heading);font-size:clamp(2rem,5vw,4.5rem);font-weight:900;color:#1C1C1C;text-transform:uppercase;letter-spacing:-0.03em;display:block;">${genre}</span>`
+  title.innerHTML = `<span style="font-family:var(--font-heading);font-size:clamp(2rem,5vw,4.5rem);font-weight:900;color:#1C1C1C;text-transform:uppercase;letter-spacing:-0.03em;display:block;">${label}</span>`
   wrapper.appendChild(title)
 
   if (!products.length) {
@@ -419,6 +419,43 @@ async function openGenreOverlay(genre) {
   addBtnListeners()
 }
 
+// Search — slide the same overlay up, but show search results instead of a genre
+async function openSearchOverlay(query, products) {
+  const page = document.getElementById('genre-page')
+
+  // No genre tabs for search results — clear them
+  const tabs = document.getElementById('genre-page-tabs')
+  if (tabs) tabs.innerHTML = ''
+
+  document.getElementById('genre-page-body').innerHTML = `
+    <div class="genre-page-left">
+      <div class="genre-page-big-name">"${query}"</div>
+      <p class="genre-page-desc">Search results for "${query}".</p>
+      <div class="genre-page-count" id="genre-page-count">Loading…</div>
+    </div>
+    <div class="genre-page-right">
+      <div class="genre-page-grid" id="genre-page-grid"></div>
+    </div>
+  `
+
+  document.body.style.overflow = 'hidden'
+  gsap.to(page, { y: '0%', duration: 0.45, ease: 'power4.out' })
+  refreshCartSidebar()
+
+  const countEl = document.getElementById('genre-page-count')
+  const grid    = document.getElementById('genre-page-grid')
+
+  if (countEl) countEl.textContent = `${products.length} record${products.length !== 1 ? 's' : ''}`
+
+  if (!products.length) {
+    if (grid) grid.innerHTML = '<p style="padding:1rem;color:#8A7F72;font-size:0.8rem;text-transform:uppercase;grid-column:1/-1;">No records found.</p>'
+    return
+  }
+
+  buildProductCards(products, grid)
+  addBtnListeners()
+}
+
 // Back button — slide the overlay back down, close cart sidebar
 document.getElementById('genre-page-back').addEventListener('click', () => {
   const sidebar = document.getElementById('genre-cart-sidebar')
@@ -488,20 +525,24 @@ document.getElementById('genre-page').addEventListener('click', e => {
 })
 
 // ===== Search =====
-document.getElementById('search-input').addEventListener('input', async () => {
+// ===== Search =====
+async function runSearch() {
   const q = document.getElementById('search-input').value.trim()
-  document.getElementById('genre-view').style.display = 'none'
-  document.getElementById('product-list-view').style.display = 'block'
-  document.getElementById('genre-back-name').textContent = `"${q}"`
-  const products = q ? await getProducts({ search: q }) : []
-  const container = document.getElementById('products-container')
-  container.innerHTML = ''
-  if (!products.length) {
-    container.innerHTML = '<p style="padding:2rem;color:var(--color-text-muted);font-size:0.85rem;text-transform:uppercase;">No results.</p>'
-    return
+  if (!q) return
+  const products = await getProducts({ search: q })
+  await openSearchOverlay(q, products)
+}
+
+document.getElementById('search-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    e.preventDefault()
+    runSearch()
   }
-  await showGenreProducts('Search results')
 })
+
+document.querySelector('.search-arrow').addEventListener('click', runSearch)
+
+document.querySelector('form[role="search"]').addEventListener('submit', e => e.preventDefault())
 
 document.querySelector('form[role="search"]').addEventListener('submit', e => e.preventDefault())
 

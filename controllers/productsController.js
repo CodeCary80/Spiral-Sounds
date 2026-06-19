@@ -27,6 +27,7 @@ export async function getProducts(req, res) {
     let params = []
 
     const { genre, search } = req.query
+    console.log('genre:', genre, '| search:', search)
 
     if (genre) {
 
@@ -35,12 +36,14 @@ export async function getProducts(req, res) {
 
     } else if (search) {
 
-      query += ' WHERE title LIKE ? OR artist LIKE ? OR genre LIKE ?'
+      query += ' WHERE title ILIKE ? OR artist ILIKE ? OR genre ILIKE ?'
       const searchPattern = `%${search}%`
       params.push(searchPattern, searchPattern, searchPattern)
       
     }
-    
+    console.log('QUERY:', query)
+    console.log('PARAMS:', params)
+
     const products = await db.all(query, params)
 
     res.json(products)

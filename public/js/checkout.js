@@ -14,12 +14,7 @@ const payBtn      = document.getElementById('pay-btn')
 const payBtnText  = document.getElementById('pay-btn-text')
 const payMessage  = document.getElementById('payment-message')
 
-// ── Boot check: confirm the module loaded and elements exist ──────────────────
 
-console.log('[checkout.js] module loaded')
-console.log('[checkout.js] checkoutBtn:', checkoutBtn)
-console.log('[checkout.js] paySection :', paySection)
-console.log('[checkout.js] checkoutBtn.disabled:', checkoutBtn?.disabled)
 
 if (!checkoutBtn) {
   console.error('[checkout.js] ❌ #checkout-btn not found — checkout will not work')

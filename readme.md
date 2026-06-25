@@ -1,117 +1,100 @@
 # Spiral Sounds
 
-A full-stack vinyl record e-commerce store built with a Bauhaus design aesthetic — black, cream, and red, with editorial typography and scroll-driven animations.
+A full-stack vinyl e-commerce platform built with Node.js, Express.js, and Vanilla JS — featuring session-based authentication, Stripe payments, and scroll-driven GSAP animations.
 
-**Live demo → [spiral-sounds-8dk9.onrender.com](https://spiral-sounds-8dk9.onrender.com)**
-
-> Stripe is in test mode. Use card `4242 4242 4242 4242` (any future expiry, any CVC) to test checkout.
+**[Live Demo](https://spiral-sounds-8dk9.onrender.com)** · **[GitHub](https://github.com/CodeCary80/Spiral-Sounds)**
 
 ---
 
-## Features
+## Overview
 
-- **Scroll-driven animations** — GSAP ScrollTrigger scrub on hero, editorial text reveal, genre scatter, and showcase image expansion
-- **Genre product overlay** — rises from below on genre click, 2-column product grid, live filter tabs, and a cart sidebar that slides in when items are added
-- **Client stories slider** — 3-card wipe transition with click-to-advance
-- **Footer rise** — footer slides up over the pinned stories section as you scroll
-- **Session auth** — register, log in, log out with bcrypt password hashing
-- **Cart** — add, remove, and view items; count badge updates in real time
-- **Stripe checkout** — full payment flow with Stripe's Payment Element; handles success and card declines inline
+Spiral Sounds is a Bauhaus-inspired vinyl record store where users can browse records by genre, search by title or artist, add items to a cart, and complete purchases via Stripe. The project demonstrates a production-ready full-stack architecture — from REST API design and database migration to secure checkout and CI/CD deployment.
 
 ---
 
 ## Tech Stack
 
-| | |
-|---|---|
-| Frontend | Vanilla HTML / CSS / JavaScript (ES Modules) |
-| Animations | GSAP 3.12.5 + ScrollTrigger |
-| Fonts | Adobe Typekit — Alfarn, Neue Kabel Black |
-| Backend | Node.js + Express |
-| Database | SQLite |
-| Auth | express-session + bcrypt |
-| Payments | Stripe (test mode) |
-| Deploy | Render |
+**Frontend:** Vanilla JS (ES Modules), HTML5, CSS3, GSAP 3 + ScrollTrigger, Stripe.js
+
+**Backend:** Node.js, Express.js, express-session, bcryptjs, validator, Stripe Node SDK
+
+**Database:** Supabase PostgreSQL (migrated from SQLite)
+
+**DevOps:** Render (hosting + auto-deploy), GitHub Actions (CI)
 
 ---
 
-## Running Locally
+## Architecture
 
-**Prerequisites:** Node.js 18+
+```
+├── server.js              # Express server, session config, route mounting
+├── db/
+│   └── db.js              # SQLite→PostgreSQL adapter (toPostgres() + RETURNING id)
+├── routes/                # 5 routers: auth, me, products, cart, payments
+├── controllers/           # Business logic for each route
+│   ├── authController.js  # Register, login, logout with bcrypt + session
+│   ├── cartController.js  # Upsert logic, SQL JOINs, cart count
+│   ├── productsController.js  # Dynamic SQL, ILIKE search, genre filter
+│   ├── meController.js    # Session-based auth check
+│   └── paymentsController.js  # Stripe PaymentIntent creation
+├── middleware/
+│   └── requireAuth.js     # Session guard for 6 protected endpoints
+└── public/
+    ├── js/                # 10 frontend ES modules
+    ├── css/
+    └── *.html             # 5 pages: index, login, signup, cart, detail
+```
+
+**Key design decisions:**
+
+- **Database adapter:** `db.js` wraps `pg.Pool` with a SQLite-compatible interface — converting `?` placeholders to `$n` syntax and auto-appending `RETURNING id` to INSERT statements, keeping all 5 controllers unchanged during migration.
+- **Auth:** HTTP-only session cookies with bcrypt password hashing. A single `requireAuth` middleware protects all cart and payment routes.
+- **Payments:** Two-step Stripe flow — backend creates a PaymentIntent and returns a `clientSecret`; frontend mounts a Payment Element and calls `confirmPayment()`, never handling card data directly.
+- **Search:** Server-side `ILIKE` query across title, artist, and genre fields, with dynamic SQL construction to support both genre filtering and keyword search from a single endpoint.
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- A [Supabase](https://supabase.com) PostgreSQL database
+- A [Stripe](https://stripe.com) account (test mode keys)
+
+### Installation
 
 ```bash
-# 1. Clone the repo
-git clone https://github.com/CodeCary80/spiral-sounds.git
-cd spiral-sounds
-
-# 2. Install dependencies
+git clone https://github.com/CodeCary80/Spiral-Sounds.git
+cd Spiral-Sounds
 npm install
-
-# 3. Create a .env file
-cp .env.example .env
-# then fill in your values (see below)
-
-# 4. Start the server
-node server.js
-# → http://localhost:8000
 ```
 
-### .env
+### Environment Variables
 
-```
-SPIRAL_SESSION_SECRET=your-session-secret
+Create a `.env` file in the project root:
+
+```env
+DATABASE_URL=your_supabase_connection_string
 STRIPE_SECRET_KEY=sk_test_...
+SPIRAL_SESSION_SECRET=your_session_secret
 ```
 
-> Get your Stripe test keys at [dashboard.stripe.com](https://dashboard.stripe.com) → Developers → API Keys.
+### Run Locally
+
+```bash
+node server.js
+```
+
+Visit `http://localhost:8000`
+
+### Test Payment
+
+Use Stripe's test card: `4242 4242 4242 4242` · any future expiry · any CVC
 
 ---
 
-## Test Payments
+## CI/CD
 
-| Card number | Result |
-|---|---|
-| `4242 4242 4242 4242` | Payment succeeds |
-| `4000 0000 0000 9995` | Declined — insufficient funds |
-
-Use any future expiry date and any 3-digit CVC.
-
----
-
-## Project Structure
-
-```
-Spiral-Sounds/
-├── public/
-│   ├── index.html           # Main page
-│   ├── cart.html            # Cart + Stripe checkout
-│   ├── css/index.css
-│   └── js/
-│       ├── index.js         # Animations + genre overlay
-│       ├── cart.js          # Cart page
-│       ├── checkout.js      # Stripe Payment Element
-│       ├── cartService.js   # Shared cart API helpers
-│       └── productService.js
-├── routes/
-│   ├── products.js
-│   ├── cart.js
-│   ├── auth.js
-│   ├── me.js
-│   └── payments.js
-├── controllers/
-│   ├── cartController.js
-│   ├── authController.js
-│   ├── productsController.js
-│   └── paymentsController.js
-├── middleware/
-│   └── requireAuth.js
-├── db/db.js
-├── server.js
-└── .env                     # Never commit this
-```
-
----
-
-## Author
-
-**Cary Zhu** — [caryzhu.com](https://caryzhu.com) · [GitHub](https://github.com/CodeCary80) · [contact@caryzhu.com](mailto:contact@caryzhu.com)
+- **CI:** GitHub Actions runs `node --check server.js` on every push
+- **CD:** Render auto-deploys on push to `main`

@@ -22,6 +22,12 @@
     <div class="hero-bg" id="hero-bg"></div>
     <div class="hero-overlay"></div>
 
+    <!-- Master vinyl — placeholder art, external file so it can be swapped without touching markup/JS.
+         Sibling of hero-stage (not nested inside it): hero-stage has transform:translate(-50%,-50%),
+         and .hero-vinyl is position:fixed (see index.css) — a transformed ancestor would hijack
+         its containing block and break that. Keeping it here avoids that. -->
+    <img src="/images/hero-vinyl.svg" alt="" aria-hidden="true" class="hero-vinyl" id="master-vinyl">
+
     <!-- Sticky nav inside hero -->
     <header class="site-header">
       <div class="header-navbar">
@@ -168,7 +174,7 @@
       </div>
 
       <div class="story" id="story-1">
-        <div class="story-photo" style="background:#0d1520"><span class="story-initial">S</span></div>
+        <div class="story-photo" style="background:#2e1512"><span class="story-initial">S</span></div>
         <div class="story-content">
           <p class="story-quote">I came in looking for one record and left with six. The staff knew exactly what I needed before I did. That's the magic of this place.</p>
           <div class="story-meta">
@@ -180,7 +186,7 @@
       </div>
 
       <div class="story" id="story-2">
-        <div class="story-photo" style="background:#0a0a1e"><span class="story-initial">D</span></div>
+        <div class="story-photo" style="background:#1c1714"><span class="story-initial">D</span></div>
         <div class="story-content">
           <p class="story-quote">Vinyl bought here sounds different. Not the pressing — the feeling. Knowing a real person chose this record for this shelf changes everything.</p>
           <div class="story-meta">

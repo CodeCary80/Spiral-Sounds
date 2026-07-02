@@ -15,3 +15,7 @@ npm-debug.log*
 # Build output
 dist/
 build/database.db
+
+# Local Claude Code config/tooling (dev tooling, not part of the app)
+.claude/
+skills-lock.json

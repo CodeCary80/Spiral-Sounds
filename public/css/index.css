@@ -46,7 +46,14 @@
 
 html {
   overflow-y: scroll;
-  scroll-behavior: smooth;
+  /* NOT scroll-behavior:smooth — it's a documented GSAP ScrollTrigger conflict: browsers route
+     keyboard-triggered scrolling (Page Down/Space/Home/End/arrow keys) through this CSS smoothing,
+     which fights with ScrollTrigger's own scrub/pin math and can make pinned sections (Showcase,
+     Stories, footer) feel like they're endlessly "chasing" a moving target instead of holding
+     still. The two places that want a smooth scroll (back-to-top, browse-collection CTA, genre
+     tab scrollIntoView) already pass behavior:'smooth' explicitly in JS — this global rule was
+     redundant with those and only added risk. Mouse wheel/trackpad scrolling isn't affected
+     either way since browsers exempt continuous input from this property. */
 }
 
 body {
@@ -346,6 +353,23 @@ button:active {
   align-items: center;
   justify-content: center;
   padding: 0 48px;
+}
+
+/* Master vinyl — base/idle placement in Hero. Sibling of .hero-stage, not a child of it
+   (see markup comment). position:fixed is load-bearing, not decorative: this element floats
+   over the whole page for the Hero->Stories scroll journey (index.js), so it must be
+   viewport-anchored the entire time — no GSAP `pin` involved, no toggling between absolute
+   and fixed. Don't switch this back to absolute without re-checking that journey logic. */
+.hero-vinyl {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 45vmin;   /* ~40-50% of the smaller viewport dimension — placeholder weight test */
+  height: 45vmin;
+  z-index: 10;
+  pointer-events: none;
+  will-change: transform;
 }
 
 .hero-tagline {
@@ -1408,6 +1432,14 @@ select {
     flex-direction: column;
     gap: 1rem;
   }
+
+  /* Mobile gets the static-image branch (see matchMedia in index.js) — no ScrollTrigger at all,
+     so nothing ever un-fixes it. Override back to absolute (anchored to #hero-section, its DOM
+     parent) so it scrolls away naturally with Hero instead of floating over every section below.
+     Size (45vmin) is inherited from the base rule above — same "~40-50% of viewport" target. */
+  .hero-vinyl {
+    position: absolute;
+  }
 }
 
 @keyframes fadeUp {
@@ -1421,7 +1453,8 @@ select {
 /* Prevent hero content flash while products are loading */
 .hero-section > .hero-bg,
 .hero-section > .hero-overlay,
-.hero-section > .hero-stage {
+.hero-section > .hero-stage,
+.hero-section > .hero-vinyl {
   opacity: 0;
 }
 
@@ -1597,7 +1630,7 @@ select {
 .stories-wrap {
   flex: 1;
   position: relative;
-  padding: 44px 48px 52px;
+  padding: 24px 32px 32px;
   overflow: hidden;
   cursor: pointer;
   display: flex;
@@ -1613,13 +1646,21 @@ select {
   z-index: 5;
 }
 
-/* Individual story — slider: only active one shown */
+/* Individual story — slider: only active one shown.
+   Card treatment: background + radius only (no border, no plain black shadow —
+   the generic "border + shadow + white bg" combo). Shadow is warm/red-tinted at
+   low opacity so it reads as ambient depth, not a slapped-on default drop-shadow. */
 .story {
   display: none;
   flex-direction: row;
   align-items: flex-start;
   gap: 36px;
   width: 100%;
+  max-width: 720px; /* leaves dedicated space to the right for the docked vinyl — see index.js */
+  background: var(--color-bg-secondary);
+  border-radius: 20px;
+  padding: 36px 40px;
+  box-shadow: 0 28px 56px -32px rgba(192, 57, 43, 0.22);
 }
 
 .story-active {
@@ -1629,7 +1670,7 @@ select {
 .story-photo {
   width: 160px;
   height: 190px;
-  border-radius: 2px;
+  border-radius: 10px;
   flex-shrink: 0;
   display: flex;
   align-items: center;

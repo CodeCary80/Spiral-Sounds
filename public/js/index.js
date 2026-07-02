@@ -303,7 +303,7 @@ function renderGenreTabs(activeGenre) {
     btn.addEventListener('click', () => switchGenreContent(g))
     tabs.appendChild(btn)
     if (g.toLowerCase() === activeGenre.toLowerCase()) {
-      requestAnimationFrame(() => btn.scrollIntoView({ inline: 'nearest', block: 'nearest' }))
+      requestAnimationFrame(() => btn.scrollIntoView({ inline: 'nearest', block: 'nearest', behavior: 'smooth' }))
     }
   })
 }
@@ -564,7 +564,7 @@ async function init() {
     heroBg.style.backgroundSize = 'cover'
     heroBg.style.backgroundPosition = 'center'
   }
-  gsap.set(['#hero-bg', '.hero-overlay', '.hero-stage'], { autoAlpha: 1 })
+  gsap.set(['#hero-bg', '.hero-overlay', '.hero-stage', '#master-vinyl'], { autoAlpha: 1 })
 
   // Genre scatter
   buildGenreScatter(genres, all)
@@ -653,6 +653,155 @@ async function init() {
     })
     // y:'100%'→'0%' overrides the CSS transform cleanly (yPercent would stack on it)
     tl.fromTo(footer, { y: '100%' }, { y: '0%', ease: 'none' })
+  })()
+
+  // ===== Master vinyl — Hero -> Editorial -> Products -> (yields to Showcase's own
+  // 250vh sticky pin, untouched above) -> Stories segment -> (yields to the footer-rise
+  // tl above, untouched). Desktop/tablet only; mobile gets a static image, no timeline. =====
+  ;(function () {
+    const heroSection     = document.getElementById('hero-section')
+    const showcaseSection = document.getElementById('showcase-section')
+    const storiesSection  = document.getElementById('stories-section')
+    const vinyl            = document.getElementById('master-vinyl')
+    if (!heroSection || !showcaseSection || !storiesSection || !vinyl) return
+
+    // Placeholders — swap paths once real art exists, no other code changes needed.
+    const DESKTOP_SRC = '/images/hero-vinyl.svg'
+    const MOBILE_SRC   = '/images/hero-vinyl.svg' // TODO: swap for compressed mobile WebP when produced
+
+    ScrollTrigger.matchMedia({
+
+      // ---- Desktop / tablet — full scroll-driven journey, same breakpoint as index.css:1354 ----
+      '(min-width: 769px)': function () {
+        vinyl.src = DESKTOP_SRC
+        gsap.set(vinyl, { x: 0, y: 0, scale: 1, rotation: 0, transformOrigin: '50% 50%' })
+
+        // Segment A: Hero through Products. Vinyl travels across the viewport. Ends exactly at
+        // showcase-section 'top top' so it hands off the instant the existing sticky/scrub
+        // takes over — no overlap with the locked Showcase logic above.
+        // No `pin` here on purpose: .hero-vinyl is already position:fixed in CSS, so it's
+        // viewport-anchored for the whole page regardless of scroll — GSAP's pin option is for
+        // converting an in-flow element to fixed temporarily, which doesn't apply here, and
+        // using it anyway caused GSAP to mis-measure the revert position once the range ended
+        // (element snapped to the top-left corner). scrub alone is enough to drive x/y/rotation/scale.
+        // NOTE: every numeric value below is a rough placeholder for a first visual pass,
+        // not a design decision — tune freely once it's actually on screen.
+        const journeyTl = gsap.timeline({
+          scrollTrigger: {
+            trigger: heroSection,
+            start: 'top top',
+            endTrigger: showcaseSection,
+            end: 'top top',
+            scrub: 1,
+            invalidateOnRefresh: true,
+            markers: true, // TEMP debug — remove before ship
+          }
+        })
+
+        journeyTl.addLabel('hero')
+        journeyTl.to(vinyl, { rotation: '+=90', duration: 1, ease: 'none' }, 'hero')
+
+        // x/y bumped up from the 220px-box placeholder values to keep travel distance
+        // proportional now that the disc is ~45vmin — same scale ratios as before.
+        journeyTl.addLabel('editorial')
+        journeyTl.to(vinyl, { x: -340, y: -40, scale: 0.8, rotation: '+=180', duration: 1, ease: 'none' }, 'editorial')
+
+        journeyTl.addLabel('products')
+        journeyTl.to(vinyl, { x: 340, y: 50, scale: 0.55, rotation: '+=180', duration: 1, ease: 'none' }, 'products')
+
+        journeyTl.addLabel('handoffToShowcase')
+        journeyTl.to(vinyl, { autoAlpha: 0, scale: 0.35, duration: 1, ease: 'none' }, 'handoffToShowcase')
+
+        // Segment B: Stories range. End mirrors the footer-rise ScrollTrigger above
+        // (index.js:642-653) for 1:1 sync — NOT independently re-derived via a 'top top' string,
+        // since both this ST and the footer's target the SAME trigger element and the footer's ST
+        // pins it (inserts a pin-spacer); two independent 'top top' measurements against a pinned
+        // trigger can drift apart depending on refresh order (confirmed: up to 900px drift on a
+        // plain page load even with refreshPriority alone). Reading the footer ST's own
+        // already-computed .end directly means this one can never disagree with it.
+        const getFooterRiseST = () => ScrollTrigger.getAll().find(st => st.pin === storiesSection)
+        // Start is deliberately NOT the footer's own start ('top top' of stories-section, i.e. the
+        // moment it's fully on screen and the footer pin engages). showcase-section is 250vh but
+        // its sticky frame (.showcase-sticky, 100vh) can only stay stuck for 250vh-100vh=150vh of
+        // scrolling before it runs out of room and releases — for the last 100vh of showcase, the
+        // photo is already sliding away and Stories is visibly sliding into view from the bottom,
+        // well before stories-section's top reaches the viewport top. Starting at 'top top' meant
+        // the vinyl waited through that entire final 100vh of Showcase doing nothing, reading as
+        // "way too late." This starts right as the sticky releases instead — the actual moment
+        // Showcase visually hands off to Stories.
+        const getShowcaseST = () => ScrollTrigger.getAll().find(st => st.trigger === showcaseSection)
+        const storiesTl = gsap.timeline({
+          scrollTrigger: {
+            trigger: storiesSection,
+            start: () => {
+              const showcaseST = getShowcaseST()
+              if (!showcaseST) return 0
+              const stickyBudget = showcaseSection.offsetHeight - window.innerHeight
+              return showcaseST.start + stickyBudget
+            },
+            end: () => getFooterRiseST()?.end ?? 0,
+            // scrub is intentionally NOT matched to the footer tl's scrub:1 here — that was only
+            // ever about keeping start/end boundaries in sync (now handled above), not the lag
+            // duration. A full 1s scrub lag meant that on a normal-speed scroll, the vinyl's
+            // fade-in was still catching up well past the 25% mark where it's supposed to finish
+            // and hold — visually reading as "no static hold." A snappier scrub makes the render
+            // track the actual scroll position closely enough that the hold reads as genuinely still.
+            scrub: 0.3,
+            invalidateOnRefresh: true,
+            // still needed: guarantees the footer ST's own .start/.end are finalized before
+            // the functions above read them during this ST's refresh pass.
+            refreshPriority: -1,
+            markers: true, // TEMP debug — remove before ship
+          }
+        })
+
+        // Total timeline duration is normalized to 1 (sum of tween durations below), so these
+        // numbers map directly to % of the (now longer, since start moved earlier) Stories scroll
+        // range: fade in + settle over the first 30%, hold fully visible (nothing tweens autoAlpha
+        // in between, so it just stays put) until 80%, then fade out over the last 20% as the
+        // footer rises to cover it. Bumped from 0.2 to 0.3 — the entrance was reading as an
+        // instant jump rather than a visible glide even though it was technically eased; 0.3 of
+        // the wider range gives it noticeably more scroll distance to actually play out over.
+        storiesTl.addLabel('storiesIn')
+        // immediateRender:false — otherwise this fromTo snaps vinyl to its "from" state the
+        // instant this line runs (page load), stomping journeyTl's render before any scroll happens.
+        storiesTl.fromTo(vinyl,
+          { autoAlpha: 0, scale: 0.35 },
+          { autoAlpha: 1, scale: 1.0, rotation: '+=90', duration: 0.3, ease: 'none', immediateRender: false }, 'storiesIn')
+        // x/y split into their own tweens (same start label + duration) with different top-level
+        // eases — x arrives early (power2.out), y catches up late (power1.in) — so the combined
+        // path bows into an arc instead of a straight diagonal cut, matching the journeyTl
+        // editorial/products leg's swoop. (A single tween with per-property {value, ease} objects
+        // was tried first but silently no-ops on this GSAP setup — x/y never moved at all — so
+        // this is two plain single-property tweens instead, which is a well-supported pattern.)
+        // End position (x:363, y:28, scale:1.0) is measured against the pinned story card, which
+        // is now capped at max-width:720px (index.css .story) specifically to leave this space
+        // clear — card right edge ≈752, card vertical center ≈478 at 1280x900. Vinyl sits in its
+        // own ~460px-wide zone to the right with a real gap (~48px) from the card edge, full size
+        // (~405px, comparable to the card's own height) and vertically centered on the card — no
+        // overlap with the card at any point. Independent of which story is active (all three
+        // share the same card geometry), so it never moves when the quote/name/photo swap
+        // underneath it — only the card content changes, not the vinyl.
+        storiesTl.fromTo(vinyl, { x: 260 }, { x: 363, duration: 0.3, ease: 'power2.out', immediateRender: false }, 'storiesIn')
+        storiesTl.fromTo(vinyl, { y: 40 }, { y: 28, duration: 0.3, ease: 'power1.in', immediateRender: false }, 'storiesIn')
+
+        storiesTl.addLabel('mergeWithFooter', 0.8)
+        storiesTl.to(vinyl, { autoAlpha: 0, y: '+=60', scale: 0.3, duration: 0.2, ease: 'none' }, 'mergeWithFooter')
+
+        // matchMedia cleanup — kill both triggers if the viewport crosses back out of this range
+        return () => {
+          journeyTl.scrollTrigger && journeyTl.scrollTrigger.kill()
+          storiesTl.scrollTrigger && storiesTl.scrollTrigger.kill()
+        }
+      },
+
+      // ---- Mobile — no timeline at all. Static image, positioned once, no ScrollTrigger. ----
+      '(max-width: 768px)': function () {
+        vinyl.src = MOBILE_SRC
+        gsap.set(vinyl, { x: 0, y: 0, scale: 1, rotation: 0 })
+      }
+
+    })
   })()
 
   // Refresh all ScrollTrigger positions after content is built

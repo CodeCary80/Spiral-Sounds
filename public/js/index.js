@@ -7,7 +7,12 @@ gsap.registerPlugin(ScrollTrigger)
 
 
 
-// ===== Client Stories — 3-card slider with wipe transition =====
+// ===== Client Stories — 3-card slider, fade+slide transition =====
+// No separate "wipe" overlay element — that was a full-bleed panel positioned independently
+// of the card (a whole extra element whose bounding box had to be kept in sync with the card's
+// own, and drifted out of sync more than once). This animates the .story cards' own
+// transform/opacity directly instead, so the transition is *structurally* incapable of covering
+// anything beyond the card — there's nothing else for it to reach.
 ;(function () {
   const TOTAL = 3
   let cur = 0
@@ -21,27 +26,28 @@ gsap.registerPlugin(ScrollTrigger)
   function goTo(idx, dir) {
     if (going || idx === cur) return
     going = true
-    const wipe = document.getElementById('stories-wipe')
-    const out  = document.getElementById(`story-${cur}`)
-    const inn  = document.getElementById(`story-${idx}`)
+    const out = document.getElementById(`story-${cur}`)
+    const inn = document.getElementById(`story-${idx}`)
 
     const tl = gsap.timeline({ onComplete: () => going = false })
-    tl.fromTo(wipe,
-      { x: dir > 0 ? '-101%' : '101%' },
-      { x: '0%', duration: 0.28, ease: 'power2.in' })
+    // Outgoing card: fade + slide out in the direction of travel.
+    tl.to(out, { autoAlpha: 0, x: dir > 0 ? -40 : 40, duration: 0.25, ease: 'power2.in' })
     tl.call(() => {
       out.classList.remove('story-active')
+      out.style.transform = ''  // clear the inline x so it's not left offset next time it's shown
       inn.classList.add('story-active')
       cur = idx
       updateCounter(idx)
     })
-    tl.to(wipe, { x: dir > 0 ? '101%' : '-101%', duration: 0.32, ease: 'power2.out' })
+    // Incoming card: enters from the opposite side, staggered cascade on its own contents
+    // (photo/quote/meta each with a slight delay + Y offset) rather than mounting all at once.
+    tl.fromTo(inn, { autoAlpha: 0, x: dir > 0 ? 40 : -40 }, { autoAlpha: 1, x: 0, duration: 0.4, ease: 'power3.out' })
     tl.fromTo(inn.querySelector('.story-photo'),
-      { opacity: 0, y: -30 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power3.out' }, '-=0.25')
+      { opacity: 0, y: -30 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power3.out' }, '-=0.3')
     tl.fromTo(inn.querySelector('.story-quote'),
-      { opacity: 0 }, { opacity: 1, duration: 0.4, ease: 'power3.out' }, '-=0.2')
+      { opacity: 0 }, { opacity: 1, duration: 0.4, ease: 'power3.out' }, '-=0.25')
     tl.fromTo(inn.querySelector('.story-meta'),
-      { opacity: 0 }, { opacity: 1, duration: 0.35, ease: 'power3.out' }, '-=0.25')
+      { opacity: 0 }, { opacity: 1, duration: 0.35, ease: 'power3.out' }, '-=0.3')
   }
 
   // Click to advance

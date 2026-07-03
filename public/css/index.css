@@ -1626,7 +1626,9 @@ select {
   gap: 7px;
 }
 
-/* Story wrap — overflow hidden for wipe transition, centered */
+/* Story wrap — centered container for the card; no overlay element lives here anymore
+   (see index.js — the fade+slide transition animates the .story cards directly, so there's
+   nothing separate that can ever cover more than the card itself, e.g. the vinyl dock zone). */
 .stories-wrap {
   flex: 1;
   position: relative;
@@ -1635,15 +1637,6 @@ select {
   cursor: pointer;
   display: flex;
   align-items: center;
-}
-
-.stories-wipe {
-  position: absolute;
-  inset: 0;
-  background: var(--color-bg-light);
-  transform: translateX(-101%);
-  pointer-events: none;
-  z-index: 5;
 }
 
 /* Individual story — slider: only active one shown.

@@ -7,23 +7,24 @@
    CSS Variables
 ----------------------------------- */
 :root {
-  /* Colors */
-  --color-bg:            #EDE8DF;
-  --color-bg-secondary:  #F7F3EC;
-  --color-bg-light:      #1C1C1C;
-  --color-bg-lightest:   #2B2B2B;
+  /* Colors — unified site-wide background (footer intentionally excluded,
+     kept as its own dark treatment per explicit instruction). */
+  --color-bg:            #F3F0ED;
+  --color-bg-secondary:  #F3F0ED;
+  --color-bg-light:      #F3F0ED;
+  --color-bg-lightest:   #F3F0ED;
   --color-accent:        #C0392B;
   --color-hover:         #3A9A9A;
-  --color-text:          #1C1C1C;
-  --color-text-on-dark:  #FFFFFF;
-  --color-text-muted:    #8A7F72;
-  --color-border:        #D4C9B8;
-  --color-input-bg:      #F7F3EC;
+  --color-text:          #1C1A17;
+  --color-text-on-dark:  #1C1A17;
+  --color-text-muted:    #6B655C;
+  --color-border:        #D9D3CC;
+  --color-input-bg:      #FFFFFF;
   --color-placeholder:   #9A8E7E;
 
-  /* Fonts */
-  --font-base:    'neue-kabel-black', sans-serif;
-  --font-heading: 'Alfarn', sans-serif;
+  /* Fonts — unified site-wide (was 'neue-kabel-black' / 'Alfarn') */
+  --font-base:    'Public Sans', sans-serif;
+  --font-heading: 'Libre Bodoni', serif;
 
   /* Spacing */
   --space-xs: 0.3rem;
@@ -33,6 +34,32 @@
 
   /* Border radius — Bauhaus sharp */
   --radius: 0px;
+}
+
+/* -----------------------------------
+   Editorial-magazine tokens — scoped only to
+   Hero / Products / Stories (+ the genre
+   overlay reached from Products). The
+   global color and font variables above
+   are untouched, so header, footer,
+   editorial, showcase and other pages
+   keep their current look.
+   Self-directed palette/type (not copied from any reference site):
+   warm paper + ink, one considered accent (oxblood), Libre Bodoni
+   serif for display/pull-quotes + Public Sans for body/UI.
+----------------------------------- */
+#hero-section,
+#products-section,
+#genre-page,
+#stories-section {
+  --fg-ink:      #1c1a17;
+  --fg-charcoal: #58524a;
+  --fg-taupe:    #ddd6cb;
+  --fg-cream:    #f3f0ed;
+  --fg-white:    #ffffff;
+  --fg-accent:   #8b2e22;
+  --fg-font-serif: 'Libre Bodoni', serif;
+  --fg-font-sans:  'Public Sans', sans-serif;
 }
 
 /* -----------------------------------
@@ -175,12 +202,15 @@ button:active {
   z-index: 200;
 }
 
+/* Hardcoded black — independent of --color-bg-light (that token is now
+   the site's light paper color everywhere else); the nav stays its own
+   dark bar with a red logo and white text, per explicit instruction. */
 .header-navbar {
   display: flex;
   align-items: center;
   gap: 2rem;
   padding: 1.1rem 2.5rem;
-  background-color: var(--color-bg-light);
+  background-color: #1c1a17;
   border-bottom: 3px solid var(--color-accent);
 }
 
@@ -224,7 +254,7 @@ button:active {
   width: 100%;
   background: transparent;
   border: none;
-  color: var(--color-text-on-dark);
+  color: #ffffff;
   padding: 0.25rem 0;
   font-size: 0.72rem;
   letter-spacing: 0.1em;
@@ -315,50 +345,102 @@ button:active {
 ----------------------------------- */
 .hero-section {
   position: relative;
-  height: 100vh;
-  min-height: 500px;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg);
   overflow: hidden;
 }
 
-.hero-bg {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  transition: background 0.8s ease;
-}
-
-.hero-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-}
-
-/* Vinyl carousel stage */
+/* Split masthead: text column left, vinyl photo center-right */
 .hero-stage {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 10;
-  width: 100%;
+  flex: 1;
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 0 48px;
+  gap: 4rem;
+  padding: 3rem 4rem;
 }
 
-.hero-tagline {
-  font-family: var(--font-heading);
-  font-size: clamp(2rem, 5vw, 4.5rem);
-  font-weight: 400;
-  color: var(--color-text-on-dark);
-  text-align: center;
-  line-height: 1.05;
-  letter-spacing: -0.02em;
-  text-transform: none;
-  max-width: 900px;
+.hero-text {
+  flex: 0 0 36%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Magazine masthead kicker — small tracked caps above the headline */
+.hero-kicker {
+  font-family: var(--fg-font-sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-accent);
   margin: 0;
+}
+
+/* Cover-line headline — high-contrast serif, the one deliberately loud
+   typographic moment on the page. */
+.hero-tagline {
+  font-family: var(--fg-font-serif);
+  font-size: clamp(2.2rem, 3.6vw, 3.6rem);
+  font-weight: 600;
+  color: var(--color-text);
+  text-align: left;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.hero-dek {
+  font-family: var(--fg-font-sans);
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* Byline credit line — sits under the dek, separated by a rule like a
+   magazine cover's small editorial credit under the masthead. */
+.hero-byline {
+  font-family: var(--fg-font-sans);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+  max-width: 320px;
+  margin-top: 0.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.hero-photo {
+  flex: 1;
+  align-self: stretch;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.hero-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+@media (max-width: 860px) {
+  .hero-stage {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    gap: 2rem;
+    padding: 2rem 24px;
+  }
+  .hero-text {
+    flex: none;
+  }
+  .hero-photo {
+    height: 320px;
+  }
 }
 
 .vinyl-mockup {
@@ -443,7 +525,7 @@ button:active {
 
 .vinyl-artist {
   font-size: 0.78rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(28, 26, 23, 0.7);
   letter-spacing: 0.05em;
 }
 
@@ -486,8 +568,8 @@ button:active {
 .hero-arrow-btn {
   width: 36px;
   height: 36px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(28, 26, 23, 0.1);
+  border: 1px solid rgba(28, 26, 23, 0.25);
   color: var(--color-text-on-dark);
   font-size: 1rem;
   cursor: pointer;
@@ -499,7 +581,7 @@ button:active {
 }
 
 .hero-arrow-btn:hover {
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(28, 26, 23, 0.22);
 }
 
 /* Scroll hint */
@@ -519,14 +601,14 @@ button:active {
 .scroll-hint span {
   font-size: 0.55rem;
   letter-spacing: 0.2em;
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(28, 26, 23, 0.55);
   text-transform: uppercase;
 }
 
 .scroll-line {
   width: 1px;
   height: 24px;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(28, 26, 23, 0.2);
   position: relative;
   overflow: hidden;
 }
@@ -580,23 +662,223 @@ button:active {
 .anim-info     { animation: info-in      0.35s 0.2s ease forwards; opacity: 0; }
 
 /* ============================================
-   GENRE SCATTER + PRODUCT LIST
+   GENRE COLLAGE — editorial floating collage, not a grid.
+   Every tile is position:absolute with hand-placed left/top coordinates
+   on one large canvas — deliberately not aligned to shared rows/columns,
+   so it reads as scattered islands rather than a packed layout. No CSS
+   Grid, no Masonry, no flex-wrap. buildGenreGrid() in index.js only
+   creates elements and cycles through slot classes; all coordinates
+   live here in CSS, not computed in JS.
 ============================================ */
 
 .products-section {
-  background: var(--color-bg);
+  background-color: var(--fg-cream);
   width: 100%;
   display: block;
 }
 
-/* Scatter wrap: fixed height, relative for absolute children */
-#genre-scatter {
+#genre-grid {
   position: relative;
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  height: 750px;
-  background: var(--color-bg);
+  height: 1280px;
+}
+
+/* Intro copy — a kicker + drop-cap paragraph + CTA in a bordered card,
+   floating in the gap between the feature tile and the upper-right tile. */
+.genre-intro {
+  position: absolute;
+  left: 460px;
+  top: 150px;
+  width: 300px;
+  border: 1px solid var(--fg-taupe);
+  padding: 28px 24px;
+}
+
+.genre-intro-kicker {
+  font-family: var(--fg-font-sans);
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fg-accent);
+  margin: 0 0 0.9rem;
+}
+
+.genre-intro-text {
+  font-family: var(--fg-font-sans);
+  font-size: 1rem;
+  color: var(--fg-ink);
+  line-height: 1.6;
+  margin: 0 0 1.5rem;
+}
+
+.genre-intro-text::first-letter {
+  font-family: var(--fg-font-serif);
+  font-size: 3.2rem;
+  font-weight: 600;
+  float: left;
+  line-height: 0.8;
+  padding: 0.05em 0.08em 0 0;
+  color: var(--fg-accent);
+}
+
+.genre-intro-btn {
+  font-family: var(--fg-font-sans);
+  font-weight: 500;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  color: var(--fg-cream);
+  background: var(--fg-ink);
+  border: none;
+  border-radius: 999px;
+  padding: 0.8em 1.6em;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.genre-intro-btn:hover {
+  background: var(--fg-accent);
+}
+
+.genre-tile {
+  position: absolute;
+  border-radius: 4px;
+  overflow: hidden;
+  background-color: var(--fg-ink);
+  background-size: cover;
+  background-position: center;
+  cursor: pointer;
+}
+
+/* Feature — large, upper-left corner. The eye's entry point. */
+.genre-tile--feature {
+  left: 24px;
+  top: 60px;
+  width: 380px;
+  height: 480px;
+}
+
+/* Slot A — far upper-right corner, well clear of the feature and intro */
+.genre-tile--slot-a {
+  left: calc(100% - 270px);
+  top: 10px;
+  width: 250px;
+  height: 300px;
+}
+
+/* Slot D — right side, lower than A, continuing the diagonal downward */
+.genre-tile--slot-d {
+  left: calc(100% - 320px);
+  top: 440px;
+  width: 280px;
+  height: 350px;
+}
+
+/* Slot C — center-low, in the open gap below the intro card */
+.genre-tile--slot-c {
+  left: 440px;
+  top: 660px;
+  width: 260px;
+  height: 330px;
+}
+
+/* Slot B — far lower-left, the diagonal's final resting point */
+.genre-tile--slot-b {
+  left: 24px;
+  top: 860px;
+  width: 280px;
+  height: 340px;
+}
+
+/* A second cycle of 5 (if the catalog grows) repeats the same slots
+   shifted down a full "page" so tiles don't stack on top of each other. */
+.genre-tile--cycle-2 {
+  margin-top: 1320px;
+}
+
+/* Minimal scrim — just enough for the label to stay legible, not a
+   heavy dark wash over the whole photo. */
+.genre-tile::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(28, 26, 23, 0) 55%, rgba(28, 26, 23, 0.55) 100%);
+}
+
+/* Large serif label, roughly a third up from the bottom — the same
+   cover-line treatment as the Hero headline, used consistently. */
+.genre-tile-tag {
+  position: absolute;
+  left: 20px;
+  right: 20px;
+  bottom: 32%;
+  font-family: var(--fg-font-serif);
+  font-size: clamp(1.6rem, 2.4vw, 2.3rem);
+  font-weight: 600;
+  color: var(--fg-cream);
+  text-transform: capitalize;
+  line-height: 1.1;
+  text-shadow: 0 2px 18px rgba(28, 26, 23, 0.45);
+}
+
+/* Ghost-bordered "View" chip, revealed on hover only */
+.genre-tile-view {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.92);
+  padding: 8px 20px;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  border-radius: 999px;
+  font-family: var(--fg-font-sans);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--fg-cream);
+  opacity: 0;
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+}
+
+.genre-tile:hover .genre-tile-view {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Edge-to-edge scatter only makes sense on a wide canvas — mobile
+   collapses to a simple single-column stack in natural DOM order. */
+/* The floating-collage canvas only works with room to spread out —
+   mobile drops absolute positioning entirely for a simple stack. */
+@media (max-width: 720px) {
+  #genre-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    height: auto;
+    padding: 56px 24px 80px;
+  }
+
+  .genre-intro,
+  .genre-tile {
+    position: static;
+    margin-top: 0 !important;
+  }
+
+  .genre-intro {
+    padding: 24px 20px;
+    width: 100%;
+  }
+
+  .genre-tile,
+  .genre-tile--feature,
+  .genre-tile--slot-a,
+  .genre-tile--slot-b,
+  .genre-tile--slot-c,
+  .genre-tile--slot-d {
+    width: 100%;
+    height: 260px;
+  }
 }
 
 /* Product list view */
@@ -634,7 +916,7 @@ button:active {
 .genre-back-label {
   font-size: 0.6rem;
   letter-spacing: 0.15em;
-  color: rgba(255, 255, 255, 0.65);
+  color: rgba(28, 26, 23, 0.65);
   text-transform: uppercase;
 }
 
@@ -663,7 +945,7 @@ button:active {
   background-color: var(--color-bg-secondary);
   border-right: 1px solid var(--color-border);
   border-bottom: 1px solid var(--color-border);
-  border-top: 2px solid var(--color-bg-light);
+  border-top: 2px solid #1C1A17;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -675,7 +957,7 @@ button:active {
   aspect-ratio: 1 / 1;
   object-fit: cover;
   display: block;
-  border-bottom: 2px solid var(--color-bg-light);
+  border-bottom: 2px solid #1C1A17;
 }
 
 .product-card h2 {
@@ -724,13 +1006,13 @@ button:active {
 ----------------------------------- */
 .detail-wrapper {
   display: flex;
-  border-top: 2px solid var(--color-bg-light);
+  border-top: 2px solid #1C1A17;
 }
 
 .detail-left {
   width: 340px;
   flex-shrink: 0;
-  border-right: 2px solid var(--color-bg-light);
+  border-right: 2px solid #1C1A17;
 }
 
 .detail-cover {
@@ -738,7 +1020,7 @@ button:active {
   aspect-ratio: 1 / 1;
   object-fit: cover;
   display: block;
-  border-bottom: 2px solid var(--color-bg-light);
+  border-bottom: 2px solid #1C1A17;
 }
 
 .detail-purchase {
@@ -839,7 +1121,7 @@ button:active {
 
 /* Tracklist */
 .detail-tracklist {
-  border-top: 1px solid var(--color-bg-light);
+  border-top: 1px solid #1C1A17;
   padding-top: 0.7rem;
 }
 
@@ -891,13 +1173,13 @@ button:active {
 
 .cart-wrapper {
   display: flex;
-  border-top: 2px solid var(--color-bg-light);
+  border-top: 2px solid #1C1A17;
   flex: 1;
 }
 
 .cart-left {
   flex: 1;
-  border-right: 2px solid var(--color-bg-light);
+  border-right: 2px solid #1C1A17;
   padding: 1.8rem 2.4rem;
 }
 
@@ -1022,7 +1304,7 @@ button:active {
   justify-content: space-between;
   align-items: baseline;
   padding: 0.9rem 0;
-  border-top: 2px solid var(--color-bg-light);
+  border-top: 2px solid #1C1A17;
   margin-top: 0.4rem;
 }
 
@@ -1119,7 +1401,7 @@ button:active {
   width: 100%;
   background: var(--color-input-bg);
   border: none;
-  border-bottom: 1px solid var(--color-bg-light);
+  border-bottom: 1px solid #1C1A17;
   padding: 0.55rem 0;
   font-size: 0.8rem;
   color: var(--color-text);
@@ -1356,7 +1638,7 @@ select {
     display: none;
     flex-direction: column;
     align-items: flex-start;
-    background-color: var(--color-bg-light);
+    background-color: #1c1a17;
     padding: var(--space-md);
     position: absolute;
     top: 100%;
@@ -1377,7 +1659,7 @@ select {
     cursor: pointer;
     background-color: transparent;
     border: none;
-    color: var(--color-text-on-dark);
+    color: #ffffff;
     align-self: center;
   }
 
@@ -1392,7 +1674,7 @@ select {
   .detail-left {
     width: 100%;
     border-right: none;
-    border-bottom: 2px solid var(--color-bg-light);
+    border-bottom: 2px solid #1C1A17;
   }
 
   .cart-wrapper {
@@ -1401,12 +1683,11 @@ select {
 
   .cart-right {
     width: 100%;
-    border-top: 2px solid var(--color-bg-light);
+    border-top: 2px solid #1C1A17;
   }
 
   .hero-stage {
-    flex-direction: column;
-    gap: 1rem;
+    padding: 0 24px;
   }
 }
 
@@ -1419,8 +1700,6 @@ select {
 ----------------------------------- */
 
 /* Prevent hero content flash while products are loading */
-.hero-section > .hero-bg,
-.hero-section > .hero-overlay,
 .hero-section > .hero-stage {
   opacity: 0;
 }
@@ -1519,7 +1798,7 @@ select {
   letter-spacing: 0.18em;
   text-transform: uppercase;
   padding: 14px 28px;
-  border: none;
+  border: 1.5px solid var(--color-text);
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
@@ -1560,8 +1839,16 @@ select {
 /* -----------------------------------
    Client Stories Section
 ----------------------------------- */
+/* min-height/display are left untouched here — ScrollTrigger pins this
+   section (pin: stories, end:'+=100%') and the footer reveal animation
+   is timed against its box, so only colors/borders/type are restyled. */
+/* min-height stays 100vh (not dvh) — ScrollTrigger pins this section
+   (pin: stories, end:'+=100%') and the footer reveal animation is timed
+   against its box, so only the background texture is added here. */
 .stories-section {
-  background: var(--color-bg);
+  background-color: var(--fg-cream);
+  background-image: radial-gradient(rgba(28, 26, 23, 0.05) 1px, transparent 1px);
+  background-size: 3px 3px;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -1575,7 +1862,7 @@ select {
 
 /* Header bar — same pattern as editorial bottom bar */
 .stories-header {
-  border-top: 2px solid var(--color-text);
+  border-top: 1px solid var(--fg-taupe);
   padding: 14px 48px;
   display: flex;
   align-items: center;
@@ -1584,42 +1871,42 @@ select {
 }
 
 .stories-label {
+  font-family: var(--fg-font-serif);
   font-size: 0.58rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--color-text);
+  color: var(--fg-ink);
   display: flex;
   align-items: center;
   gap: 7px;
 }
 
-/* Story wrap — overflow hidden for wipe transition, centered */
+/* Story wrap — positioning context for the crossfading .story cards */
 .stories-wrap {
   flex: 1;
   position: relative;
-  padding: 44px 48px 52px;
-  overflow: hidden;
+  padding: 48px;
   cursor: pointer;
   display: flex;
   align-items: center;
 }
 
-.stories-wipe {
-  position: absolute;
-  inset: 0;
-  background: var(--color-bg-light);
-  transform: translateX(-101%);
-  pointer-events: none;
-  z-index: 5;
-}
-
-/* Individual story — slider: only active one shown */
+/* Individual story — slider: only the active one is interactive/visible
+   at rest, but .story is positioned absolute so the outgoing and
+   incoming cards can briefly overlap during the crossfade (confirmed
+   from the reference recording: plain opacity crossfade, no slide/wipe). */
 .story {
   display: none;
+  position: absolute;
+  top: 50%;
+  left: 48px;
+  right: 48px;
+  transform: translateY(-50%);
   flex-direction: row;
   align-items: flex-start;
-  gap: 36px;
-  width: 100%;
+  gap: 48px;
+  max-width: 860px;
+  margin: 0 auto;
 }
 
 .story-active {
@@ -1627,67 +1914,89 @@ select {
 }
 
 .story-photo {
-  width: 160px;
-  height: 190px;
-  border-radius: 2px;
+  width: 140px;
+  height: 170px;
+  border-radius: 0;
+  border: 1px solid var(--fg-taupe);
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
 .story-initial {
-  font-size: 52px;
-  font-weight: 900;
-  color: rgba(255, 255, 255, 0.12);
-  text-transform: uppercase;
+  font-family: var(--fg-font-serif);
+  font-size: 46px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.16);
 }
 
 .story-content {
   flex: 1;
   min-width: 0;
+  padding-top: 6px;
 }
 
+/* Pull-quote treatment — the same cover-line serif as Hero/Products,
+   with an oversized decorative quote mark in the one considered accent. */
 .story-quote {
-  font-family: var(--font-heading);
-  font-size: clamp(1.2rem, 2.8vw, 2rem);
-  font-weight: 900;
-  color: var(--color-text);
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-  margin-bottom: 32px;
+  font-family: var(--fg-font-serif);
+  font-size: clamp(1.4rem, 2.6vw, 2rem);
+  font-weight: 500;
+  font-style: italic;
+  color: var(--fg-ink);
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  margin: 0 0 28px;
 }
 
 .story-quote::before {
   content: '\201C';
-  color: var(--color-accent);
-  font-size: 1.3em;
-  line-height: 0;
-  vertical-align: -0.15em;
-  margin-right: 4px;
-  font-family: Georgia, serif;
+  display: block;
+  color: var(--fg-accent);
+  font-family: var(--fg-font-serif);
+  font-style: normal;
+  font-size: 3.2rem;
+  line-height: 0.4;
+  margin-bottom: 0.4em;
 }
 
 .story-name {
+  font-family: var(--fg-font-sans);
   font-size: 0.95rem;
-  font-weight: 500;
-  color: var(--color-text);
+  font-weight: 700;
+  color: var(--fg-ink);
   margin-bottom: 4px;
 }
 
+.story-name::before {
+  content: '\2014\00a0';
+  color: var(--fg-accent);
+}
+
 .story-role {
-  font-size: 0.58rem;
-  letter-spacing: 0.18em;
+  font-family: var(--fg-font-sans);
+  font-size: 0.68rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--color-text-muted);
+  color: var(--fg-charcoal);
 }
 
 .story-album {
-  font-size: 0.58rem;
-  letter-spacing: 0.12em;
+  font-family: var(--fg-font-sans);
+  font-size: 0.68rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--color-accent);
+  color: var(--fg-charcoal);
   margin-top: 4px;
+}
+
+@media (max-width: 720px) {
+  .story {
+    flex-direction: column;
+    gap: 24px;
+  }
 }
 
 /* Bottom bar */
@@ -1716,15 +2025,47 @@ select {
   color: var(--color-text-muted);
 }
 
-.stories-diamond { color: var(--color-accent); }
+.stories-diamond { color: var(--fg-charcoal); }
+
+.stories-header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
 
 .stories-counter {
+  font-family: var(--fg-font-serif);
   font-size: 0.65rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--color-text-muted);
+  color: var(--fg-ink);
 }
-.stories-counter b { color: var(--color-text); font-weight: 700; }
+.stories-counter b { color: var(--fg-charcoal); font-weight: 700; }
+
+.stories-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.stories-nav-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--fg-taupe);
+  background: transparent;
+  color: var(--fg-ink);
+  font-family: var(--fg-font-sans);
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.stories-nav-btn:hover {
+  border-color: var(--fg-ink);
+  background: rgba(28, 26, 23, 0.05);
+}
 
 /* Initial hidden states managed by GSAP, not CSS */
 
@@ -1733,9 +2074,12 @@ select {
 ----------------------------------- */
 
 /* Tall section creates scroll distance for the expansion */
+/* Hardcoded dark bg — this section's own white text/overlay is kept
+   deliberately unchanged, so it needs its own dark backdrop independent
+   of --color-bg-light now that that token is the site's light color. */
 .showcase-section {
   height: 250vh;
-  background: var(--color-bg-light);
+  background: #1c1a17;
   border-top: 2px solid rgba(255, 255, 255, 0.12);
 }
 
@@ -1745,7 +2089,7 @@ select {
   top: 0;
   height: 100vh;
   overflow: hidden;
-  background: var(--color-bg-light);
+  background: #1c1a17;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1875,13 +2219,13 @@ select {
   position: fixed;
   inset: 0;
   z-index: 300;
-  background: var(--color-bg);
+  background: var(--fg-cream);
   transform: translateY(100%);
   will-change: transform;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-radius: 16px 16px 0 0;
+  border-radius: 0;
 }
 
 .genre-page-header {
@@ -1889,8 +2233,8 @@ select {
   align-items: center;
   justify-content: space-between;
   padding: 14px 48px;
-  border-bottom: 2px solid var(--color-text);
-  background: var(--color-bg);
+  border-bottom: 1px solid var(--fg-taupe);
+  background: var(--fg-cream);
   flex-shrink: 0;
 }
 
@@ -1902,16 +2246,16 @@ select {
   font-size: 0.58rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--color-text);
+  color: var(--fg-ink);
   transition: color 0.2s ease;
 }
 
 .genre-page-back:hover {
-  color: var(--color-accent);
+  color: var(--fg-charcoal);
 }
 
 .genre-page-back-arrow {
-  color: var(--color-accent);
+  color: var(--fg-accent);
 }
 
 .genre-page-tabs {
@@ -1925,13 +2269,14 @@ select {
 
 .genre-tab-btn {
   padding: 8px 18px;
-  font-family: var(--font-base);
+  font-family: var(--fg-font-sans);
   font-size: 0.55rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   background: transparent;
-  border: 1px solid var(--color-border);
-  color: var(--color-text);
+  border: 1px solid rgba(28, 26, 23, 0.15);
+  border-radius: 999px;
+  color: var(--fg-ink);
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
@@ -1939,13 +2284,14 @@ select {
 }
 
 .genre-tab-btn.active {
-  background: var(--color-text);
-  color: var(--color-text-on-dark);
-  border-color: var(--color-text);
+  background: var(--fg-ink);
+  color: var(--fg-cream);
+  border-color: var(--fg-ink);
 }
 
 .genre-tab-btn:hover:not(.active) {
-  border-color: var(--color-text);
+  border-color: var(--fg-charcoal);
+  color: var(--fg-charcoal);
 }
 
 /* Body: left sticky editorial + right scrollable grid */
@@ -1967,8 +2313,8 @@ select {
   width: 0;
   flex-shrink: 0;
   overflow: hidden;
-  background: var(--color-bg-secondary);
-  border-left: 1px solid var(--color-border);
+  background: var(--fg-cream);
+  border-left: 1px solid var(--fg-taupe);
   display: flex;
   flex-direction: column;
   transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1984,22 +2330,25 @@ select {
   align-items: center;
   justify-content: space-between;
   padding: 14px 20px;
-  border-bottom: 2px solid var(--color-text);
+  border-bottom: 1px solid var(--fg-taupe);
   flex-shrink: 0;
 }
 
 .gcart-title {
+  font-family: var(--fg-font-sans);
+  font-weight: 700;
   font-size: 0.58rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--color-text);
+  color: var(--fg-ink);
 }
 
 .gcart-count {
+  font-family: var(--fg-font-sans);
   font-size: 0.55rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--color-text-muted);
+  color: var(--fg-charcoal);
 }
 
 .gcart-items {
@@ -2011,7 +2360,7 @@ select {
   display: flex;
   gap: 10px;
   padding: 12px 16px;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--fg-taupe);
 }
 
 .gcart-img {
@@ -2030,9 +2379,10 @@ select {
 }
 
 .gcart-name {
+  font-family: var(--fg-font-sans);
   font-size: 0.65rem;
   font-weight: 700;
-  color: var(--color-text);
+  color: var(--fg-ink);
   text-transform: uppercase;
   letter-spacing: -0.01em;
   white-space: nowrap;
@@ -2041,20 +2391,22 @@ select {
 }
 
 .gcart-artist {
+  font-family: var(--fg-font-sans);
   font-size: 0.58rem;
-  color: var(--color-accent);
+  color: var(--fg-charcoal);
 }
 
 .gcart-qty {
+  font-family: var(--fg-font-sans);
   font-size: 0.55rem;
-  color: var(--color-text-muted);
+  color: var(--fg-ink);
   letter-spacing: 0.05em;
   margin-top: 2px;
 }
 
 .gcart-footer {
   padding: 16px 20px;
-  border-top: 2px solid var(--color-text);
+  border-top: 1px solid var(--fg-taupe);
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -2068,24 +2420,30 @@ select {
 }
 
 .gcart-total-label {
+  font-family: var(--fg-font-sans);
   font-size: 0.55rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--color-text-muted);
+  color: var(--fg-ink);
 }
 
 .gcart-total-amount {
+  font-family: var(--fg-font-sans);
   font-size: 1rem;
-  font-weight: 900;
-  color: var(--color-text);
+  font-weight: 700;
+  color: var(--fg-ink);
   letter-spacing: -0.02em;
 }
 
 .gcart-checkout-btn {
   display: block;
-  background: var(--color-text);
-  color: var(--color-text-on-dark);
-  font-family: var(--font-base);
+  background: var(--fg-ink);
+  color: var(--fg-cream);
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(28, 26, 23, 0.2);
+  font-family: var(--fg-font-sans);
+  font-weight: 700;
   font-size: 0.58rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
@@ -2096,14 +2454,15 @@ select {
 }
 
 .gcart-checkout-btn:hover {
-  background: var(--color-accent);
-  color: #fff;
+  background: var(--fg-charcoal);
+  color: var(--fg-cream);
 }
 
 .gcart-empty {
+  font-family: var(--fg-font-sans);
   padding: 24px 16px;
   font-size: 0.62rem;
-  color: var(--color-text-muted);
+  color: var(--fg-ink);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   text-align: center;
@@ -2113,7 +2472,7 @@ select {
 .genre-page-left {
   flex: 0 0 45%;
   padding: 52px 48px;
-  border-right: 1px solid var(--color-border);
+  border-right: 1px solid var(--fg-taupe);
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -2121,29 +2480,31 @@ select {
 }
 
 .genre-page-big-name {
-  font-family: var(--font-heading);
+  font-family: var(--fg-font-serif);
   font-size: clamp(3rem, 5vw, 5.5rem);
-  font-weight: 900;
-  color: var(--color-text);
-  text-transform: uppercase;
-  letter-spacing: -0.04em;
-  line-height: 0.88;
+  font-weight: 600;
+  color: var(--fg-ink);
+  text-transform: capitalize;
+  letter-spacing: -0.01em;
+  line-height: 0.95;
 }
 
 .genre-page-desc {
+  font-family: var(--fg-font-sans);
   font-size: 0.8rem;
-  color: var(--color-text-muted);
+  color: var(--fg-ink);
   line-height: 1.65;
   letter-spacing: 0.01em;
   padding-top: 16px;
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid var(--fg-taupe);
 }
 
 .genre-page-count {
+  font-family: var(--fg-font-sans);
   font-size: 0.58rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--color-text-muted);
+  color: var(--fg-charcoal);
 }
 
 /* Right column — 55% of overlay width, equal 48px right padding */
@@ -2172,7 +2533,8 @@ select {
   width: 100%;
   aspect-ratio: 4 / 3;
   overflow: hidden;
-  background: var(--color-bg-light);
+  background: var(--fg-ink);
+  border-radius: 8px;
 }
 
 .genre-card-img-wrap img {
@@ -2195,33 +2557,40 @@ select {
 }
 
 .genre-card-title {
+  font-family: var(--fg-font-sans);
   font-size: 0.78rem;
   font-weight: 700;
-  color: var(--color-text);
+  color: var(--fg-ink);
   text-transform: uppercase;
   letter-spacing: -0.01em;
   line-height: 1.2;
 }
 
 .genre-card-artist {
-  font-size: 0.62rem;
-  color: var(--color-accent);
-  letter-spacing: 0.04em;
+  font-family: var(--fg-font-serif);
+  font-style: italic;
+  font-size: 0.68rem;
+  color: var(--fg-accent);
+  letter-spacing: 0.01em;
 }
 
 .genre-card-price {
+  font-family: var(--fg-font-sans);
   font-size: 0.7rem;
   font-weight: 700;
-  color: var(--color-text);
+  color: var(--fg-ink);
   margin-top: 2px;
 }
 
 .genre-card-btn {
   margin-top: 8px;
-  background-color: var(--color-accent);
-  color: var(--color-text-on-dark);
+  background-color: var(--fg-ink);
+  color: var(--fg-cream);
   border: none;
-  font-family: var(--font-base);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(28, 26, 23, 0.18);
+  font-family: var(--fg-font-sans);
+  font-weight: 700;
   font-size: 0.6rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -2232,7 +2601,13 @@ select {
 }
 
 .genre-card-btn:hover {
-  background-color: var(--color-hover);
+  background-color: var(--fg-charcoal);
+}
+
+/* GSAP never targets this button's transform, so a subtle press
+   scale is safe to add here — softer than a hard offset shadow drop. */
+.genre-card-btn:active {
+  transform: scale(0.98);
 }
 
 /* -----------------------------------

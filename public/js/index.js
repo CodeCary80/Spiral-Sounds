@@ -7,7 +7,11 @@ gsap.registerPlugin(ScrollTrigger)
 
 
 
-// ===== Client Stories — 3-card slider with wipe transition =====
+// ===== Client Stories — 3-card slider with plain crossfade =====
+// fluid.glass's own testimonial transition is a same-position opacity
+// crossfade (old fades out, new fades in, no slide/wipe), confirmed by
+// frame-by-frame review of the reference recording — not a directional
+// wipe, so .story is positioned absolute to let both overlap briefly.
 ;(function () {
   const TOTAL = 3
   let cur = 0
@@ -18,37 +22,38 @@ gsap.registerPlugin(ScrollTrigger)
     if (el) el.innerHTML = `<b>${String(n + 1).padStart(2, '0')}</b> / 0${TOTAL}`
   }
 
-  function goTo(idx, dir) {
+  function goTo(idx) {
     if (going || idx === cur) return
     going = true
-    const wipe = document.getElementById('stories-wipe')
-    const out  = document.getElementById(`story-${cur}`)
-    const inn  = document.getElementById(`story-${idx}`)
+    const out = document.getElementById(`story-${cur}`)
+    const inn = document.getElementById(`story-${idx}`)
 
-    const tl = gsap.timeline({ onComplete: () => going = false })
-    tl.fromTo(wipe,
-      { x: dir > 0 ? '-101%' : '101%' },
-      { x: '0%', duration: 0.28, ease: 'power2.in' })
-    tl.call(() => {
-      out.classList.remove('story-active')
-      inn.classList.add('story-active')
-      cur = idx
-      updateCounter(idx)
+    inn.classList.add('story-active')
+    gsap.set(inn, { opacity: 0 })
+    updateCounter(idx)
+    cur = idx
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        out.classList.remove('story-active')
+        gsap.set(out, { clearProps: 'opacity' })
+        going = false
+      }
     })
-    tl.to(wipe, { x: dir > 0 ? '101%' : '-101%', duration: 0.32, ease: 'power2.out' })
-    tl.fromTo(inn.querySelector('.story-photo'),
-      { opacity: 0, y: -30 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power3.out' }, '-=0.25')
-    tl.fromTo(inn.querySelector('.story-quote'),
-      { opacity: 0 }, { opacity: 1, duration: 0.4, ease: 'power3.out' }, '-=0.2')
-    tl.fromTo(inn.querySelector('.story-meta'),
-      { opacity: 0 }, { opacity: 1, duration: 0.35, ease: 'power3.out' }, '-=0.25')
+    tl.to(out, { opacity: 0, duration: 0.35, ease: 'power1.out' }, 0)
+    tl.to(inn, { opacity: 1, duration: 0.4, ease: 'power1.out' }, 0.05)
   }
 
-  // Click to advance
+  // Click anywhere on the wrap, or the explicit prev/next buttons, to advance
   const wrap = document.getElementById('stories-wrap')
   if (wrap) {
-    wrap.addEventListener('click', () => goTo((cur + 1) % TOTAL, 1))
+    wrap.addEventListener('click', () => goTo((cur + 1) % TOTAL))
   }
+
+  const prevBtn = document.getElementById('stories-prev')
+  const nextBtn = document.getElementById('stories-next')
+  if (prevBtn) prevBtn.addEventListener('click', e => { e.stopPropagation(); goTo((cur - 1 + TOTAL) % TOTAL) })
+  if (nextBtn) nextBtn.addEventListener('click', e => { e.stopPropagation(); goTo((cur + 1) % TOTAL) })
 })()
 
 // ===== Footer — scroll to top button =====
@@ -69,109 +74,34 @@ document.getElementById('browse-btn').addEventListener('click', () => {
 // ===== Auth =====
 document.getElementById('logout-btn').addEventListener('click', logout)
 
-// ===== Genre colours =====
-const GENRE_COLORS = {
-  rock: '#2a1a12', indie: '#0d1520', ambient: '#0d1810',
-  folk: '#180d18', punk: '#1a0808', jazz: '#0a0a1e',
-  electronic: '#060f18', soul: '#3d1a00', classical: '#222218',
-  pop: '#1a0a18', metal: '#0a0a0a', blues: '#0a100a',
-}
-function genreColor(g) { return GENRE_COLORS[g.toLowerCase()] || '#1C1C1C' }
+// ===== Genre Grid — true scatter via CSS Grid slots =====
+// Positioning is pure CSS (grid-column/grid-row per slot class); this
+// only creates elements and cycles through 5 slot classes, no coordinate math.
+const GENRE_SLOTS = ['genre-tile--feature', 'genre-tile--slot-a', 'genre-tile--slot-b', 'genre-tile--slot-c', 'genre-tile--slot-d']
 
-// ===== Genre Scatter =====
-function buildGenreScatter(genres, allProducts, carouselIds = new Set()) {
-  const wrap = document.getElementById('genre-scatter')
+function buildGenreGrid(genres, allProducts, carouselIds = new Set()) {
+  const wrap = document.getElementById('genre-grid')
   if (!wrap) return
 
-  const layout = [
-    [  6, 140, 22, 400],
-    [ 30,  30, 40, 140],
-    [ 40, 240, 18, 220],
-    [ 68, 340, 18, 220],
-    [ 32, 510, 32, 160],
-  ]
-
-  const W = wrap.offsetWidth
-
-  genres.slice(0, layout.length).forEach((genre, i) => {
-    const [lp, tp_px, wp, hp_px] = layout[i]
-
+  genres.forEach((genre, i) => {
     const album =
       allProducts.find(p => p.genre.toLowerCase() === genre.toLowerCase() && !carouselIds.has(p.id))
       || allProducts.find(p => p.genre.toLowerCase() === genre.toLowerCase())
 
-    const bgImage = album ? `url('./images/${album.image}')` : 'none'
-
+    const slotClass = ' ' + GENRE_SLOTS[i % GENRE_SLOTS.length]
+    const cycleClass = i >= GENRE_SLOTS.length ? ' genre-tile--cycle-2' : ''
     const el = document.createElement('div')
-    el.className = 'genre-block'
+    el.className = 'genre-tile' + slotClass + cycleClass
     el.dataset.genre = genre
-    el.style.cssText = `
-      position: absolute;
-      left: ${(lp/100)*W}px;
-      top: ${tp_px}px;
-      width: ${(wp/100)*W}px;
-      height: ${hp_px}px;
-      background-color: ${genreColor(genre)};
-      background-image: ${bgImage};
-      background-size: cover;
-      background-position: center;
-      cursor: pointer;
-      overflow: hidden;
-      opacity: 0;
-    `
+    if (album) el.style.backgroundImage = `url('./images/${album.image}')`
 
     el.innerHTML = `
-      <div style="position:absolute;inset:0;background:rgba(0,0,0,0.35);"></div>
-      <span style="position:absolute;top:10px;right:12px;font-size:0.7rem;color:rgba(255,255,255,0.6);">↗</span>
-      <div style="position:absolute;bottom:0;left:0;right:0;padding:10px 14px;">
-        <div style="font-size:0.85rem;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:0.05em;">${genre}</div>
-      </div>
+      <span class="genre-tile-tag">${genre}</span>
+      <span class="genre-tile-view">View</span>
     `
-    el.addEventListener('mouseenter', () => { gsap.to(el, { opacity: 0.8, duration: 0.2 }) })
-    el.addEventListener('mouseleave', () => { gsap.to(el, { opacity: 1, duration: 0.2 }) })
     el.addEventListener('click', () => openGenreOverlay(genre))
     wrap.appendChild(el)
   })
-
-  // Vinyl decoration
-  const vinyl = document.createElement('div')
-  vinyl.style.cssText = `
-    position: absolute;
-    left: ${0.72 * W}px;
-    top: 140px;
-    width: 160px;
-    height: 160px;
-    border-radius: 50%;
-    background: repeating-radial-gradient(
-      circle at center,
-      #080808 0px, #080808 2px,
-      #141414 2px, #1a1a1a 4px
-    );
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    pointer-events: none;
-  `
-  const label = document.createElement('div')
-  label.style.cssText = `
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    background: var(--color-bg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  `
-  const dot = document.createElement('div')
-  dot.style.cssText = `
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: #999;
-  `
-  label.appendChild(dot)
-  vinyl.appendChild(label)
-  wrap.appendChild(vinyl)
 }
 
 // ===== Show products for a genre =====
@@ -557,36 +487,18 @@ async function init() {
   const all    = await getProducts()
   _allGenres = genres
 
-  // Hero — static background image + centered tagline
-  const heroBg = document.getElementById('hero-bg')
-  if (heroBg && all.length) {
-    heroBg.style.backgroundImage = `url('./images/${all[0].image}')`
-    heroBg.style.backgroundSize = 'cover'
-    heroBg.style.backgroundPosition = 'center'
-  }
-  gsap.set(['#hero-bg', '.hero-overlay', '.hero-stage'], { autoAlpha: 1 })
+  gsap.set(['.hero-stage'], { autoAlpha: 1 })
 
-  // Genre scatter
-  buildGenreScatter(genres, all)
+  // Genre grid
+  buildGenreGrid(genres, all)
   addBtnListeners()
 
-  // Genre scatter — scrub animation
-  const scatterTl = gsap.timeline({
-    scrollTrigger: {
-      trigger: '#genre-scatter',
-      start: 'top 80%',
-      end: 'top 10%',
-      scrub: 1,
-    }
-  })
-  document.querySelectorAll('#genre-scatter .genre-block').forEach((el, i) => {
-    const fromX = i % 2 === 0 ? -60 : 60
-    scatterTl.fromTo(el,
-      { opacity: 0, x: fromX, scale: 0.85 },
-      { opacity: 1, x: 0, scale: 1, duration: 0.8, ease: 'back.out(1.4)' },
-      i * 0.12
-    )
-  })
+  const introBtn = document.getElementById('genre-intro-btn')
+  if (introBtn && genres.length) introBtn.addEventListener('click', () => openGenreOverlay(genres[0]))
+
+  // No scroll-triggered reveal here — frame-by-frame review of the
+  // reference recording shows the collection tiles are just static
+  // content as you scroll past them, no stagger/fade choreography.
 
   // Editorial section scrub
   const edTl = gsap.timeline({

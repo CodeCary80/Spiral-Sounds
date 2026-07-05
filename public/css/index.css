@@ -662,13 +662,16 @@ button:active {
 .anim-info     { animation: info-in      0.35s 0.2s ease forwards; opacity: 0; }
 
 /* ============================================
-   GENRE COLLAGE — editorial floating collage, not a grid.
-   Every tile is position:absolute with hand-placed left/top coordinates
-   on one large canvas — deliberately not aligned to shared rows/columns,
-   so it reads as scattered islands rather than a packed layout. No CSS
-   Grid, no Masonry, no flex-wrap. buildGenreGrid() in index.js only
-   creates elements and cycles through slot classes; all coordinates
-   live here in CSS, not computed in JS.
+   GENRE COLLAGE — curated vinyl-sleeve display, not a grid.
+   Every tile is position:absolute with hand-placed left/top/rotation on
+   one large cream canvas — deliberately not aligned to shared rows or
+   columns, each one its own island of space. No CSS Grid, no Masonry, no
+   flex-wrap. Each sleeve is a square "album jacket" resting on the page
+   (drop shadow, slight rotation) rather than a full-bleed photo tile; a
+   couple of slots let a black vinyl disc peek out from behind the sleeve,
+   the same disc motif used in the hero photo and the closing CTA.
+   buildGenreGrid() in index.js only creates elements and cycles slot
+   classes — all position/rotation/disc decisions live here in CSS.
 ============================================ */
 
 .products-section {
@@ -682,18 +685,24 @@ button:active {
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  height: 1280px;
+  height: 1420px;
 }
 
 /* Intro copy — a kicker + drop-cap paragraph + CTA in a bordered card,
-   floating in the gap between the feature tile and the upper-right tile. */
+   floating in the gap between the feature sleeve and the upper-right one. */
+/* Left edge deliberately tucks ~24px over the feature sleeve's right edge —
+   the one intentional overlap in the composition, a card resting on top of
+   a corner rather than two objects colliding. Needs an opaque background so
+   it reads as a solid card over the photo, not a transparent collision. */
 .genre-intro {
   position: absolute;
-  left: 460px;
-  top: 150px;
+  left: 320px;
+  top: 130px;
   width: 300px;
+  background: var(--fg-cream);
   border: 1px solid var(--fg-taupe);
   padding: 28px 24px;
+  z-index: 2;
 }
 
 .genre-intro-kicker {
@@ -741,120 +750,288 @@ button:active {
   background: var(--fg-accent);
 }
 
+/* Each .genre-tile is just a positioned+rotated wrapper; the sleeve,
+   disc and caption inside are its actual visual content. */
 .genre-tile {
   position: absolute;
-  border-radius: 4px;
-  overflow: hidden;
-  background-color: var(--fg-ink);
-  background-size: cover;
-  background-position: center;
   cursor: pointer;
 }
 
-/* Feature — large, upper-left corner. The eye's entry point. */
+.genre-tile-sleeve {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  border-radius: 3px;
+  background-color: var(--fg-ink);
+  background-size: cover;
+  background-position: center;
+  box-shadow:
+    0 1px 1px rgba(28, 26, 23, 0.12),
+    0 18px 30px -12px rgba(28, 26, 23, 0.32);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Hover lift + shadow deepen shared by every slot; the rotation itself is
+   set per slot below (each nudges at most 2deg off its resting tilt —
+   never a full de-rotation to level — so it still reads as the same
+   physical object being picked up, not swapped for a flat one). */
+.genre-tile:hover .genre-tile-sleeve {
+  transform: translateY(-6px);
+  box-shadow:
+    0 2px 2px rgba(28, 26, 23, 0.14),
+    0 26px 40px -14px rgba(28, 26, 23, 0.4);
+}
+
+/* Genre name as a small ink sticker on the sleeve itself — like a genre/
+   price tag on a real record jacket — rather than a caption underneath. */
+.genre-tile-label {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  z-index: 2;
+  background: var(--fg-ink);
+  padding: 6px 12px;
+  border-radius: 2px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+.genre-tile-label-name {
+  font-family: var(--fg-font-serif);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--fg-cream);
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+/* Editorial annotation, hidden until hover — a sibling of the sleeve (not
+   a child of it), so it never inherits the sleeve's own rotation and
+   always reads level and horizontal, like a caption next to an object
+   rather than a label printed on it. Always positioned outside the
+   sleeve's own box, never over the artwork. Default: floats above,
+   left-aligned with the sticker. */
+.genre-tile-hover-info {
+  position: absolute;
+  left: 0;
+  top: -32px;
+  z-index: 2;
+  font-family: var(--fg-font-sans);
+  font-size: 0.86rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--fg-ink);
+  text-transform: capitalize;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+}
+
+.genre-tile:hover .genre-tile-hover-info {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Punk / feature — beneath the sleeve, plenty of clear whitespace there. */
+.genre-tile--feature .genre-tile-hover-info {
+  top: 100%;
+  margin-top: 12px;
+  transform: translateY(-6px);
+}
+
+.genre-tile--feature:hover .genre-tile-hover-info {
+  transform: translateY(0);
+}
+
+/* Rock / slot-a — sits only 6px from the section above (no room for
+   "above") and close enough to the canvas's own right edge that "to the
+   right" overflows the viewport below ~1600px (confirmed: 84px overflow
+   at 1280px wide). Default to "beneath", same safe pattern as punk/
+   feature, and only move it to the right once the viewport is wide enough
+   to guarantee it stays fully on-screen. */
+.genre-tile--slot-a .genre-tile-hover-info {
+  top: 100%;
+  margin-top: 12px;
+  left: 0;
+  transform: translateY(-6px);
+}
+
+.genre-tile--slot-a:hover .genre-tile-hover-info {
+  transform: translateY(0);
+}
+
+@media (min-width: 1600px) {
+  .genre-tile--slot-a .genre-tile-hover-info {
+    top: auto;
+    bottom: 14px;
+    left: 100%;
+    margin-top: 0;
+    margin-left: 16px;
+    transform: translateX(-6px);
+  }
+
+  .genre-tile--slot-a:hover .genre-tile-hover-info {
+    transform: translateX(0);
+  }
+}
+
+/* Ambient / slot-c — its disc peeks from the top-right corner, so the
+   default "above" placement sat partly over the dark disc and became hard
+   to read. Beneath the sleeve is clear on all sides instead. */
+.genre-tile--slot-c .genre-tile-hover-info {
+  top: 100%;
+  margin-top: 12px;
+  left: 0;
+  transform: translateY(-6px);
+}
+
+.genre-tile--slot-c:hover .genre-tile-hover-info {
+  transform: translateY(0);
+}
+
+/* Black vinyl disc, peeking from behind the sleeve on a couple of slots —
+   same repeating-radial-gradient groove technique as the closing CTA. */
+.genre-tile-disc {
+  position: absolute;
+  z-index: 0;
+  border-radius: 50%;
+  background: repeating-radial-gradient(
+    circle at center,
+    #0c0c0c 0px, #0c0c0c 1.5px,
+    #161616 1.5px, #1c1c1c 3px
+  );
+  box-shadow: 0 14px 26px rgba(0, 0, 0, 0.22);
+  transition: transform 0.3s ease;
+}
+
+.genre-tile-disc::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 26%;
+  height: 26%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at center, #8a8a8a 0 4px, var(--fg-cream) 5px 100%);
+}
+
+/* Feature — large, upper-left corner. The eye's entry point. Kept level
+   (no rotation, no disc) so the composition has one calm anchor — it stays
+   flat on hover too, unlike the others, which is its own kind of variety. */
 .genre-tile--feature {
   left: 24px;
   top: 60px;
-  width: 380px;
-  height: 480px;
+  width: 320px;
+  height: 320px;
 }
 
-/* Slot A — far upper-right corner, well clear of the feature and intro */
+/* Slot A — far upper-right corner, clear of the feature and intro; a disc
+   peeks from behind its lower-left corner. */
 .genre-tile--slot-a {
-  left: calc(100% - 270px);
-  top: 10px;
+  left: calc(100% - 300px);
+  top: 6px;
   width: 250px;
-  height: 300px;
+  height: 250px;
+}
+
+.genre-tile--slot-a .genre-tile-sleeve {
+  transform: rotate(5deg);
+}
+
+/* Hover settles the tilt by 2deg rather than fully leveling it — still the
+   same tilted object, just picked up slightly. */
+.genre-tile--slot-a:hover .genre-tile-sleeve {
+  transform: translateY(-6px) rotate(3deg);
+}
+
+.genre-tile--slot-a .genre-tile-disc {
+  width: 70%;
+  height: 70%;
+  left: -18%;
+  bottom: -16%;
+}
+
+.genre-tile--slot-a:hover .genre-tile-disc {
+  transform: translate(-8px, 8px);
 }
 
 /* Slot D — right side, lower than A, continuing the diagonal downward */
 .genre-tile--slot-d {
-  left: calc(100% - 320px);
-  top: 440px;
-  width: 280px;
-  height: 350px;
+  left: calc(100% - 350px);
+  top: 470px;
+  width: 230px;
+  height: 230px;
 }
 
-/* Slot C — center-low, in the open gap below the intro card */
+.genre-tile--slot-d .genre-tile-sleeve {
+  transform: rotate(-6deg);
+}
+
+.genre-tile--slot-d:hover .genre-tile-sleeve {
+  transform: translateY(-6px) rotate(-4deg);
+}
+
+/* Slot C — center-low, in the open gap below the intro card, overlapping
+   its lower-right corner slightly; a disc peeks from its upper-right. */
 .genre-tile--slot-c {
   left: 440px;
-  top: 660px;
-  width: 260px;
-  height: 330px;
+  top: 690px;
+  width: 250px;
+  height: 250px;
+  z-index: 1;
+}
+
+.genre-tile--slot-c .genre-tile-sleeve {
+  transform: rotate(4deg);
+}
+
+.genre-tile--slot-c:hover .genre-tile-sleeve {
+  transform: translateY(-6px) rotate(2deg);
+}
+
+.genre-tile--slot-c .genre-tile-disc {
+  width: 65%;
+  height: 65%;
+  right: -14%;
+  top: -14%;
+}
+
+.genre-tile--slot-c:hover .genre-tile-disc {
+  transform: translate(8px, -8px);
 }
 
 /* Slot B — far lower-left, the diagonal's final resting point */
 .genre-tile--slot-b {
-  left: 24px;
-  top: 860px;
-  width: 280px;
-  height: 340px;
+  left: 30px;
+  top: 840px;
+  width: 270px;
+  height: 270px;
+}
+
+.genre-tile--slot-b .genre-tile-sleeve {
+  transform: rotate(-4deg);
+}
+
+.genre-tile--slot-b:hover .genre-tile-sleeve {
+  transform: translateY(-6px) rotate(-2deg);
 }
 
 /* A second cycle of 5 (if the catalog grows) repeats the same slots
    shifted down a full "page" so tiles don't stack on top of each other. */
 .genre-tile--cycle-2 {
-  margin-top: 1320px;
-}
-
-/* Minimal scrim — just enough for the label to stay legible, not a
-   heavy dark wash over the whole photo. */
-.genre-tile::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(28, 26, 23, 0) 55%, rgba(28, 26, 23, 0.55) 100%);
-}
-
-/* Large serif label, roughly a third up from the bottom — the same
-   cover-line treatment as the Hero headline, used consistently. */
-.genre-tile-tag {
-  position: absolute;
-  left: 20px;
-  right: 20px;
-  bottom: 32%;
-  font-family: var(--fg-font-serif);
-  font-size: clamp(1.6rem, 2.4vw, 2.3rem);
-  font-weight: 600;
-  color: var(--fg-cream);
-  text-transform: capitalize;
-  line-height: 1.1;
-  text-shadow: 0 2px 18px rgba(28, 26, 23, 0.45);
-}
-
-/* Ghost-bordered "View" chip, revealed on hover only */
-.genre-tile-view {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%) scale(0.92);
-  padding: 8px 20px;
-  border: 1px solid rgba(255, 255, 255, 0.55);
-  border-radius: 999px;
-  font-family: var(--fg-font-sans);
-  font-size: 0.68rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--fg-cream);
-  opacity: 0;
-  transition: opacity 0.25s ease, transform 0.25s ease;
-  pointer-events: none;
-}
-
-.genre-tile:hover .genre-tile-view {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
+  margin-top: 1460px;
 }
 
 /* Edge-to-edge scatter only makes sense on a wide canvas — mobile
    collapses to a simple single-column stack in natural DOM order. */
-/* The floating-collage canvas only works with room to spread out —
-   mobile drops absolute positioning entirely for a simple stack. */
 @media (max-width: 720px) {
   #genre-grid {
     display: flex;
     flex-direction: column;
-    gap: 24px;
+    gap: 32px;
     height: auto;
     padding: 56px 24px 80px;
   }
@@ -863,6 +1040,19 @@ button:active {
   .genre-tile {
     position: static;
     margin-top: 0 !important;
+    transform: none !important;
+  }
+
+  /* The disc-peek only reads correctly against a rotated, absolutely
+     positioned sleeve on the wide canvas — on the stacked mobile list it
+     has no correct containing block to size against, so it's dropped
+     rather than reworked into another position for a single breakpoint. */
+  .genre-tile-disc {
+    display: none;
+  }
+
+  .genre-tile-sleeve {
+    transform: none !important;
   }
 
   .genre-intro {
@@ -876,8 +1066,9 @@ button:active {
   .genre-tile--slot-b,
   .genre-tile--slot-c,
   .genre-tile--slot-d {
-    width: 100%;
-    height: 260px;
+    width: 220px;
+    height: 220px;
+    margin: 0 auto;
   }
 }
 
@@ -1460,6 +1651,109 @@ button:active {
   position: relative;
   z-index: 1;
   background: var(--color-bg);
+}
+
+/* Closing CTA — editorial "last page" panel. Rises over the pinned Stories
+   section, then the footer rises over it in turn; z-index sits strictly
+   between page content (1) and the footer (100) so the reveal stacks
+   Stories -> CTA -> Footer regardless of scroll position. */
+.closing-cta-section {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 50;
+  transform: translateY(100%);
+  will-change: transform;
+  background: var(--color-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
+  text-align: center;
+  padding: 0 24px;
+  overflow: hidden;
+}
+
+/* A single black record, cropped by the section edge — the same recurring
+   vinyl motif as the hero photo and product cards, kept quiet in the
+   corner rather than staged as an illustration. Grooves are the same
+   repeating-radial-gradient technique used for the disc elsewhere on the
+   site, just restyled for this placement. */
+.closing-cta-disc {
+  position: absolute;
+  z-index: 0;
+  bottom: -180px;
+  right: -160px;
+  width: 480px;
+  height: 480px;
+  border-radius: 50%;
+  background: repeating-radial-gradient(
+    circle at center,
+    #0c0c0c 0px, #0c0c0c 1.5px,
+    #161616 1.5px, #1c1c1c 3px
+  );
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.18);
+}
+
+.closing-cta-disc::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 150px;
+  height: 150px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at center, #8a8a8a 0 6px, var(--color-bg) 7px 100%);
+}
+
+.closing-cta-headline {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 5vw, 3.8rem);
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  max-width: 720px;
+  margin: 0;
+}
+
+.closing-cta-btn {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-base);
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--color-text);
+  background: transparent;
+  border: 1px solid var(--color-text);
+  padding: 14px 28px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.closing-cta-btn:hover {
+  background: var(--color-text);
+  color: var(--color-bg);
+}
+
+@media (max-width: 720px) {
+  .closing-cta-disc {
+    width: 300px;
+    height: 300px;
+    bottom: -110px;
+    right: -110px;
+  }
+  .closing-cta-disc::after {
+    width: 100px;
+    height: 100px;
+  }
 }
 
 /* -----------------------------------

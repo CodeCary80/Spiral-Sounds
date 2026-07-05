@@ -63,3 +63,184 @@ worth carrying forward.
 direction gets, none of it should be merged into `animation-wip` or `main`
 unless a direction is explicitly chosen and that decision is confirmed
 separately. Treat everything here as disposable until that happens.
+
+## Implementation reference: "Browse by Genre" section
+
+This section documents the **current, as-shipped implementation** of the
+genre collage inside the Editorial Grid direction (section 5 above). It is a
+factual record of what the code does right now — not a proposal, and not a
+description of intent. Relevant files: `public/index.html` (`#genre-grid`
+markup), `public/css/index.css` (search `GENRE COLLAGE`), `public/js/index.js`
+(`buildGenreGrid()`, `GENRE_SLOTS`).
+
+### Visual layout and composition
+
+`#genre-grid` is a `position: relative` canvas, `max-width: 1200px`, centered
+(`margin: 0 auto`), with a fixed `height: 1420px`. It deliberately uses no
+CSS Grid, Masonry, or Flexbox-wrap for placement — every element inside it is
+hand-positioned with `position: absolute` and a fixed `left`/`top`, so the
+composition reads as independently placed objects rather than a packed grid.
+
+Inside the canvas:
+
+- **`.genre-intro`** — an editorial copy card (kicker "The Collection", a
+  drop-cap intro paragraph, and a pill-shaped "↳ View all genres" button),
+  positioned at `left: 320px; top: 130px`, width 300px, opaque cream
+  background, 1px taupe border. Its left edge deliberately overlaps ~24px
+  onto the feature sleeve's right edge — the single intentional overlap in
+  the composition (an opaque card resting on top of a corner, not a
+  transparent collision).
+- **Five sleeve "slots"**, each a square resting on the page:
+  | Slot | Size | Position | Rotation | Disc |
+  |---|---|---|---|---|
+  | `--feature` | 320×320 | left 24, top 60 | 0° (calm anchor) | no |
+  | `--slot-a` | 250×250 | right-aligned, top 6 | 5° | yes (peeks lower-left) |
+  | `--slot-d` | 230×230 | right-aligned, top 470 | −6° | no |
+  | `--slot-c` | 250×250 | left 440, top 690 | 4° | yes (peeks upper-right) |
+  | `--slot-b` | 270×270 | left 30, top 840 | −4° | no |
+
+  If the catalog ever exceeds 5 genres, a `.genre-tile--cycle-2` modifier
+  repeats the same 5 slot positions shifted down by `margin-top: 1460px` (a
+  second "page"). Currently unused — the catalog has exactly 5 genres.
+
+### How sleeves, discs, labels, and hover annotations work
+
+- **`.genre-tile`** (wrapper) — `position: absolute`, sized/positioned per
+  slot above. It is *not itself rotated* and carries the click handler
+  (`openGenreOverlay(genre)`).
+- **`.genre-tile-sleeve`** — the visual "album jacket": fills the wrapper,
+  `background-image` set to one representative product's cover for that
+  genre, `background-size: cover`, 3px rounded corners, a two-layer
+  `box-shadow` to suggest it rests above the page. **Rotation lives on this
+  element specifically** (not the wrapper), so that the hover annotation —
+  a sibling, not a child — never inherits the tilt.
+- **`.genre-tile-disc`** — only rendered for `slot-a` and `slot-c` (flagged
+  per-slot in JS, see below). A circle built from a
+  `repeating-radial-gradient` (fake grooves) plus a `::after` pseudo-element
+  forming the center label/spindle hole. Sized to 65–70% of the tile and
+  offset so it sits mostly behind the sleeve with a portion peeking from one
+  corner. `z-index: 0`, below the sleeve's `z-index: 1`.
+- **`.genre-tile-label`** — the genre name, **always visible** (not
+  hover-gated): a small opaque ink-colored "sticker" in the sleeve's
+  bottom-left corner, serif/600-weight cream text, `text-transform:
+  capitalize`, drop shadow — reads as a genre/price tag printed on the
+  jacket, not a caption floating below the image.
+- **`.genre-tile-hover-info`** — the secondary "Explore {Genre} · {N}
+  Records" annotation, hidden by default (`opacity: 0`), revealed only on
+  `.genre-tile:hover`. It is a **sibling of `.genre-tile-sleeve`**, both
+  children of the unrotated `.genre-tile` wrapper — placed there
+  specifically so it never inherits the sleeve's rotation and always reads
+  level/horizontal. It is always positioned *outside* the sleeve's own box
+  (never over the artwork), in one of three directions depending on slot:
+  - **Above** (default) — used by `slot-b` (indie) and `slot-d` (folk).
+  - **Beneath** — used by `--feature` (punk, plenty of clear space below)
+    and by `slot-c` (ambient), which is an *override* of the default
+    "above": ambient's disc peeks from the top-right corner, and the
+    default "above" placement used to sit partly over that dark disc,
+    hurting legibility.
+  - **To the right, but only at `min-width: 1600px`** — `slot-a` (rock).
+    Below that width it falls back to "beneath" (the same safe pattern as
+    punk/ambient). This threshold was set after measuring real overflow:
+    an unconditional "always right" placement overflowed the viewport by
+    84px at 1280px wide and by 24px even at 1400px, because `slot-a` sits
+    close to the canvas's own right edge and the canvas is capped at
+    `max-width: 1200px`.
+
+### Hover interaction, exact behavior
+
+On `:hover` of a `.genre-tile`, purely via CSS transitions (no GSAP, no JS):
+
+1. The sleeve lifts `translateY(-6px)` and its `box-shadow` deepens (larger
+   blur/spread).
+2. The sleeve's rotation shifts by **at most 2° toward level** — e.g.
+   `slot-a` 5°→3°, `slot-d` −6°→−4°, `slot-c` 4°→2°, `slot-b` −4°→−2°. It
+   never fully de-rotates to 0°, so it reads as the same tilted object being
+   picked up, not swapped for a flat one. `--feature` (already at 0°) has no
+   rotation change on hover at all — a deliberate exception, so it stays the
+   one calm/stable anchor even under interaction.
+3. For `slot-a` and `slot-c` (the two disc slots) only: the disc nudges
+   outward a few pixels (`translate(∓8px, ±8px)`) in the same direction it
+   already peeks, as if sliding further out from behind the sleeve.
+4. The hover-info annotation fades in (`opacity` 0→1) and its position
+   settles (a 6px directional offset collapses to 0 — direction depends on
+   above/beneath/right).
+
+All transitions run at ~0.25–0.3s ease. Clicking a tile (independent of
+hover) calls `openGenreOverlay(genre)`, sliding up the existing full-screen
+genre/product overlay — unrelated to the hover treatment.
+
+### Dynamic vs. hardcoded data
+
+**Dynamic (from the API/DB):**
+- The genre list itself (`getGenres()`).
+- Each sleeve's cover image (`getProducts()` — the first product for that
+  genre not already used in the hero carousel, else the first product for
+  that genre overall).
+- The exact record count in the hover annotation:
+  `allProducts.filter(p => p.genre === genre).length`. Verified directly
+  against the live `/api/products` response during implementation (punk 1,
+  rock 2, indie 4, ambient 2, folk 1 — exact match, not fabricated).
+
+**Hardcoded (in CSS, by design):** every slot's position, size, rotation
+angle, which two slots get a disc, the disc's own size/offset/peek
+direction, and which direction each slot's hover annotation is placed. These
+are fixed, hand-composed values, not computed or randomized in JS — matching
+the brief's "carefully composed, not randomly scattered" requirement. The
+intro card's copy is static HTML.
+
+### Responsive behavior
+
+- **Desktop (>720px):** the absolutely-positioned collage described above.
+  A `min-width: 1600px` query additionally switches `slot-a`'s hover
+  annotation from beneath to the right (see above).
+- **Mobile (≤720px):** `#genre-grid` becomes `display: flex; flex-direction:
+  column;` with a 32px gap. `.genre-intro` and every `.genre-tile` are
+  forced to `position: static; transform: none;`, collapsing the canvas
+  into a simple vertical stack in natural DOM order — no absolute
+  positioning, no rotation. Each tile becomes a fixed 220×220px square,
+  centered. **The vinyl-disc elements are hidden entirely** (`display:
+  none`) — noted in the CSS as deliberate: the disc-peek only reads
+  correctly against a rotated, absolutely-positioned sleeve, and has no
+  correct containing block to size against once the tile is
+  `position: static`. The hover annotation still exists in the DOM on
+  mobile but is functionally moot there, since touch has no hover state —
+  only the always-visible genre-name sticker is meaningfully seen on
+  mobile.
+
+### GSAP, CSS, and accessibility considerations
+
+- **GSAP is not used anywhere in this section.** It's deliberately
+  static/CSS-only — a comment in `index.js` notes this was a conscious
+  choice after reviewing a reference recording frame-by-frame ("the
+  collection tiles are just static content as you scroll past them, no
+  stagger/fade choreography"). GSAP is used elsewhere on the page (hero
+  reveal, editorial-section scroll scrub, showcase sticky-scale, stories
+  crossfade, footer/CTA reveal) but not here.
+- All hover motion in this section is plain CSS `transition`.
+- **Accessibility, current state (factual, not a fix list):** sleeve
+  artwork is a CSS `background-image` on a `<div>`, not an `<img>`, so
+  there's no alt text for the album covers. The genre name is real visible
+  text (`.genre-tile-label-name`), so it is exposed to screen readers. Disc
+  decorations are marked `aria-hidden="true"`. The hover-only annotation has
+  no `:focus` equivalent and no other exposure path for keyboard/
+  screen-reader users; tiles are plain `<div>`s relying on a JS `click`
+  listener rather than a native `<button>`/`<a>`, so they are not natively
+  keyboard-focusable.
+
+### What was intentionally preserved and not changed
+
+Across this whole round of refinements to the hover annotation:
+- The overall asymmetrical floating layout, canvas size, and every slot's
+  position/size/rotation value.
+- Which slots show a vinyl disc (`slot-a`, `slot-c`) and the disc's own
+  size/peek-offset.
+- The hover lift, shadow-deepen, and per-slot rotation-delta behavior.
+- The genre-name sticker's look (background, padding, position, typography)
+  — unchanged through every one of these follow-up requests.
+- The real, DB-derived record counts and the data-fetching flow.
+- Mobile's simplified stacked layout and disc-hiding behavior.
+
+Only the hover-info annotation itself changed across these rounds: where it
+lives in the DOM (moved from inside the sleeve to a sibling of it), its
+placement direction per slot, and its typography (size, weight, color,
+case).

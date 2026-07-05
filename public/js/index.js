@@ -71,33 +71,54 @@ document.getElementById('browse-btn').addEventListener('click', () => {
   document.getElementById('products-section').scrollIntoView({ behavior: 'smooth' })
 })
 
+// ===== Closing CTA — same destination as the editorial browse CTA =====
+document.getElementById('closing-cta-btn').addEventListener('click', () => {
+  document.getElementById('products-section').scrollIntoView({ behavior: 'smooth' })
+})
+
 // ===== Auth =====
 document.getElementById('logout-btn').addEventListener('click', logout)
 
-// ===== Genre Grid — true scatter via CSS Grid slots =====
-// Positioning is pure CSS (grid-column/grid-row per slot class); this
-// only creates elements and cycles through 5 slot classes, no coordinate math.
-const GENRE_SLOTS = ['genre-tile--feature', 'genre-tile--slot-a', 'genre-tile--slot-b', 'genre-tile--slot-c', 'genre-tile--slot-d']
+// ===== Genre Grid — curated vinyl-sleeve collage =====
+// Positioning, rotation and the disc-peek are all hand-set in CSS per slot
+// (no coordinate math, no randomization) — deliberately composed rather
+// than scattered at random. Each slot is its own visual island: a square
+// sleeve resting on the page, some with a black vinyl disc peeking out
+// from behind, echoing the same disc motif used in the hero photo and the
+// closing CTA. buildGenreGrid() only creates elements and cycles slots.
+const GENRE_SLOTS = [
+  { cls: 'genre-tile--feature', disc: false },
+  { cls: 'genre-tile--slot-a',  disc: true  },
+  { cls: 'genre-tile--slot-b',  disc: false },
+  { cls: 'genre-tile--slot-c',  disc: true  },
+  { cls: 'genre-tile--slot-d',  disc: false },
+]
 
 function buildGenreGrid(genres, allProducts, carouselIds = new Set()) {
   const wrap = document.getElementById('genre-grid')
   if (!wrap) return
 
   genres.forEach((genre, i) => {
+    const genreProducts = allProducts.filter(p => p.genre.toLowerCase() === genre.toLowerCase())
     const album =
-      allProducts.find(p => p.genre.toLowerCase() === genre.toLowerCase() && !carouselIds.has(p.id))
-      || allProducts.find(p => p.genre.toLowerCase() === genre.toLowerCase())
+      genreProducts.find(p => !carouselIds.has(p.id))
+      || genreProducts[0]
+    const count = genreProducts.length
 
-    const slotClass = ' ' + GENRE_SLOTS[i % GENRE_SLOTS.length]
+    const slot = GENRE_SLOTS[i % GENRE_SLOTS.length]
     const cycleClass = i >= GENRE_SLOTS.length ? ' genre-tile--cycle-2' : ''
     const el = document.createElement('div')
-    el.className = 'genre-tile' + slotClass + cycleClass
+    el.className = 'genre-tile ' + slot.cls + cycleClass
     el.dataset.genre = genre
-    if (album) el.style.backgroundImage = `url('./images/${album.image}')`
 
     el.innerHTML = `
-      <span class="genre-tile-tag">${genre}</span>
-      <span class="genre-tile-view">View</span>
+      ${slot.disc ? '<div class="genre-tile-disc" aria-hidden="true"></div>' : ''}
+      <div class="genre-tile-sleeve"${album ? ` style="background-image:url('./images/${album.image}')"` : ''}>
+        <span class="genre-tile-label">
+          <span class="genre-tile-label-name">${genre}</span>
+        </span>
+      </div>
+      <span class="genre-tile-hover-info">Explore ${genre} &middot; ${count} record${count !== 1 ? 's' : ''}</span>
     `
     el.addEventListener('click', () => openGenreOverlay(genre))
     wrap.appendChild(el)
@@ -546,9 +567,13 @@ async function init() {
   })()
 
   // ===== Footer rises up over the pinned stories section (last section) =====
+  // Same pin/scrub as before (untouched) — the closing CTA is layered in as
+  // an extra fixed panel between Stories and the footer (z-index 1 < 50 <
+  // 100), so it rises first and the footer rises over it in turn.
   ;(function () {
-    const footer  = document.getElementById('site-footer')
-    const stories = document.getElementById('stories-section')
+    const footer     = document.getElementById('site-footer')
+    const stories    = document.getElementById('stories-section')
+    const closingCta = document.getElementById('closing-cta-section')
     if (!footer || !stories) return
 
     const tl = gsap.timeline({
@@ -564,11 +589,19 @@ async function init() {
       }
     })
     // y:'100%'→'0%' overrides the CSS transform cleanly (yPercent would stack on it)
-    tl.fromTo(footer, { y: '100%' }, { y: '0%', ease: 'none' })
+    if (closingCta) tl.fromTo(closingCta, { y: '100%' }, { y: '0%', ease: 'none' }, 0)
+    tl.fromTo(footer, { y: '100%' }, { y: '0%', ease: 'none' }, closingCta ? 0.6 : 0)
   })()
 
   // Refresh all ScrollTrigger positions after content is built
   ScrollTrigger.refresh()
+
+  // Web fonts (Libre Bodoni/Public Sans) swap in asynchronously and reflow
+  // text after the refresh above already ran, which silently drifts every
+  // scroll-trigger's start/end px offsets. Refresh again once fonts settle.
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => ScrollTrigger.refresh())
+  }
 }
 
 init()

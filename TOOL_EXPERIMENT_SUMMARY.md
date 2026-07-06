@@ -335,3 +335,61 @@ this was fixed earlier by adding
 init-time refresh in `index.js`. That safeguard was kept as-is through every
 round of this timing work; only the ScrollTrigger's own `end` value and the
 timeline's tween positions were changed.
+
+## Implementation reference: section-label sizing and Client Stories scale-up
+
+Two smaller, CSS-only passes after the scroll-timing work above.
+
+### Section-label (♦ + text) sizing, unified
+
+Four sections each had their own small "♦ Label" kicker, each with its own
+inconsistent font-size (0.5-0.65rem) — `.editorial-diamond`/`.editorial-
+eyebrow`/`.editorial-tip` (About Spiral Sounds, two separate usages),
+`.stories-diamond`/`.stories-label` (Client Stories), `.showcase-header-
+label` (Showroom), `.footer-logo-area`/`.footer-logo-diamond` (Footer).
+These are four **separate classes**, not one shared class — `.editorial-
+diamond` in particular is scoped only to the About section and has no
+effect on Client Stories or anywhere else.
+
+All four were unified to `font-size: 0.75rem`. `.editorial-diamond`'s own
+smaller override (was `0.5rem`, independent of its parent's font-size) was
+removed so it now inherits the label's size, matching how the other three
+sections' diamonds already behaved (no separate override, just inherited
+size). Verified via computed-style checks: all four resolve to exactly
+`12px` at the default root size.
+
+### Client Stories: quote and photo scaled up to premium-testimonial size
+
+In two follow-up rounds:
+
+1. First pass — `.story-quote` size increased from `clamp(1.4rem, 2.6vw,
+   2rem)` to `clamp(1.6rem, 2.8vw, 2.3rem)` with loosened `line-height`
+   (1.4 → 1.65), and separately `.story-name` (0.95rem → 1.15rem) and
+   `.story-role`/`.story-album` (0.68rem → 0.8rem) were bumped so the
+   metadata stays readable while remaining visually secondary to the quote.
+
+2. Second pass (given a fluid.glass reference screenshot showing a much
+   wider, more expansive quote/photo composition) — found that `.story`
+   itself was capped at `max-width: 860px`, constraining the *entire*
+   photo+quote block, not just the quote text. This was the real cause of
+   the cramped feel, more than the quote's own width. Fixed by:
+   - `.story` max-width: `860px` → `1400px` (effectively unconstrained at
+     normal viewport widths, using the full `left:48px/right:48px` inset).
+   - `.story-quote`: removed its own max-width cap entirely, so it fills
+     the available space next to the photo instead of wrapping into a
+     narrow column.
+   - `.story-photo`: `140x170` → `190x230` (same aspect ratio), and its
+     `.story-initial` placeholder letter scaled proportionally
+     (`46px` → `62px`), to keep the photo-to-text ratio reasonable now
+     that the text column is much wider.
+
+   This was a **spatial/proportional match to the reference only** — the
+   reference's plain sans-serif quote treatment was deliberately NOT
+   adopted. Spiral Sounds' own serif/italic quote, oxblood accent-colored
+   quote mark, and vertical centering were all kept unchanged, consistent
+   with this branch's standing rule to use references for layout/spacing
+   cues without copying their visual identity wholesale.
+
+Verified via `getBoundingClientRect()` (quote render width went from
+~700px-capped to 1066px at a 1400px viewport) and screenshots at both
+1400px desktop and 375px mobile; no console errors at either width.

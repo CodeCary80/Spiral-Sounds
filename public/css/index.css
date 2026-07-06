@@ -1656,8 +1656,17 @@ button:active {
 /* Closing CTA — editorial "last page" panel. Rises over the pinned Stories
    section, then the footer rises over it in turn; z-index sits strictly
    between page content (1) and the footer (100) so the reveal stacks
-   Stories -> CTA -> Footer regardless of scroll position. */
+   Stories -> CTA -> Footer regardless of scroll position.
+
+   Full-bleed deep terracotta, not the shared cream, so this reads as its
+   own chapter rather than a continuation of Stories. --cta-bg/--cta-text
+   are scoped here (not global tokens) since nothing else on the page uses
+   this pairing. Contrast verified programmatically (WCAG relative-
+   luminance formula), not just by eye: #6B3226 against #F3F0ED = 8.77:1,
+   comfortably clear of the 4.5:1 AA minimum for normal text. */
 .closing-cta-section {
+  --cta-bg: #6B3226;
+  --cta-text: var(--color-bg);
   position: fixed;
   left: 0;
   bottom: 0;
@@ -1666,7 +1675,7 @@ button:active {
   z-index: 50;
   transform: translateY(100%);
   will-change: transform;
-  background: var(--color-bg);
+  background: var(--cta-bg);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1679,9 +1688,11 @@ button:active {
 
 /* A single black record, cropped by the section edge — the same recurring
    vinyl motif as the hero photo and product cards, kept quiet in the
-   corner rather than staged as an illustration. Grooves are the same
-   repeating-radial-gradient technique used for the disc elsewhere on the
-   site, just restyled for this placement. */
+   corner rather than staged as an illustration. Grooves are warmed very
+   slightly (a soft brown-black instead of neutral black) and the center
+   hole now punches through to --cta-bg instead of the page's cream, so
+   the disc integrates with the new background instead of assuming cream
+   sits behind it. */
 .closing-cta-disc {
   position: absolute;
   z-index: 0;
@@ -1692,10 +1703,9 @@ button:active {
   border-radius: 50%;
   background: repeating-radial-gradient(
     circle at center,
-    #0c0c0c 0px, #0c0c0c 1.5px,
-    #161616 1.5px, #1c1c1c 3px
+    #120b09 0px, #120b09 1.5px,
+    #1d1310 1.5px, #241713 3px
   );
-  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.18);
 }
 
 .closing-cta-disc::after {
@@ -1707,7 +1717,7 @@ button:active {
   height: 150px;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: radial-gradient(circle at center, #8a8a8a 0 6px, var(--color-bg) 7px 100%);
+  background: radial-gradient(circle at center, #a3877c 0 6px, var(--cta-bg) 7px 100%);
 }
 
 .closing-cta-headline {
@@ -1716,7 +1726,7 @@ button:active {
   font-family: var(--font-heading);
   font-size: clamp(2rem, 5vw, 3.8rem);
   font-weight: 600;
-  color: var(--color-text);
+  color: var(--cta-text);
   line-height: 1.15;
   letter-spacing: -0.01em;
   max-width: 720px;
@@ -1730,17 +1740,17 @@ button:active {
   font-size: 0.72rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--color-text);
+  color: var(--cta-text);
   background: transparent;
-  border: 1px solid var(--color-text);
+  border: 1px solid var(--cta-text);
   padding: 14px 28px;
   cursor: pointer;
   transition: background 0.2s ease, color 0.2s ease;
 }
 
 .closing-cta-btn:hover {
-  background: var(--color-text);
-  color: var(--color-bg);
+  background: var(--cta-text);
+  color: var(--cta-bg);
 }
 
 @media (max-width: 720px) {

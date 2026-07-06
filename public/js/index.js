@@ -567,9 +567,32 @@ async function init() {
   })()
 
   // ===== Footer rises up over the pinned stories section (last section) =====
-  // Same pin/scrub as before (untouched) — the closing CTA is layered in as
-  // an extra fixed panel between Stories and the footer (z-index 1 < 50 <
-  // 100), so it rises first and the footer rises over it in turn.
+  // Single ScrollTrigger drives the pin AND both reveals through one
+  // timeline, so Stories/CTA/Footer share one source of scroll-progress
+  // truth and can never drift out of sync with each other, no matter how
+  // the phase timings below are tuned.
+  //
+  // The pin lasts '+=330%' (~3 viewport heights). This number was chosen
+  // for its effect on the WHOLE PAGE's scroll percentage, not just its own
+  // internal progress — footer's rise architecturally must end at 100% of
+  // the page (it's a fixed overlay, nothing scrollable after it), and all
+  // content before Stories is a fixed 5470px, so the pin's start-percentage
+  // of the whole page is start/(start+pinLength) — a LONGER pin is what
+  // pushes that percentage EARLIER, not a shorter one. At +=330%, pin-start
+  // lands at ~65% of the whole page (down from ~75% before), and the
+  // "nothing moving yet" hold is capped to a small slice of the pin so it
+  // only spans ~65%-70% of the whole page, not ~75%-85% as before.
+  //
+  // Tween positions are fractions of 0-1, which — because scrub maps
+  // ScrollTrigger progress directly to timeline totalProgress — read
+  // exactly as % of the pin's own range. In whole-page terms (pin spans
+  // ~65%-100%), each phase below maps to roughly the range noted:
+  //   0%   - 15%  Stories holds stable/readable   (~65.0% - 70.1% of page)
+  //   15%  - 50%  CTA rises continuously into view (~70.1% - 82.4% of page)
+  //   50%  - 58%  CTA's brief moment of presence   (~82.4% - 85.2% of page)
+  //   56%  - 100% Footer rises, overlapping the CTA hold's tail at 56%
+  //               instead of waiting for it to fully end at 58%
+  //               (~84.5% - 100% of page)
   ;(function () {
     const footer     = document.getElementById('site-footer')
     const stories    = document.getElementById('stories-section')
@@ -580,7 +603,7 @@ async function init() {
       scrollTrigger: {
         trigger: stories,
         start: 'top top',
-        end: '+=100%',
+        end: '+=330%',
         scrub: 1,
         pin: stories,
         pinSpacing: true,
@@ -589,8 +612,8 @@ async function init() {
       }
     })
     // y:'100%'→'0%' overrides the CSS transform cleanly (yPercent would stack on it)
-    if (closingCta) tl.fromTo(closingCta, { y: '100%' }, { y: '0%', ease: 'none' }, 0)
-    tl.fromTo(footer, { y: '100%' }, { y: '0%', ease: 'none' }, closingCta ? 0.6 : 0)
+    if (closingCta) tl.fromTo(closingCta, { y: '100%' }, { y: '0%', ease: 'none', duration: 0.35 }, 0.15)
+    tl.fromTo(footer, { y: '100%' }, { y: '0%', ease: 'none', duration: 0.44 }, closingCta ? 0.56 : 0.15)
   })()
 
   // Refresh all ScrollTrigger positions after content is built

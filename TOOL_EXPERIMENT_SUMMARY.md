@@ -244,3 +244,94 @@ Only the hover-info annotation itself changed across these rounds: where it
 lives in the DOM (moved from inside the sleeve to a sibling of it), its
 placement direction per slot, and its typography (size, weight, color,
 case).
+
+## Implementation reference: Client Stories → CTA → Footer scroll timing
+
+This section documents the current, as-shipped scroll-timing tuning for the
+closing reveal sequence (`public/js/index.js`, search "Footer rises up over
+the pinned stories section"). It went through several rounds; this is a
+factual record of where it ended up and why, not a proposal.
+
+### Background color chapter break
+
+The closing CTA panel (`.closing-cta-section`) got its own full-bleed
+background — deep terracotta (`--cta-bg: #6B3226`) with cream text
+(`--cta-text`, reusing `--color-bg`) — so it reads as a distinct chapter
+after Client Stories rather than a continuation of the same cream page. The
+text contrast was verified programmatically against the WCAG
+relative-luminance formula (not just by eye): `#6B3226` vs `#F3F0ED` =
+**8.77:1**, well clear of the 4.5:1 AA minimum. The vinyl-disc motif in that
+section was also re-toned (warm brown-black grooves, center hole punching
+through to `--cta-bg` instead of the page's cream) to integrate with the new
+background.
+
+### The core problem: percentage of *what*?
+
+Several rounds of retuning the single scrub-linked timeline (Stories pin →
+CTA rise → CTA hold → Footer rise) used percentages of the **pin's own
+scroll range** as the reference frame (e.g. "CTA rises from 55% to 79%").
+Each round measured out internally consistent — but a real user reported
+that after a large amount of visible scrollbar movement, the CTA had barely
+started to appear, which contradicted what "68% risen" seemed to promise.
+
+The actual root cause, confirmed by cross-referencing `ScrollTrigger.getAll()`
+values against `window.scrollY` and `document.documentElement.scrollHeight`
+(and visually with `markers: true`, temporarily): **the pin only occupies the
+last ~20-25% of the page's total scrollable height.** Everything before
+Client Stories (hero, editorial, products/genre grid, showcase) is a fixed
+~5470px, so a phase defined as "38% into the pin" actually corresponded to
+roughly **75-85% of the whole page's scrollbar** — which is what a real user
+actually perceives progress against. Percentages relative to the pin's own
+range and percentages relative to the whole page are not the same number,
+and conflating them was the source of every "this still doesn't feel right"
+report in this round.
+
+### The fix: reframe against the whole page, not the pin
+
+Because Footer's rise is architecturally forced to end at exactly 100% of
+the page (it's a `position: fixed` overlay — nothing scrollable exists after
+it) and the content before Stories is fixed, the pin's start-percentage of
+the whole page is `start / (start + pinLength)`. Counterintuitively,
+**lengthening the pin is what pushes its start earlier** in whole-page
+percentage terms, not shortening it — a shorter pin makes the whole page
+shorter too, so the same fixed pre-Stories content becomes a *larger*
+fraction of a *smaller* total.
+
+Final tuning: `end: '+=330%'` (pin length 2970px), landing pin-start at
+**64.8% of the whole page** (down from ~75.2% at `+=200%`), with the
+"nothing moving yet" hold capped to a small slice of the pin (15%) so it
+only spans **~65%-70% of the whole page** — versus ending around ~85% in
+the previous version.
+
+Phase breakdown (fractions are of the pin's own range; the whole-page
+percentages in parentheses are what a user actually experiences):
+- **0-15%** (~65.0%-70.1% of page): Stories holds stable/readable.
+- **15-50%** (~70.1%-82.4% of page): CTA rises continuously into view.
+- **50-58%** (~82.4%-85.2% of page): CTA's brief moment of presence.
+- **56-100%** (~84.5%-100% of page): Footer rises, overlapping the CTA
+  hold's tail at 56% instead of waiting for it to end at 58%.
+
+### Verification method used
+
+Each retuning pass was verified the same way, not just by eyeballing the
+preview:
+1. Read `ScrollTrigger.getAll()` directly on a **fresh natural load** (not
+   immediately after a forced reload) for the trigger's real `start`/`end`,
+   to sidestep the pin-spacer staleness issue (see below).
+2. Scroll to specific fractions of `document.documentElement.scrollHeight`
+   (the actual whole-page reference frame) and cross-check both the
+   trigger's own `.progress` and each element's `getBoundingClientRect()`
+   against the expected phase.
+3. Temporarily add `markers: true` to the ScrollTrigger config for a visual
+   screenshot cross-check against the numeric read, then remove it again —
+   it is not left enabled in shipped code.
+
+### Known pitfall, still relevant
+
+ScrollTrigger's `start`/`end` (and even a pin-spacer's computed width) can
+go stale if read before web fonts finish swapping in and reflowing text —
+this was fixed earlier by adding
+`document.fonts.ready.then(() => ScrollTrigger.refresh())` after the
+init-time refresh in `index.js`. That safeguard was kept as-is through every
+round of this timing work; only the ScrollTrigger's own `end` value and the
+timeline's tween positions were changed.

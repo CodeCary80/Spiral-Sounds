@@ -2153,8 +2153,6 @@ select {
    against its box, so only the background texture is added here. */
 .stories-section {
   background-color: var(--fg-cream);
-  background-image: radial-gradient(rgba(28, 26, 23, 0.05) 1px, transparent 1px);
-  background-size: 3px 3px;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -2177,7 +2175,6 @@ select {
 }
 
 .stories-label {
-  font-family: var(--fg-font-serif);
   font-size: 0.75rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;

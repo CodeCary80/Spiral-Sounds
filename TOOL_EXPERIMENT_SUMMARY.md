@@ -393,3 +393,35 @@ In two follow-up rounds:
 Verified via `getBoundingClientRect()` (quote render width went from
 ~700px-capped to 1066px at a 1400px viewport) and screenshots at both
 1400px desktop and 375px mobile; no console errors at either width.
+
+## Two small consistency fixes: Client Stories font-family and background texture
+
+Follow-up cleanup after the label-sizing unification above, both scoped to
+Client Stories only.
+
+### `.stories-label` font-family mismatch
+
+Font-*size* had already been unified across the four ♦-label kickers
+(About, Client Stories, Showroom, Footer), but font-*family* was never
+checked. `.stories-label` had an explicit `font-family: var(--fg-font-
+serif)` (Libre Bodoni) that none of the other three labels had — they have
+no `font-family` declared at all and simply inherit `body`'s
+`var(--font-base)` (Public Sans, sans-serif). Fixed by deleting that one
+line from `.stories-label`; nothing else in the rule touched. Verified via
+computed styles: all four now resolve to identical
+`"Public Sans", sans-serif`, with font-size, color, and position unchanged.
+
+### `.stories-section` grid-texture background
+
+Confirmed via direct inspection: `.stories-section` had
+`background-image: radial-gradient(rgba(28, 26, 23, 0.05) 1px, transparent
+1px); background-size: 3px 3px;` layered on top of the same `--fg-cream`
+every other section uses — a repeating 3x3px dotted/grid texture, visibly
+different from the flat backgrounds everywhere else. This matches a "paper
+grain" texture noted earlier in this branch's history as deliberately
+removed from other sections (added per a taste-skill suggestion, then
+pulled because it rendered as a visible grid/moiré artifact) — Client
+Stories was evidently missed in that original cleanup. Removed both
+declarations; `.stories-section` now uses the same flat `--fg-cream`
+background as the rest of the page. Verified via computed style
+(`backgroundImage: none`) and screenshot.

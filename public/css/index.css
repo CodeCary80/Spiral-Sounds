@@ -2198,6 +2198,13 @@ select {
    at rest, but .story is positioned absolute so the outgoing and
    incoming cards can briefly overlap during the crossfade (confirmed
    from the reference recording: plain opacity crossfade, no slide/wipe). */
+/* max-width raised from 1400 to 1560 specifically so the 62-70%-of-
+   viewport quote-width target is actually reachable at wide desktop
+   sizes — the given testimonial line breaks need ~1224px for their
+   longest line alone, which a 1400px cap could never provide even at
+   ultra-wide viewports. At moderate desktop widths (~1400px) there still
+   isn't enough room and the longest line wraps once internally — an
+   accepted tradeoff rather than shortening the requested line text. */
 .story {
   display: none;
   position: absolute;
@@ -2207,8 +2214,8 @@ select {
   transform: translateY(-50%);
   flex-direction: row;
   align-items: flex-start;
-  gap: 48px;
-  max-width: 1400px;
+  gap: 24px;
+  max-width: 1560px;
   margin: 0 auto;
 }
 
@@ -2216,9 +2223,12 @@ select {
   display: flex;
 }
 
+/* Smaller supporting anchor, not a competing block — top edge lines up
+   with the first line of the quote via the shared align-items:flex-start
+   on .story, no extra offset needed. */
 .story-photo {
-  width: 190px;
-  height: 230px;
+  width: 150px;
+  height: 180px;
   border-radius: 0;
   border: 1px solid var(--fg-taupe);
   flex-shrink: 0;
@@ -2230,43 +2240,92 @@ select {
 
 .story-initial {
   font-family: var(--fg-font-serif);
-  font-size: 62px;
+  font-size: 49px;
   font-weight: 700;
   color: rgba(255, 255, 255, 0.16);
 }
 
+/* Narrow quote-mark gutter between the avatar and the text block — its
+   own flex column, not part of either neighbor, so the mark reads as a
+   distinct structural element rather than decoration glued to the text.
+   Hidden below desktop; the inline first-line mark (further down) takes
+   over there instead, matching the pre-existing tablet/mobile layout. */
+.story-quote-mark {
+  display: none;
+  flex: 0 0 auto;
+  width: 56px;
+  font-family: var(--fg-font-serif);
+  font-style: normal;
+  font-size: 3.6rem;
+  line-height: 1;
+  color: var(--fg-accent);
+}
+
 .story-content {
-  flex: 1;
+  flex: 1 1 auto;
   min-width: 0;
   padding-top: 6px;
 }
 
-/* Pull-quote treatment — the same cover-line serif/italic and oxblood
-   accent as the rest of Spiral Sounds' editorial identity (kept — this is
-   a layout/spacing match to the reference, not a font-style match). No
-   max-width on the quote itself now: .story's own width (below) is the
-   only constraint, so the quote fills the available space next to the
-   photo rather than wrapping into a narrow column. */
+/* Broad editorial statement, not a narrow vertical stack — the quote
+   block is meant to extend far to the right (see .story-quote-mark and
+   .story-content flex above), so each testimonial's own line breaks
+   (below) target 2-3 long, balanced lines instead of a tall narrow
+   column. font-weight stays lightened (400) so the italic doesn't read
+   uniformly heavy across every word. */
 .story-quote {
   font-family: var(--fg-font-serif);
-  font-size: clamp(2.2rem, 4.2vw, 3.6rem);
-  font-weight: 500;
+  font-size: clamp(1.9rem, 3.7vw, 3.15rem);
+  font-weight: 400;
   font-style: italic;
   color: var(--fg-ink);
-  line-height: 1.5;
+  line-height: 1.48;
   letter-spacing: -0.01em;
+  text-wrap: balance;
   margin: 0 0 28px;
 }
 
-.story-quote::before {
-  content: '\201C';
+/* Each testimonial's markup supplies its own explicit line breaks as
+   separate .story-quote-line spans (not a single text node with <br>) —
+   real structural separation, stable across desktop widths, and reusable
+   per-testimonial without touching JS/data. Desktop: one line per
+   element. */
+.story-quote-line {
   display: block;
+}
+
+/* Mobile/tablet-only quote mark, attached inline to the first line (see
+   the @media block below which disables this once the dedicated gutter
+   column takes over on desktop). */
+.story-quote-line:first-child::before {
+  content: '\201C';
   color: var(--fg-accent);
   font-family: var(--fg-font-serif);
   font-style: normal;
-  font-size: 4.4rem;
-  line-height: 0.4;
-  margin-bottom: 0.4em;
+  font-size: 1.4em;
+  vertical-align: -0.08em;
+  margin-right: 0.06em;
+}
+
+/* Desktop only: the dedicated quote-mark gutter column replaces the
+   inline first-line mark used everywhere below this width. */
+@media (min-width: 1025px) {
+  .story-quote-mark {
+    display: block;
+  }
+  .story-quote-line:first-child::before {
+    content: none;
+  }
+}
+
+/* Tablet and mobile: forced per-line breaks are dropped in favor of
+   natural wrapping, so text never overflows or clips at narrower widths.
+   This restructuring is desktop-only — everything at or below this width
+   keeps the pre-existing stacked/wrapped behavior. */
+@media (max-width: 1024px) {
+  .story-quote-line {
+    display: inline;
+  }
 }
 
 .story-name {

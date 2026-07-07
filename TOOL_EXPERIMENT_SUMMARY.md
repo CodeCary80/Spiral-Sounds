@@ -425,3 +425,70 @@ Stories was evidently missed in that original cleanup. Removed both
 declarations; `.stories-section` now uses the same flat `--fg-cream`
 background as the rest of the page. Verified via computed style
 (`backgroundImage: none`) and screenshot.
+
+## Implementation reference: Client Stories desktop testimonial layout
+
+Two follow-up rounds after the font-size/line-rhythm pass, both narrowing
+in on the same testimonial composition.
+
+### Line rhythm: text-wrap:balance tested and rejected in favor of explicit spans
+
+Before hardcoding per-testimonial line breaks, `text-wrap: balance` was
+tried as a CSS-only alternative (no markup changes, reusable for any future
+testimonial for free). Verified with a Range-based per-character
+line-detection script (not just eyeballing) against all three
+testimonials: it split the brand name "Spiral Sounds" across two lines for
+Marcus's quote, and produced an inconsistent line count (3 lines for one
+testimonial, 4 for the others). Given a broken brand name is a real quality
+failure, this was rejected in favor of explicit per-line markup — each
+testimonial's `<p class="story-quote">` now contains its own
+`<span class="story-quote-line">` elements (one per intended line, with a
+literal space between them in the source so the mobile fallback doesn't
+merge words together), `display: block` on desktop only. This is a
+deliberate tradeoff: every future testimonial needs its own hand-authored
+line breaks, accepted because there are only 3 testimonials today.
+
+**Caution for future measurement**: checking each `.story-quote-line`
+element's own `getBoundingClientRect().top` only proves the *spans* don't
+overlap each other — it does NOT prove each span renders as a single
+visual line. A span whose content is too wide for its container will wrap
+internally while still reporting one `top` value for the whole element.
+This was caught only via a screenshot showing 5 rendered lines when the
+element-top check claimed 3; the reliable check is a Range-based per-
+character line-detection scan (walk each character position, group by
+`top`), used throughout this round.
+
+### Three-column desktop composition: avatar / quote-mark gutter / wide text
+
+Restructured `.story` from a two-part layout (photo + content) into three
+explicit flex children: `.story-photo` (avatar, reduced 190x230 -> 150x180,
+`.story-initial` scaled to match), `.story-quote-mark` (a new dedicated
+56px gutter column holding the oversized quote mark, `display:none` below
+1025px), and `.story-content` (quote + meta, now unconstrained so it can
+extend far to the right). The quote mark has two different homes depending
+on viewport: the gutter column on desktop, or the pre-existing inline
+`.story-quote-line:first-child::before` treatment below 1025px (unchanged
+from the prior round) — each is toggled via a `@media (min-width: 1025px)`
+pair so exactly one is ever visible.
+
+**A real geometry conflict was found and resolved by explicit user
+choice, not silently**: the requested Marcus first line ("Every record
+I've bought from Spiral Sounds has become") measures 1224px wide at the
+current font size. At a 1400px viewport, the space available for the text
+column after the avatar/gutter/page-margins is only ~1050px — mathematically
+insufficient, and no reasonable amount of shrinking the avatar/gutter
+recovers enough space to fit it. Raising `.story`'s own max-width (1400 ->
+1560px) doesn't help at 1400px either, since the viewport itself is the
+binding constraint there, not the max-width cap. This was surfaced directly
+with the actual measured numbers before making a change; the user chose to
+keep the exact requested text and accept that it wraps to 4 total visual
+lines at moderate desktop widths (~1400px), rendering as the intended 3
+lines only at wider viewports (confirmed exactly 3 lines and 68% of
+viewport width at 1920px, within the 62-70% target) rather than shortening
+the line to fit narrower screens.
+
+Verified per-testimonial at both 1400px and 1920px using the Range-based
+line-detection method, plus mobile (375px) to confirm the tablet/mobile
+stacked layout, inline quote mark, and natural wrapping were all left
+exactly as they were before this restructuring. No console errors at any
+width tested.

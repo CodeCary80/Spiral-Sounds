@@ -7,23 +7,24 @@
    CSS Variables
 ----------------------------------- */
 :root {
-  /* Colors */
-  --color-bg:            #EDE8DF;
-  --color-bg-secondary:  #F7F3EC;
-  --color-bg-light:      #1C1C1C;
-  --color-bg-lightest:   #2B2B2B;
+  /* Colors — unified site-wide background (footer intentionally excluded,
+     kept as its own dark treatment per explicit instruction). */
+  --color-bg:            #F3F0ED;
+  --color-bg-secondary:  #F3F0ED;
+  --color-bg-light:      #F3F0ED;
+  --color-bg-lightest:   #F3F0ED;
   --color-accent:        #C0392B;
   --color-hover:         #3A9A9A;
-  --color-text:          #1C1C1C;
-  --color-text-on-dark:  #FFFFFF;
-  --color-text-muted:    #8A7F72;
-  --color-border:        #D4C9B8;
-  --color-input-bg:      #F7F3EC;
+  --color-text:          #1C1A17;
+  --color-text-on-dark:  #1C1A17;
+  --color-text-muted:    #6B655C;
+  --color-border:        #D9D3CC;
+  --color-input-bg:      #FFFFFF;
   --color-placeholder:   #9A8E7E;
 
-  /* Fonts */
-  --font-base:    'neue-kabel-black', sans-serif;
-  --font-heading: 'Alfarn', sans-serif;
+  /* Fonts — unified site-wide (was 'neue-kabel-black' / 'Alfarn') */
+  --font-base:    'Public Sans', sans-serif;
+  --font-heading: 'Libre Bodoni', serif;
 
   /* Spacing */
   --space-xs: 0.3rem;
@@ -33,6 +34,32 @@
 
   /* Border radius — Bauhaus sharp */
   --radius: 0px;
+}
+
+/* -----------------------------------
+   Editorial-magazine tokens — scoped only to
+   Hero / Products / Stories (+ the genre
+   overlay reached from Products). The
+   global color and font variables above
+   are untouched, so header, footer,
+   editorial, showcase and other pages
+   keep their current look.
+   Self-directed palette/type (not copied from any reference site):
+   warm paper + ink, one considered accent (oxblood), Libre Bodoni
+   serif for display/pull-quotes + Public Sans for body/UI.
+----------------------------------- */
+#hero-section,
+#products-section,
+#genre-page,
+#stories-section {
+  --fg-ink:      #1c1a17;
+  --fg-charcoal: #58524a;
+  --fg-taupe:    #ddd6cb;
+  --fg-cream:    #f3f0ed;
+  --fg-white:    #ffffff;
+  --fg-accent:   #8b2e22;
+  --fg-font-serif: 'Libre Bodoni', serif;
+  --fg-font-sans:  'Public Sans', sans-serif;
 }
 
 /* -----------------------------------
@@ -175,12 +202,15 @@ button:active {
   z-index: 200;
 }
 
+/* Hardcoded black — independent of --color-bg-light (that token is now
+   the site's light paper color everywhere else); the nav stays its own
+   dark bar with a red logo and white text, per explicit instruction. */
 .header-navbar {
   display: flex;
   align-items: center;
   gap: 2rem;
   padding: 1.1rem 2.5rem;
-  background-color: var(--color-bg-light);
+  background-color: #1c1a17;
   border-bottom: 3px solid var(--color-accent);
 }
 
@@ -224,7 +254,7 @@ button:active {
   width: 100%;
   background: transparent;
   border: none;
-  color: var(--color-text-on-dark);
+  color: #ffffff;
   padding: 0.25rem 0;
   font-size: 0.72rem;
   letter-spacing: 0.1em;
@@ -315,50 +345,102 @@ button:active {
 ----------------------------------- */
 .hero-section {
   position: relative;
-  height: 100vh;
-  min-height: 500px;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-bg);
   overflow: hidden;
 }
 
-.hero-bg {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  transition: background 0.8s ease;
-}
-
-.hero-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.55);
-}
-
-/* Vinyl carousel stage */
+/* Split masthead: text column left, vinyl photo center-right */
 .hero-stage {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 10;
-  width: 100%;
+  flex: 1;
   display: flex;
   align-items: center;
-  justify-content: center;
-  padding: 0 48px;
+  gap: 4rem;
+  padding: 3rem 4rem;
 }
 
-.hero-tagline {
-  font-family: var(--font-heading);
-  font-size: clamp(2rem, 5vw, 4.5rem);
-  font-weight: 400;
-  color: var(--color-text-on-dark);
-  text-align: center;
-  line-height: 1.05;
-  letter-spacing: -0.02em;
-  text-transform: none;
-  max-width: 900px;
+.hero-text {
+  flex: 0 0 36%;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Magazine masthead kicker — small tracked caps above the headline */
+.hero-kicker {
+  font-family: var(--fg-font-sans);
+  font-size: 0.72rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--color-accent);
   margin: 0;
+}
+
+/* Cover-line headline — high-contrast serif, the one deliberately loud
+   typographic moment on the page. */
+.hero-tagline {
+  font-family: var(--fg-font-serif);
+  font-size: clamp(2.2rem, 3.6vw, 3.6rem);
+  font-weight: 600;
+  color: var(--color-text);
+  text-align: left;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  margin: 0;
+}
+
+.hero-dek {
+  font-family: var(--fg-font-sans);
+  font-style: italic;
+  font-size: 1rem;
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+/* Byline credit line — sits under the dek, separated by a rule like a
+   magazine cover's small editorial credit under the masthead. */
+.hero-byline {
+  font-family: var(--fg-font-sans);
+  font-size: 0.8rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+  max-width: 320px;
+  margin-top: 0.5rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--color-border);
+}
+
+.hero-photo {
+  flex: 1;
+  align-self: stretch;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.hero-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+}
+
+@media (max-width: 860px) {
+  .hero-stage {
+    flex-direction: column;
+    align-items: stretch;
+    justify-content: center;
+    gap: 2rem;
+    padding: 2rem 24px;
+  }
+  .hero-text {
+    flex: none;
+  }
+  .hero-photo {
+    height: 320px;
+  }
 }
 
 .vinyl-mockup {
@@ -443,7 +525,7 @@ button:active {
 
 .vinyl-artist {
   font-size: 0.78rem;
-  color: rgba(255, 255, 255, 0.7);
+  color: rgba(28, 26, 23, 0.7);
   letter-spacing: 0.05em;
 }
 
@@ -486,8 +568,8 @@ button:active {
 .hero-arrow-btn {
   width: 36px;
   height: 36px;
-  background: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  background: rgba(28, 26, 23, 0.1);
+  border: 1px solid rgba(28, 26, 23, 0.25);
   color: var(--color-text-on-dark);
   font-size: 1rem;
   cursor: pointer;
@@ -499,7 +581,7 @@ button:active {
 }
 
 .hero-arrow-btn:hover {
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(28, 26, 23, 0.22);
 }
 
 /* Scroll hint */
@@ -519,14 +601,14 @@ button:active {
 .scroll-hint span {
   font-size: 0.55rem;
   letter-spacing: 0.2em;
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(28, 26, 23, 0.55);
   text-transform: uppercase;
 }
 
 .scroll-line {
   width: 1px;
   height: 24px;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(28, 26, 23, 0.2);
   position: relative;
   overflow: hidden;
 }
@@ -580,23 +662,414 @@ button:active {
 .anim-info     { animation: info-in      0.35s 0.2s ease forwards; opacity: 0; }
 
 /* ============================================
-   GENRE SCATTER + PRODUCT LIST
+   GENRE COLLAGE — curated vinyl-sleeve display, not a grid.
+   Every tile is position:absolute with hand-placed left/top/rotation on
+   one large cream canvas — deliberately not aligned to shared rows or
+   columns, each one its own island of space. No CSS Grid, no Masonry, no
+   flex-wrap. Each sleeve is a square "album jacket" resting on the page
+   (drop shadow, slight rotation) rather than a full-bleed photo tile; a
+   couple of slots let a black vinyl disc peek out from behind the sleeve,
+   the same disc motif used in the hero photo and the closing CTA.
+   buildGenreGrid() in index.js only creates elements and cycles slot
+   classes — all position/rotation/disc decisions live here in CSS.
 ============================================ */
 
 .products-section {
-  background: var(--color-bg);
+  background-color: var(--fg-cream);
   width: 100%;
   display: block;
 }
 
-/* Scatter wrap: fixed height, relative for absolute children */
-#genre-scatter {
+#genre-grid {
   position: relative;
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  height: 750px;
-  background: var(--color-bg);
+  height: 1420px;
+}
+
+/* Intro copy — a kicker + drop-cap paragraph + CTA in a bordered card,
+   floating in the gap between the feature sleeve and the upper-right one. */
+/* Left edge deliberately tucks ~24px over the feature sleeve's right edge —
+   the one intentional overlap in the composition, a card resting on top of
+   a corner rather than two objects colliding. Needs an opaque background so
+   it reads as a solid card over the photo, not a transparent collision. */
+.genre-intro {
+  position: absolute;
+  left: 320px;
+  top: 130px;
+  width: 300px;
+  background: var(--fg-cream);
+  border: 1px solid var(--fg-taupe);
+  padding: 28px 24px;
+  z-index: 2;
+}
+
+.genre-intro-kicker {
+  font-family: var(--fg-font-sans);
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--fg-accent);
+  margin: 0 0 0.9rem;
+}
+
+.genre-intro-text {
+  font-family: var(--fg-font-sans);
+  font-size: 1rem;
+  color: var(--fg-ink);
+  line-height: 1.6;
+  margin: 0 0 1.5rem;
+}
+
+.genre-intro-text::first-letter {
+  font-family: var(--fg-font-serif);
+  font-size: 3.2rem;
+  font-weight: 600;
+  float: left;
+  line-height: 0.8;
+  padding: 0.05em 0.08em 0 0;
+  color: var(--fg-accent);
+}
+
+.genre-intro-btn {
+  font-family: var(--fg-font-sans);
+  font-weight: 500;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  color: var(--fg-cream);
+  background: var(--fg-ink);
+  border: none;
+  border-radius: 999px;
+  padding: 0.8em 1.6em;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.genre-intro-btn:hover {
+  background: var(--fg-accent);
+}
+
+/* Each .genre-tile is just a positioned+rotated wrapper; the sleeve,
+   disc and caption inside are its actual visual content. */
+.genre-tile {
+  position: absolute;
+  cursor: pointer;
+}
+
+.genre-tile-sleeve {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  border-radius: 3px;
+  background-color: var(--fg-ink);
+  background-size: cover;
+  background-position: center;
+  box-shadow:
+    0 1px 1px rgba(28, 26, 23, 0.12),
+    0 18px 30px -12px rgba(28, 26, 23, 0.32);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Hover lift + shadow deepen shared by every slot; the rotation itself is
+   set per slot below (each nudges at most 2deg off its resting tilt —
+   never a full de-rotation to level — so it still reads as the same
+   physical object being picked up, not swapped for a flat one). */
+.genre-tile:hover .genre-tile-sleeve {
+  transform: translateY(-6px);
+  box-shadow:
+    0 2px 2px rgba(28, 26, 23, 0.14),
+    0 26px 40px -14px rgba(28, 26, 23, 0.4);
+}
+
+/* Genre name as a small ink sticker on the sleeve itself — like a genre/
+   price tag on a real record jacket — rather than a caption underneath. */
+.genre-tile-label {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  z-index: 2;
+  background: var(--fg-ink);
+  padding: 6px 12px;
+  border-radius: 2px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+
+.genre-tile-label-name {
+  font-family: var(--fg-font-serif);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--fg-cream);
+  text-transform: capitalize;
+  white-space: nowrap;
+}
+
+/* Editorial annotation, hidden until hover — a sibling of the sleeve (not
+   a child of it), so it never inherits the sleeve's own rotation and
+   always reads level and horizontal, like a caption next to an object
+   rather than a label printed on it. Always positioned outside the
+   sleeve's own box, never over the artwork. Default: floats above,
+   left-aligned with the sticker. */
+.genre-tile-hover-info {
+  position: absolute;
+  left: 0;
+  top: -32px;
+  z-index: 2;
+  font-family: var(--fg-font-sans);
+  font-size: 0.86rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--fg-ink);
+  text-transform: capitalize;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.25s ease, transform 0.25s ease;
+  pointer-events: none;
+}
+
+.genre-tile:hover .genre-tile-hover-info {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Punk / feature — beneath the sleeve, plenty of clear whitespace there. */
+.genre-tile--feature .genre-tile-hover-info {
+  top: 100%;
+  margin-top: 12px;
+  transform: translateY(-6px);
+}
+
+.genre-tile--feature:hover .genre-tile-hover-info {
+  transform: translateY(0);
+}
+
+/* Rock / slot-a — sits only 6px from the section above (no room for
+   "above") and close enough to the canvas's own right edge that "to the
+   right" overflows the viewport below ~1600px (confirmed: 84px overflow
+   at 1280px wide). Default to "beneath", same safe pattern as punk/
+   feature, and only move it to the right once the viewport is wide enough
+   to guarantee it stays fully on-screen. */
+.genre-tile--slot-a .genre-tile-hover-info {
+  top: 100%;
+  margin-top: 12px;
+  left: 0;
+  transform: translateY(-6px);
+}
+
+.genre-tile--slot-a:hover .genre-tile-hover-info {
+  transform: translateY(0);
+}
+
+@media (min-width: 1600px) {
+  .genre-tile--slot-a .genre-tile-hover-info {
+    top: auto;
+    bottom: 14px;
+    left: 100%;
+    margin-top: 0;
+    margin-left: 16px;
+    transform: translateX(-6px);
+  }
+
+  .genre-tile--slot-a:hover .genre-tile-hover-info {
+    transform: translateX(0);
+  }
+}
+
+/* Ambient / slot-c — its disc peeks from the top-right corner, so the
+   default "above" placement sat partly over the dark disc and became hard
+   to read. Beneath the sleeve is clear on all sides instead. */
+.genre-tile--slot-c .genre-tile-hover-info {
+  top: 100%;
+  margin-top: 12px;
+  left: 0;
+  transform: translateY(-6px);
+}
+
+.genre-tile--slot-c:hover .genre-tile-hover-info {
+  transform: translateY(0);
+}
+
+/* Black vinyl disc, peeking from behind the sleeve on a couple of slots —
+   same repeating-radial-gradient groove technique as the closing CTA. */
+.genre-tile-disc {
+  position: absolute;
+  z-index: 0;
+  border-radius: 50%;
+  background: repeating-radial-gradient(
+    circle at center,
+    #0c0c0c 0px, #0c0c0c 1.5px,
+    #161616 1.5px, #1c1c1c 3px
+  );
+  box-shadow: 0 14px 26px rgba(0, 0, 0, 0.22);
+  transition: transform 0.3s ease;
+}
+
+.genre-tile-disc::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 26%;
+  height: 26%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at center, #8a8a8a 0 4px, var(--fg-cream) 5px 100%);
+}
+
+/* Feature — large, upper-left corner. The eye's entry point. Kept level
+   (no rotation, no disc) so the composition has one calm anchor — it stays
+   flat on hover too, unlike the others, which is its own kind of variety. */
+.genre-tile--feature {
+  left: 24px;
+  top: 60px;
+  width: 320px;
+  height: 320px;
+}
+
+/* Slot A — far upper-right corner, clear of the feature and intro; a disc
+   peeks from behind its lower-left corner. */
+.genre-tile--slot-a {
+  left: calc(100% - 300px);
+  top: 6px;
+  width: 250px;
+  height: 250px;
+}
+
+.genre-tile--slot-a .genre-tile-sleeve {
+  transform: rotate(5deg);
+}
+
+/* Hover settles the tilt by 2deg rather than fully leveling it — still the
+   same tilted object, just picked up slightly. */
+.genre-tile--slot-a:hover .genre-tile-sleeve {
+  transform: translateY(-6px) rotate(3deg);
+}
+
+.genre-tile--slot-a .genre-tile-disc {
+  width: 70%;
+  height: 70%;
+  left: -18%;
+  bottom: -16%;
+}
+
+.genre-tile--slot-a:hover .genre-tile-disc {
+  transform: translate(-8px, 8px);
+}
+
+/* Slot D — right side, lower than A, continuing the diagonal downward */
+.genre-tile--slot-d {
+  left: calc(100% - 350px);
+  top: 470px;
+  width: 230px;
+  height: 230px;
+}
+
+.genre-tile--slot-d .genre-tile-sleeve {
+  transform: rotate(-6deg);
+}
+
+.genre-tile--slot-d:hover .genre-tile-sleeve {
+  transform: translateY(-6px) rotate(-4deg);
+}
+
+/* Slot C — center-low, in the open gap below the intro card, overlapping
+   its lower-right corner slightly; a disc peeks from its upper-right. */
+.genre-tile--slot-c {
+  left: 440px;
+  top: 690px;
+  width: 250px;
+  height: 250px;
+  z-index: 1;
+}
+
+.genre-tile--slot-c .genre-tile-sleeve {
+  transform: rotate(4deg);
+}
+
+.genre-tile--slot-c:hover .genre-tile-sleeve {
+  transform: translateY(-6px) rotate(2deg);
+}
+
+.genre-tile--slot-c .genre-tile-disc {
+  width: 65%;
+  height: 65%;
+  right: -14%;
+  top: -14%;
+}
+
+.genre-tile--slot-c:hover .genre-tile-disc {
+  transform: translate(8px, -8px);
+}
+
+/* Slot B — far lower-left, the diagonal's final resting point */
+.genre-tile--slot-b {
+  left: 30px;
+  top: 840px;
+  width: 270px;
+  height: 270px;
+}
+
+.genre-tile--slot-b .genre-tile-sleeve {
+  transform: rotate(-4deg);
+}
+
+.genre-tile--slot-b:hover .genre-tile-sleeve {
+  transform: translateY(-6px) rotate(-2deg);
+}
+
+/* A second cycle of 5 (if the catalog grows) repeats the same slots
+   shifted down a full "page" so tiles don't stack on top of each other. */
+.genre-tile--cycle-2 {
+  margin-top: 1460px;
+}
+
+/* Edge-to-edge scatter only makes sense on a wide canvas — mobile
+   collapses to a simple single-column stack in natural DOM order. */
+@media (max-width: 720px) {
+  #genre-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+    height: auto;
+    padding: 56px 24px 80px;
+  }
+
+  .genre-intro,
+  .genre-tile {
+    position: static;
+    margin-top: 0 !important;
+    transform: none !important;
+  }
+
+  /* The disc-peek only reads correctly against a rotated, absolutely
+     positioned sleeve on the wide canvas — on the stacked mobile list it
+     has no correct containing block to size against, so it's dropped
+     rather than reworked into another position for a single breakpoint. */
+  .genre-tile-disc {
+    display: none;
+  }
+
+  .genre-tile-sleeve {
+    transform: none !important;
+  }
+
+  .genre-intro {
+    padding: 24px 20px;
+    width: 100%;
+  }
+
+  .genre-tile,
+  .genre-tile--feature,
+  .genre-tile--slot-a,
+  .genre-tile--slot-b,
+  .genre-tile--slot-c,
+  .genre-tile--slot-d {
+    width: 220px;
+    height: 220px;
+    margin: 0 auto;
+  }
 }
 
 /* Product list view */
@@ -634,7 +1107,7 @@ button:active {
 .genre-back-label {
   font-size: 0.6rem;
   letter-spacing: 0.15em;
-  color: rgba(255, 255, 255, 0.65);
+  color: rgba(28, 26, 23, 0.65);
   text-transform: uppercase;
 }
 
@@ -663,7 +1136,7 @@ button:active {
   background-color: var(--color-bg-secondary);
   border-right: 1px solid var(--color-border);
   border-bottom: 1px solid var(--color-border);
-  border-top: 2px solid var(--color-bg-light);
+  border-top: 2px solid #1C1A17;
   display: flex;
   flex-direction: column;
   position: relative;
@@ -675,7 +1148,7 @@ button:active {
   aspect-ratio: 1 / 1;
   object-fit: cover;
   display: block;
-  border-bottom: 2px solid var(--color-bg-light);
+  border-bottom: 2px solid #1C1A17;
 }
 
 .product-card h2 {
@@ -705,6 +1178,7 @@ button:active {
   margin-top: auto;
   padding: 0.6em 1em;
   font-size: 0.65rem;
+  color: var(--color-bg);
 }
 
 .genre-label {
@@ -724,13 +1198,13 @@ button:active {
 ----------------------------------- */
 .detail-wrapper {
   display: flex;
-  border-top: 2px solid var(--color-bg-light);
+  border-top: 2px solid #1C1A17;
 }
 
 .detail-left {
   width: 340px;
   flex-shrink: 0;
-  border-right: 2px solid var(--color-bg-light);
+  border-right: 2px solid #1C1A17;
 }
 
 .detail-cover {
@@ -738,7 +1212,7 @@ button:active {
   aspect-ratio: 1 / 1;
   object-fit: cover;
   display: block;
-  border-bottom: 2px solid var(--color-bg-light);
+  border-bottom: 2px solid #1C1A17;
 }
 
 .detail-purchase {
@@ -777,7 +1251,7 @@ button:active {
 
 .detail-genre-tag {
   background-color: var(--color-accent);
-  color: var(--color-text-on-dark);
+  color: var(--color-bg);
   font-size: 0.55rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
@@ -839,7 +1313,7 @@ button:active {
 
 /* Tracklist */
 .detail-tracklist {
-  border-top: 1px solid var(--color-bg-light);
+  border-top: 1px solid #1C1A17;
   padding-top: 0.7rem;
 }
 
@@ -891,13 +1365,13 @@ button:active {
 
 .cart-wrapper {
   display: flex;
-  border-top: 2px solid var(--color-bg-light);
+  border-top: 2px solid #1C1A17;
   flex: 1;
 }
 
 .cart-left {
   flex: 1;
-  border-right: 2px solid var(--color-bg-light);
+  border-right: 2px solid #1C1A17;
   padding: 1.8rem 2.4rem;
 }
 
@@ -1022,7 +1496,7 @@ button:active {
   justify-content: space-between;
   align-items: baseline;
   padding: 0.9rem 0;
-  border-top: 2px solid var(--color-bg-light);
+  border-top: 2px solid #1C1A17;
   margin-top: 0.4rem;
 }
 
@@ -1119,7 +1593,7 @@ button:active {
   width: 100%;
   background: var(--color-input-bg);
   border: none;
-  border-bottom: 1px solid var(--color-bg-light);
+  border-bottom: 1px solid #1C1A17;
   padding: 0.55rem 0;
   font-size: 0.8rem;
   color: var(--color-text);
@@ -1140,6 +1614,7 @@ button:active {
   margin-top: 1rem;
   padding: 0.75rem 1rem;
   font-size: 0.75rem;
+  color: #fff;
 }
 
 .auth-divider {
@@ -1180,6 +1655,119 @@ button:active {
   background: var(--color-bg);
 }
 
+/* Closing CTA — editorial "last page" panel. Rises over the pinned Stories
+   section, then the footer rises over it in turn; z-index sits strictly
+   between page content (1) and the footer (100) so the reveal stacks
+   Stories -> CTA -> Footer regardless of scroll position.
+
+   Full-bleed deep terracotta, not the shared cream, so this reads as its
+   own chapter rather than a continuation of Stories. --cta-bg/--cta-text
+   are scoped here (not global tokens) since nothing else on the page uses
+   this pairing. Contrast verified programmatically (WCAG relative-
+   luminance formula), not just by eye: #6B3226 against #F3F0ED = 8.77:1,
+   comfortably clear of the 4.5:1 AA minimum for normal text. */
+.closing-cta-section {
+  --cta-bg: #6B3226;
+  --cta-text: var(--color-bg);
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 100vh;
+  z-index: 50;
+  transform: translateY(100%);
+  will-change: transform;
+  background: var(--cta-bg);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
+  text-align: center;
+  padding: 0 24px;
+  overflow: hidden;
+}
+
+/* A single black record, cropped by the section edge — the same recurring
+   vinyl motif as the hero photo and product cards, kept quiet in the
+   corner rather than staged as an illustration. Grooves are warmed very
+   slightly (a soft brown-black instead of neutral black) and the center
+   hole now punches through to --cta-bg instead of the page's cream, so
+   the disc integrates with the new background instead of assuming cream
+   sits behind it. */
+.closing-cta-disc {
+  position: absolute;
+  z-index: 0;
+  bottom: -180px;
+  right: -160px;
+  width: 480px;
+  height: 480px;
+  border-radius: 50%;
+  background: repeating-radial-gradient(
+    circle at center,
+    #120b09 0px, #120b09 1.5px,
+    #1d1310 1.5px, #241713 3px
+  );
+}
+
+.closing-cta-disc::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 150px;
+  height: 150px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at center, #a3877c 0 6px, var(--cta-bg) 7px 100%);
+}
+
+.closing-cta-headline {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-heading);
+  font-size: clamp(2rem, 5vw, 3.8rem);
+  font-weight: 600;
+  color: var(--cta-text);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  max-width: 720px;
+  margin: 0;
+}
+
+.closing-cta-btn {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-base);
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--cta-text);
+  background: transparent;
+  border: 1px solid var(--cta-text);
+  padding: 14px 28px;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.closing-cta-btn:hover {
+  background: var(--cta-text);
+  color: var(--cta-bg);
+}
+
+@media (max-width: 720px) {
+  .closing-cta-disc {
+    width: 300px;
+    height: 300px;
+    bottom: -110px;
+    right: -110px;
+  }
+  .closing-cta-disc::after {
+    width: 100px;
+    height: 100px;
+  }
+}
+
 /* -----------------------------------
    Footer — Rising card with map
 ----------------------------------- */
@@ -1214,7 +1802,7 @@ footer {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.65rem;
+  font-size: 0.75rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.3);
@@ -1356,7 +1944,7 @@ select {
     display: none;
     flex-direction: column;
     align-items: flex-start;
-    background-color: var(--color-bg-light);
+    background-color: #1c1a17;
     padding: var(--space-md);
     position: absolute;
     top: 100%;
@@ -1377,7 +1965,7 @@ select {
     cursor: pointer;
     background-color: transparent;
     border: none;
-    color: var(--color-text-on-dark);
+    color: #ffffff;
     align-self: center;
   }
 
@@ -1392,7 +1980,7 @@ select {
   .detail-left {
     width: 100%;
     border-right: none;
-    border-bottom: 2px solid var(--color-bg-light);
+    border-bottom: 2px solid #1C1A17;
   }
 
   .cart-wrapper {
@@ -1401,12 +1989,11 @@ select {
 
   .cart-right {
     width: 100%;
-    border-top: 2px solid var(--color-bg-light);
+    border-top: 2px solid #1C1A17;
   }
 
   .hero-stage {
-    flex-direction: column;
-    gap: 1rem;
+    padding: 0 24px;
   }
 }
 
@@ -1419,8 +2006,6 @@ select {
 ----------------------------------- */
 
 /* Prevent hero content flash while products are loading */
-.hero-section > .hero-bg,
-.hero-section > .hero-overlay,
 .hero-section > .hero-stage {
   opacity: 0;
 }
@@ -1458,16 +2043,18 @@ select {
   align-items: center;
   justify-content: center;
   gap: 10px;
-  font-size: 0.6rem;
+  font-size: 0.75rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--color-text);
   margin-bottom: 36px;
 }
 
+/* Diamond now inherits the label's own font-size (matches the pattern
+   already used by .stories-diamond/.showcase-header-label span/
+   .footer-logo-diamond) instead of a separate smaller override. */
 .editorial-diamond {
   color: var(--color-accent);
-  font-size: 0.5rem;
 }
 
 .editorial-headline {
@@ -1519,7 +2106,7 @@ select {
   letter-spacing: 0.18em;
   text-transform: uppercase;
   padding: 14px 28px;
-  border: none;
+  border: 1.5px solid var(--color-text);
   cursor: pointer;
   transition: background-color 0.2s ease;
 }
@@ -1544,7 +2131,7 @@ select {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 0.58rem;
+  font-size: 0.75rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: var(--color-text);
@@ -1560,8 +2147,14 @@ select {
 /* -----------------------------------
    Client Stories Section
 ----------------------------------- */
+/* min-height/display are left untouched here — ScrollTrigger pins this
+   section (pin: stories, end:'+=100%') and the footer reveal animation
+   is timed against its box, so only colors/borders/type are restyled. */
+/* min-height stays 100vh (not dvh) — ScrollTrigger pins this section
+   (pin: stories, end:'+=100%') and the footer reveal animation is timed
+   against its box, so only the background texture is added here. */
 .stories-section {
-  background: var(--color-bg);
+  background-color: var(--fg-cream);
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -1575,7 +2168,7 @@ select {
 
 /* Header bar — same pattern as editorial bottom bar */
 .stories-header {
-  border-top: 2px solid var(--color-text);
+  border-top: 1px solid var(--fg-taupe);
   padding: 14px 48px;
   display: flex;
   align-items: center;
@@ -1584,110 +2177,194 @@ select {
 }
 
 .stories-label {
-  font-size: 0.58rem;
+  font-size: 0.75rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--color-text);
+  color: var(--fg-ink);
   display: flex;
   align-items: center;
   gap: 7px;
 }
 
-/* Story wrap — overflow hidden for wipe transition, centered */
+/* Story wrap — positioning context for the crossfading .story cards */
 .stories-wrap {
   flex: 1;
   position: relative;
-  padding: 44px 48px 52px;
-  overflow: hidden;
+  padding: 48px;
   cursor: pointer;
   display: flex;
   align-items: center;
 }
 
-.stories-wipe {
-  position: absolute;
-  inset: 0;
-  background: var(--color-bg-light);
-  transform: translateX(-101%);
-  pointer-events: none;
-  z-index: 5;
-}
-
-/* Individual story — slider: only active one shown */
+/* Individual story — slider: only the active one is interactive/visible
+   at rest, but .story is positioned absolute so the outgoing and
+   incoming cards can briefly overlap during the crossfade (confirmed
+   from the reference recording: plain opacity crossfade, no slide/wipe). */
+/* max-width raised from 1400 to 1560 specifically so the 62-70%-of-
+   viewport quote-width target is actually reachable at wide desktop
+   sizes — the given testimonial line breaks need ~1224px for their
+   longest line alone, which a 1400px cap could never provide even at
+   ultra-wide viewports. At moderate desktop widths (~1400px) there still
+   isn't enough room and the longest line wraps once internally — an
+   accepted tradeoff rather than shortening the requested line text. */
 .story {
   display: none;
+  position: absolute;
+  top: 50%;
+  left: 48px;
+  right: 48px;
+  transform: translateY(-50%);
   flex-direction: row;
   align-items: flex-start;
-  gap: 36px;
-  width: 100%;
+  gap: 24px;
+  max-width: 1560px;
+  margin: 0 auto;
 }
 
 .story-active {
   display: flex;
 }
 
+/* Smaller supporting anchor, not a competing block — top edge lines up
+   with the first line of the quote via the shared align-items:flex-start
+   on .story, no extra offset needed. */
 .story-photo {
-  width: 160px;
-  height: 190px;
-  border-radius: 2px;
+  width: 150px;
+  height: 180px;
+  border-radius: 0;
+  border: 1px solid var(--fg-taupe);
   flex-shrink: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 
 .story-initial {
-  font-size: 52px;
-  font-weight: 900;
-  color: rgba(255, 255, 255, 0.12);
-  text-transform: uppercase;
+  font-family: var(--fg-font-serif);
+  font-size: 49px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.16);
+}
+
+/* Narrow quote-mark gutter between the avatar and the text block — its
+   own flex column, not part of either neighbor, so the mark reads as a
+   distinct structural element rather than decoration glued to the text.
+   Hidden below desktop; the inline first-line mark (further down) takes
+   over there instead, matching the pre-existing tablet/mobile layout. */
+.story-quote-mark {
+  display: none;
+  flex: 0 0 auto;
+  width: 56px;
+  font-family: var(--fg-font-serif);
+  font-style: normal;
+  font-size: 3.6rem;
+  line-height: 1;
+  color: var(--fg-accent);
 }
 
 .story-content {
-  flex: 1;
+  flex: 1 1 auto;
   min-width: 0;
+  padding-top: 6px;
 }
 
+/* Broad editorial statement, not a narrow vertical stack — the quote
+   block is meant to extend far to the right (see .story-quote-mark and
+   .story-content flex above), so each testimonial's own line breaks
+   (below) target 2-3 long, balanced lines instead of a tall narrow
+   column. font-weight stays lightened (400) so the italic doesn't read
+   uniformly heavy across every word. */
 .story-quote {
-  font-family: var(--font-heading);
-  font-size: clamp(1.2rem, 2.8vw, 2rem);
-  font-weight: 900;
-  color: var(--color-text);
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-  margin-bottom: 32px;
+  font-family: var(--fg-font-serif);
+  font-size: clamp(1.9rem, 3.7vw, 3.15rem);
+  font-weight: 400;
+  font-style: italic;
+  color: var(--fg-ink);
+  line-height: 1.48;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+  margin: 0 0 28px;
 }
 
-.story-quote::before {
+/* Each testimonial's markup supplies its own explicit line breaks as
+   separate .story-quote-line spans (not a single text node with <br>) —
+   real structural separation, stable across desktop widths, and reusable
+   per-testimonial without touching JS/data. Desktop: one line per
+   element. */
+.story-quote-line {
+  display: block;
+}
+
+/* Mobile/tablet-only quote mark, attached inline to the first line (see
+   the @media block below which disables this once the dedicated gutter
+   column takes over on desktop). */
+.story-quote-line:first-child::before {
   content: '\201C';
-  color: var(--color-accent);
-  font-size: 1.3em;
-  line-height: 0;
-  vertical-align: -0.15em;
-  margin-right: 4px;
-  font-family: Georgia, serif;
+  color: var(--fg-accent);
+  font-family: var(--fg-font-serif);
+  font-style: normal;
+  font-size: 1.4em;
+  vertical-align: -0.08em;
+  margin-right: 0.06em;
+}
+
+/* Desktop only: the dedicated quote-mark gutter column replaces the
+   inline first-line mark used everywhere below this width. */
+@media (min-width: 1025px) {
+  .story-quote-mark {
+    display: block;
+  }
+  .story-quote-line:first-child::before {
+    content: none;
+  }
+}
+
+/* Tablet and mobile: forced per-line breaks are dropped in favor of
+   natural wrapping, so text never overflows or clips at narrower widths.
+   This restructuring is desktop-only — everything at or below this width
+   keeps the pre-existing stacked/wrapped behavior. */
+@media (max-width: 1024px) {
+  .story-quote-line {
+    display: inline;
+  }
 }
 
 .story-name {
-  font-size: 0.95rem;
-  font-weight: 500;
-  color: var(--color-text);
+  font-family: var(--fg-font-sans);
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--fg-ink);
   margin-bottom: 4px;
 }
 
+.story-name::before {
+  content: '\2014\00a0';
+  color: var(--fg-accent);
+}
+
 .story-role {
-  font-size: 0.58rem;
-  letter-spacing: 0.18em;
+  font-family: var(--fg-font-sans);
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: var(--color-text-muted);
+  color: var(--fg-charcoal);
 }
 
 .story-album {
-  font-size: 0.58rem;
-  letter-spacing: 0.12em;
+  font-family: var(--fg-font-sans);
+  font-size: 0.8rem;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--color-accent);
+  color: var(--fg-charcoal);
   margin-top: 4px;
+}
+
+@media (max-width: 720px) {
+  .story {
+    flex-direction: column;
+    gap: 24px;
+  }
 }
 
 /* Bottom bar */
@@ -1716,15 +2393,47 @@ select {
   color: var(--color-text-muted);
 }
 
-.stories-diamond { color: var(--color-accent); }
+.stories-diamond { color: var(--fg-charcoal); }
+
+.stories-header-right {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
 
 .stories-counter {
+  font-family: var(--fg-font-serif);
   font-size: 0.65rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--color-text-muted);
+  color: var(--fg-ink);
 }
-.stories-counter b { color: var(--color-text); font-weight: 700; }
+.stories-counter b { color: var(--fg-charcoal); font-weight: 700; }
+
+.stories-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.stories-nav-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--fg-taupe);
+  background: transparent;
+  color: var(--fg-ink);
+  font-family: var(--fg-font-sans);
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.stories-nav-btn:hover {
+  border-color: var(--fg-ink);
+  background: rgba(28, 26, 23, 0.05);
+}
 
 /* Initial hidden states managed by GSAP, not CSS */
 
@@ -1733,9 +2442,12 @@ select {
 ----------------------------------- */
 
 /* Tall section creates scroll distance for the expansion */
+/* Hardcoded dark bg — this section's own white text/overlay is kept
+   deliberately unchanged, so it needs its own dark backdrop independent
+   of --color-bg-light now that that token is the site's light color. */
 .showcase-section {
   height: 250vh;
-  background: var(--color-bg-light);
+  background: #1c1a17;
   border-top: 2px solid rgba(255, 255, 255, 0.12);
 }
 
@@ -1745,7 +2457,7 @@ select {
   top: 0;
   height: 100vh;
   overflow: hidden;
-  background: var(--color-bg-light);
+  background: #1c1a17;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1764,7 +2476,7 @@ select {
 }
 
 .showcase-header-label {
-  font-size: 0.58rem;
+  font-size: 0.75rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
   color: rgba(255, 255, 255, 0.35);
@@ -1875,13 +2587,13 @@ select {
   position: fixed;
   inset: 0;
   z-index: 300;
-  background: var(--color-bg);
+  background: var(--fg-cream);
   transform: translateY(100%);
   will-change: transform;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  border-radius: 16px 16px 0 0;
+  border-radius: 0;
 }
 
 .genre-page-header {
@@ -1889,8 +2601,8 @@ select {
   align-items: center;
   justify-content: space-between;
   padding: 14px 48px;
-  border-bottom: 2px solid var(--color-text);
-  background: var(--color-bg);
+  border-bottom: 1px solid var(--fg-taupe);
+  background: var(--fg-cream);
   flex-shrink: 0;
 }
 
@@ -1902,16 +2614,16 @@ select {
   font-size: 0.58rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--color-text);
+  color: var(--fg-ink);
   transition: color 0.2s ease;
 }
 
 .genre-page-back:hover {
-  color: var(--color-accent);
+  color: var(--fg-charcoal);
 }
 
 .genre-page-back-arrow {
-  color: var(--color-accent);
+  color: var(--fg-accent);
 }
 
 .genre-page-tabs {
@@ -1925,13 +2637,14 @@ select {
 
 .genre-tab-btn {
   padding: 8px 18px;
-  font-family: var(--font-base);
+  font-family: var(--fg-font-sans);
   font-size: 0.55rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
   background: transparent;
-  border: 1px solid var(--color-border);
-  color: var(--color-text);
+  border: 1px solid rgba(28, 26, 23, 0.15);
+  border-radius: 999px;
+  color: var(--fg-ink);
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
@@ -1939,13 +2652,14 @@ select {
 }
 
 .genre-tab-btn.active {
-  background: var(--color-text);
-  color: var(--color-text-on-dark);
-  border-color: var(--color-text);
+  background: var(--fg-ink);
+  color: var(--fg-cream);
+  border-color: var(--fg-ink);
 }
 
 .genre-tab-btn:hover:not(.active) {
-  border-color: var(--color-text);
+  border-color: var(--fg-charcoal);
+  color: var(--fg-charcoal);
 }
 
 /* Body: left sticky editorial + right scrollable grid */
@@ -1967,8 +2681,8 @@ select {
   width: 0;
   flex-shrink: 0;
   overflow: hidden;
-  background: var(--color-bg-secondary);
-  border-left: 1px solid var(--color-border);
+  background: var(--fg-cream);
+  border-left: 1px solid var(--fg-taupe);
   display: flex;
   flex-direction: column;
   transition: width 0.35s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1984,22 +2698,25 @@ select {
   align-items: center;
   justify-content: space-between;
   padding: 14px 20px;
-  border-bottom: 2px solid var(--color-text);
+  border-bottom: 1px solid var(--fg-taupe);
   flex-shrink: 0;
 }
 
 .gcart-title {
+  font-family: var(--fg-font-sans);
+  font-weight: 700;
   font-size: 0.58rem;
   letter-spacing: 0.22em;
   text-transform: uppercase;
-  color: var(--color-text);
+  color: var(--fg-ink);
 }
 
 .gcart-count {
+  font-family: var(--fg-font-sans);
   font-size: 0.55rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: var(--color-text-muted);
+  color: var(--fg-charcoal);
 }
 
 .gcart-items {
@@ -2011,7 +2728,7 @@ select {
   display: flex;
   gap: 10px;
   padding: 12px 16px;
-  border-bottom: 1px solid var(--color-border);
+  border-bottom: 1px solid var(--fg-taupe);
 }
 
 .gcart-img {
@@ -2030,9 +2747,10 @@ select {
 }
 
 .gcart-name {
+  font-family: var(--fg-font-sans);
   font-size: 0.65rem;
   font-weight: 700;
-  color: var(--color-text);
+  color: var(--fg-ink);
   text-transform: uppercase;
   letter-spacing: -0.01em;
   white-space: nowrap;
@@ -2041,20 +2759,22 @@ select {
 }
 
 .gcart-artist {
+  font-family: var(--fg-font-sans);
   font-size: 0.58rem;
-  color: var(--color-accent);
+  color: var(--fg-charcoal);
 }
 
 .gcart-qty {
+  font-family: var(--fg-font-sans);
   font-size: 0.55rem;
-  color: var(--color-text-muted);
+  color: var(--fg-ink);
   letter-spacing: 0.05em;
   margin-top: 2px;
 }
 
 .gcart-footer {
   padding: 16px 20px;
-  border-top: 2px solid var(--color-text);
+  border-top: 1px solid var(--fg-taupe);
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
@@ -2068,24 +2788,30 @@ select {
 }
 
 .gcart-total-label {
+  font-family: var(--fg-font-sans);
   font-size: 0.55rem;
   letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--color-text-muted);
+  color: var(--fg-ink);
 }
 
 .gcart-total-amount {
+  font-family: var(--fg-font-sans);
   font-size: 1rem;
-  font-weight: 900;
-  color: var(--color-text);
+  font-weight: 700;
+  color: var(--fg-ink);
   letter-spacing: -0.02em;
 }
 
 .gcart-checkout-btn {
   display: block;
-  background: var(--color-text);
-  color: var(--color-text-on-dark);
-  font-family: var(--font-base);
+  background: var(--fg-ink);
+  color: var(--fg-cream);
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 4px 16px rgba(28, 26, 23, 0.2);
+  font-family: var(--fg-font-sans);
+  font-weight: 700;
   font-size: 0.58rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
@@ -2096,14 +2822,15 @@ select {
 }
 
 .gcart-checkout-btn:hover {
-  background: var(--color-accent);
-  color: #fff;
+  background: var(--fg-charcoal);
+  color: var(--fg-cream);
 }
 
 .gcart-empty {
+  font-family: var(--fg-font-sans);
   padding: 24px 16px;
   font-size: 0.62rem;
-  color: var(--color-text-muted);
+  color: var(--fg-ink);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   text-align: center;
@@ -2113,7 +2840,7 @@ select {
 .genre-page-left {
   flex: 0 0 45%;
   padding: 52px 48px;
-  border-right: 1px solid var(--color-border);
+  border-right: 1px solid var(--fg-taupe);
   display: flex;
   flex-direction: column;
   gap: 20px;
@@ -2121,29 +2848,31 @@ select {
 }
 
 .genre-page-big-name {
-  font-family: var(--font-heading);
+  font-family: var(--fg-font-serif);
   font-size: clamp(3rem, 5vw, 5.5rem);
-  font-weight: 900;
-  color: var(--color-text);
-  text-transform: uppercase;
-  letter-spacing: -0.04em;
-  line-height: 0.88;
+  font-weight: 600;
+  color: var(--fg-ink);
+  text-transform: capitalize;
+  letter-spacing: -0.01em;
+  line-height: 0.95;
 }
 
 .genre-page-desc {
+  font-family: var(--fg-font-sans);
   font-size: 0.8rem;
-  color: var(--color-text-muted);
+  color: var(--fg-ink);
   line-height: 1.65;
   letter-spacing: 0.01em;
   padding-top: 16px;
-  border-top: 1px solid var(--color-border);
+  border-top: 1px solid var(--fg-taupe);
 }
 
 .genre-page-count {
+  font-family: var(--fg-font-sans);
   font-size: 0.58rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: var(--color-text-muted);
+  color: var(--fg-charcoal);
 }
 
 /* Right column — 55% of overlay width, equal 48px right padding */
@@ -2172,7 +2901,8 @@ select {
   width: 100%;
   aspect-ratio: 4 / 3;
   overflow: hidden;
-  background: var(--color-bg-light);
+  background: var(--fg-ink);
+  border-radius: 8px;
 }
 
 .genre-card-img-wrap img {
@@ -2195,33 +2925,40 @@ select {
 }
 
 .genre-card-title {
+  font-family: var(--fg-font-sans);
   font-size: 0.78rem;
   font-weight: 700;
-  color: var(--color-text);
+  color: var(--fg-ink);
   text-transform: uppercase;
   letter-spacing: -0.01em;
   line-height: 1.2;
 }
 
 .genre-card-artist {
-  font-size: 0.62rem;
-  color: var(--color-accent);
-  letter-spacing: 0.04em;
+  font-family: var(--fg-font-serif);
+  font-style: italic;
+  font-size: 0.68rem;
+  color: var(--fg-accent);
+  letter-spacing: 0.01em;
 }
 
 .genre-card-price {
+  font-family: var(--fg-font-sans);
   font-size: 0.7rem;
   font-weight: 700;
-  color: var(--color-text);
+  color: var(--fg-ink);
   margin-top: 2px;
 }
 
 .genre-card-btn {
   margin-top: 8px;
-  background-color: var(--color-accent);
-  color: var(--color-text-on-dark);
+  background-color: var(--fg-ink);
+  color: var(--fg-cream);
   border: none;
-  font-family: var(--font-base);
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(28, 26, 23, 0.18);
+  font-family: var(--fg-font-sans);
+  font-weight: 700;
   font-size: 0.6rem;
   letter-spacing: 0.1em;
   text-transform: uppercase;
@@ -2232,7 +2969,13 @@ select {
 }
 
 .genre-card-btn:hover {
-  background-color: var(--color-hover);
+  background-color: var(--fg-charcoal);
+}
+
+/* GSAP never targets this button's transform, so a subtle press
+   scale is safe to add here — softer than a hard offset shadow drop. */
+.genre-card-btn:active {
+  transform: scale(0.98);
 }
 
 /* -----------------------------------

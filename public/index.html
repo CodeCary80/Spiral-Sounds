@@ -4,10 +4,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
   <link rel="stylesheet" href="css/index.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="stylesheet" href="https://use.typekit.net/ynr0vvq.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Bodoni:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Public+Sans:wght@400;500;600&display=swap">
   <title>Spiral Sounds</title>
 </head>
 
@@ -18,10 +20,6 @@
   <!-- ===== HERO — Full Screen ===== -->
   <section class="hero-section" id="hero-section">
 
-    <!-- Background image (set by JS) -->
-    <div class="hero-bg" id="hero-bg"></div>
-    <div class="hero-overlay"></div>
-
     <!-- Sticky nav inside hero -->
     <header class="site-header">
       <div class="header-navbar">
@@ -30,7 +28,6 @@
         <div class="header-logo">
           <a href="/">
             <span class="header-logo-text">Spiral Sounds</span>
-            <div class="header-logo-rule"></div>
           </a>
         </div>
 
@@ -60,9 +57,15 @@
       </div>
     </header>
 
-    <!-- Hero tagline -->
+    <!-- Hero — split masthead: text left, vinyl photo center-right -->
     <div class="hero-stage">
-      <h1 class="hero-tagline">Records for those<br>who listen with vision.</h1>
+      <div class="hero-text">
+        <p class="hero-kicker">Spiral Sounds &nbsp;·&nbsp; Toronto</p>
+        <h1 class="hero-tagline">Records for those<br>who listen with vision.</h1>
+      </div>
+      <div class="hero-photo">
+        <img src="images/header-3.jpg" alt="A vinyl record spinning on a turntable">
+      </div>
     </div>
 
   </section>
@@ -79,7 +82,7 @@
     <h2 class="editorial-headline">
       <span class="ed-line">Music you can</span>
       <span class="ed-line">hold in your hands.</span>
-      <em class="ed-line">Records worth owning.</em>
+      <em class="ed-line">Every flip tells the rest of the story.</em>
     </h2>
 
     <div class="editorial-cta-wrap">
@@ -99,9 +102,15 @@
   <!-- ===== PRODUCTS SECTION ===== -->
   <main class="products-section" id="products-section">
 
-    <!-- Genre scatter view (default) -->
+    <!-- Genre grid view (default) -->
     <div id="genre-view">
-      <div class="genre-scatter-wrap" id="genre-scatter"></div>
+      <div class="genre-grid-wrap" id="genre-grid">
+        <div class="genre-intro">
+          <p class="genre-intro-kicker">The Collection</p>
+          <p class="genre-intro-text">Every genre here is chosen, not stocked. If it's on the shelf, someone on staff already loves it.</p>
+          <button class="genre-intro-btn" id="genre-intro-btn">↳ View all genres</button>
+        </div>
+      </div>
     </div>
 
     <!-- Product list view (shown after clicking a genre) -->
@@ -128,7 +137,7 @@
       </div>
 
       <div class="showcase-frame" id="showcase-frame">
-            <img src="/images/vinyl-store.jpg" alt="Spiral Sounds store" class="showcase-img">
+            <img src="/images/vinyl-store-3.jpg" alt="Spiral Sounds store" class="showcase-img">
       </div>
 
       <div class="showcase-overlay">
@@ -147,52 +156,67 @@
       <div class="stories-label">
         <span class="stories-diamond">♦</span> Client stories
       </div>
-      <div class="stories-counter" id="stories-counter">
-        <b>01</b> / 03
+      <div class="stories-header-right">
+        <div class="stories-counter" id="stories-counter">
+          <b>01</b> / 03
+        </div>
+        <div class="stories-nav">
+          <button class="stories-nav-btn" id="stories-prev" aria-label="Previous story">←</button>
+          <button class="stories-nav-btn" id="stories-next" aria-label="Next story">→</button>
+        </div>
       </div>
     </div>
 
     <div class="stories-wrap" id="stories-wrap">
-      <div class="stories-wipe" id="stories-wipe"></div>
 
       <div class="story story-active" id="story-0">
-        <div class="story-photo" style="background:#2a1a12"><span class="story-initial">M</span></div>
+        <div class="story-photo" style="background:#0b1012"><span class="story-initial">M</span></div>
+        <div class="story-quote-mark" aria-hidden="true">&#8220;</div>
         <div class="story-content">
-          <p class="story-quote">Every record I've bought from Spiral Sounds has become the soundtrack to something I'll never forget. This isn't just a store — it's a curation.</p>
+          <p class="story-quote"><span class="story-quote-line">Every record I've bought from Spiral Sounds has become</span> <span class="story-quote-line">the soundtrack to something I'll never forget.</span> <span class="story-quote-line">This isn't just a store — it's a curation.</span></p>
           <div class="story-meta">
             <div class="story-name">Marcus Reid</div>
             <div class="story-role">Jazz collector, Toronto</div>
-            <div class="story-album">♦ Owns 400+ records</div>
+            <div class="story-album">Owns 400+ records</div>
           </div>
         </div>
       </div>
 
       <div class="story" id="story-1">
-        <div class="story-photo" style="background:#0d1520"><span class="story-initial">S</span></div>
+        <div class="story-photo" style="background:#212325"><span class="story-initial">S</span></div>
+        <div class="story-quote-mark" aria-hidden="true">&#8220;</div>
         <div class="story-content">
-          <p class="story-quote">I came in looking for one record and left with six. The staff knew exactly what I needed before I did. That's the magic of this place.</p>
+          <p class="story-quote"><span class="story-quote-line">I came in looking for one record and left with six.</span> <span class="story-quote-line">The staff knew exactly what I needed before I did.</span> <span class="story-quote-line">That's the magic of this place.</span></p>
           <div class="story-meta">
             <div class="story-name">Sophie Chen</div>
             <div class="story-role">Indie enthusiast, Vancouver</div>
-            <div class="story-album">♦ Customer since 2022</div>
+            <div class="story-album">Customer since 2022</div>
           </div>
         </div>
       </div>
 
       <div class="story" id="story-2">
-        <div class="story-photo" style="background:#0a0a1e"><span class="story-initial">D</span></div>
+        <div class="story-photo" style="background:#3a352e"><span class="story-initial">D</span></div>
+        <div class="story-quote-mark" aria-hidden="true">&#8220;</div>
         <div class="story-content">
-          <p class="story-quote">Vinyl bought here sounds different. Not the pressing — the feeling. Knowing a real person chose this record for this shelf changes everything.</p>
+          <p class="story-quote"><span class="story-quote-line">Vinyl bought here sounds different. Not the pressing —</span> <span class="story-quote-line">the feeling. Knowing a real person chose this record</span> <span class="story-quote-line">for this shelf changes everything.</span></p>
           <div class="story-meta">
             <div class="story-name">Daniel Osei</div>
             <div class="story-role">DJ & producer, Montreal</div>
-            <div class="story-album">♦ Weekly visitor</div>
+            <div class="story-album">Weekly visitor</div>
           </div>
         </div>
       </div>
 
     </div>
 
+  </section>
+
+  <!-- ===== CLOSING CTA — editorial closing page, rises with the footer ===== -->
+  <section class="closing-cta-section" id="closing-cta-section">
+    <div class="closing-cta-disc" aria-hidden="true"></div>
+    <h2 class="closing-cta-headline">Your next favorite<br>record is waiting.</h2>
+    <button class="closing-cta-btn" id="closing-cta-btn">Browse the Collection →</button>
   </section>
 
   </div><!-- /.page-content -->

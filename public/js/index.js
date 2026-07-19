@@ -2,12 +2,17 @@ import { logout } from './logout.js'
 import { checkAuth, renderGreeting, showHideMenuItems } from './authUI.js'
 import { getProducts, getGenres } from './productService.js'
 import { addBtnListeners, updateCartIcon } from './cartService.js'
+import { calculateCartTotal } from './cartTotal.js'
 gsap.registerPlugin(ScrollTrigger)
 
 
 
 
-// ===== Client Stories — 3-card slider with wipe transition =====
+// ===== Client Stories — 3-card slider with plain crossfade =====
+// fluid.glass's own testimonial transition is a same-position opacity
+// crossfade (old fades out, new fades in, no slide/wipe), confirmed by
+// frame-by-frame review of the reference recording — not a directional
+// wipe, so .story is positioned absolute to let both overlap briefly.
 ;(function () {
   const TOTAL = 3
   let cur = 0
@@ -18,37 +23,38 @@ gsap.registerPlugin(ScrollTrigger)
     if (el) el.innerHTML = `<b>${String(n + 1).padStart(2, '0')}</b> / 0${TOTAL}`
   }
 
-  function goTo(idx, dir) {
+  function goTo(idx) {
     if (going || idx === cur) return
     going = true
-    const wipe = document.getElementById('stories-wipe')
-    const out  = document.getElementById(`story-${cur}`)
-    const inn  = document.getElementById(`story-${idx}`)
+    const out = document.getElementById(`story-${cur}`)
+    const inn = document.getElementById(`story-${idx}`)
 
-    const tl = gsap.timeline({ onComplete: () => going = false })
-    tl.fromTo(wipe,
-      { x: dir > 0 ? '-101%' : '101%' },
-      { x: '0%', duration: 0.28, ease: 'power2.in' })
-    tl.call(() => {
-      out.classList.remove('story-active')
-      inn.classList.add('story-active')
-      cur = idx
-      updateCounter(idx)
+    inn.classList.add('story-active')
+    gsap.set(inn, { opacity: 0 })
+    updateCounter(idx)
+    cur = idx
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        out.classList.remove('story-active')
+        gsap.set(out, { clearProps: 'opacity' })
+        going = false
+      }
     })
-    tl.to(wipe, { x: dir > 0 ? '101%' : '-101%', duration: 0.32, ease: 'power2.out' })
-    tl.fromTo(inn.querySelector('.story-photo'),
-      { opacity: 0, y: -30 }, { opacity: 1, y: 0, duration: 0.4, ease: 'power3.out' }, '-=0.25')
-    tl.fromTo(inn.querySelector('.story-quote'),
-      { opacity: 0 }, { opacity: 1, duration: 0.4, ease: 'power3.out' }, '-=0.2')
-    tl.fromTo(inn.querySelector('.story-meta'),
-      { opacity: 0 }, { opacity: 1, duration: 0.35, ease: 'power3.out' }, '-=0.25')
+    tl.to(out, { opacity: 0, duration: 0.35, ease: 'power1.out' }, 0)
+    tl.to(inn, { opacity: 1, duration: 0.4, ease: 'power1.out' }, 0.05)
   }
 
-  // Click to advance
+  // Click anywhere on the wrap, or the explicit prev/next buttons, to advance
   const wrap = document.getElementById('stories-wrap')
   if (wrap) {
-    wrap.addEventListener('click', () => goTo((cur + 1) % TOTAL, 1))
+    wrap.addEventListener('click', () => goTo((cur + 1) % TOTAL))
   }
+
+  const prevBtn = document.getElementById('stories-prev')
+  const nextBtn = document.getElementById('stories-next')
+  if (prevBtn) prevBtn.addEventListener('click', e => { e.stopPropagation(); goTo((cur - 1 + TOTAL) % TOTAL) })
+  if (nextBtn) nextBtn.addEventListener('click', e => { e.stopPropagation(); goTo((cur + 1) % TOTAL) })
 })()
 
 // ===== Footer — scroll to top button =====
@@ -66,112 +72,58 @@ document.getElementById('browse-btn').addEventListener('click', () => {
   document.getElementById('products-section').scrollIntoView({ behavior: 'smooth' })
 })
 
+// ===== Closing CTA — same destination as the editorial browse CTA =====
+document.getElementById('closing-cta-btn').addEventListener('click', () => {
+  document.getElementById('products-section').scrollIntoView({ behavior: 'smooth' })
+})
+
 // ===== Auth =====
 document.getElementById('logout-btn').addEventListener('click', logout)
 
-// ===== Genre colours =====
-const GENRE_COLORS = {
-  rock: '#2a1a12', indie: '#0d1520', ambient: '#0d1810',
-  folk: '#180d18', punk: '#1a0808', jazz: '#0a0a1e',
-  electronic: '#060f18', soul: '#3d1a00', classical: '#222218',
-  pop: '#1a0a18', metal: '#0a0a0a', blues: '#0a100a',
-}
-function genreColor(g) { return GENRE_COLORS[g.toLowerCase()] || '#1C1C1C' }
+// ===== Genre Grid — curated vinyl-sleeve collage =====
+// Positioning, rotation and the disc-peek are all hand-set in CSS per slot
+// (no coordinate math, no randomization) — deliberately composed rather
+// than scattered at random. Each slot is its own visual island: a square
+// sleeve resting on the page, some with a black vinyl disc peeking out
+// from behind, echoing the same disc motif used in the hero photo and the
+// closing CTA. buildGenreGrid() only creates elements and cycles slots.
+const GENRE_SLOTS = [
+  { cls: 'genre-tile--feature', disc: false },
+  { cls: 'genre-tile--slot-a',  disc: true  },
+  { cls: 'genre-tile--slot-b',  disc: false },
+  { cls: 'genre-tile--slot-c',  disc: true  },
+  { cls: 'genre-tile--slot-d',  disc: false },
+]
 
-// ===== Genre Scatter =====
-function buildGenreScatter(genres, allProducts, carouselIds = new Set()) {
-  const wrap = document.getElementById('genre-scatter')
+function buildGenreGrid(genres, allProducts, carouselIds = new Set()) {
+  const wrap = document.getElementById('genre-grid')
   if (!wrap) return
 
-  const layout = [
-    [  6, 140, 22, 400],
-    [ 30,  30, 40, 140],
-    [ 40, 240, 18, 220],
-    [ 68, 340, 18, 220],
-    [ 32, 510, 32, 160],
-  ]
-
-  const W = wrap.offsetWidth
-
-  genres.slice(0, layout.length).forEach((genre, i) => {
-    const [lp, tp_px, wp, hp_px] = layout[i]
-
+  genres.forEach((genre, i) => {
+    const genreProducts = allProducts.filter(p => p.genre.toLowerCase() === genre.toLowerCase())
     const album =
-      allProducts.find(p => p.genre.toLowerCase() === genre.toLowerCase() && !carouselIds.has(p.id))
-      || allProducts.find(p => p.genre.toLowerCase() === genre.toLowerCase())
+      genreProducts.find(p => !carouselIds.has(p.id))
+      || genreProducts[0]
+    const count = genreProducts.length
 
-    const bgImage = album ? `url('./images/${album.image}')` : 'none'
-
+    const slot = GENRE_SLOTS[i % GENRE_SLOTS.length]
+    const cycleClass = i >= GENRE_SLOTS.length ? ' genre-tile--cycle-2' : ''
     const el = document.createElement('div')
-    el.className = 'genre-block'
+    el.className = 'genre-tile ' + slot.cls + cycleClass
     el.dataset.genre = genre
-    el.style.cssText = `
-      position: absolute;
-      left: ${(lp/100)*W}px;
-      top: ${tp_px}px;
-      width: ${(wp/100)*W}px;
-      height: ${hp_px}px;
-      background-color: ${genreColor(genre)};
-      background-image: ${bgImage};
-      background-size: cover;
-      background-position: center;
-      cursor: pointer;
-      overflow: hidden;
-      opacity: 0;
-    `
 
     el.innerHTML = `
-      <div style="position:absolute;inset:0;background:rgba(0,0,0,0.35);"></div>
-      <span style="position:absolute;top:10px;right:12px;font-size:0.7rem;color:rgba(255,255,255,0.6);">↗</span>
-      <div style="position:absolute;bottom:0;left:0;right:0;padding:10px 14px;">
-        <div style="font-size:0.85rem;font-weight:900;color:#fff;text-transform:uppercase;letter-spacing:0.05em;">${genre}</div>
+      ${slot.disc ? '<div class="genre-tile-disc" aria-hidden="true"></div>' : ''}
+      <div class="genre-tile-sleeve"${album ? ` style="background-image:url('./images/${album.image}')"` : ''}>
+        <span class="genre-tile-label">
+          <span class="genre-tile-label-name">${genre}</span>
+        </span>
       </div>
+      <span class="genre-tile-hover-info">Explore ${genre} &middot; ${count} record${count !== 1 ? 's' : ''}</span>
     `
-    el.addEventListener('mouseenter', () => { gsap.to(el, { opacity: 0.8, duration: 0.2 }) })
-    el.addEventListener('mouseleave', () => { gsap.to(el, { opacity: 1, duration: 0.2 }) })
     el.addEventListener('click', () => openGenreOverlay(genre))
     wrap.appendChild(el)
   })
-
-  // Vinyl decoration
-  const vinyl = document.createElement('div')
-  vinyl.style.cssText = `
-    position: absolute;
-    left: ${0.72 * W}px;
-    top: 140px;
-    width: 160px;
-    height: 160px;
-    border-radius: 50%;
-    background: repeating-radial-gradient(
-      circle at center,
-      #080808 0px, #080808 2px,
-      #141414 2px, #1a1a1a 4px
-    );
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    pointer-events: none;
-  `
-  const label = document.createElement('div')
-  label.style.cssText = `
-    width: 46px;
-    height: 46px;
-    border-radius: 50%;
-    background: var(--color-bg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  `
-  const dot = document.createElement('div')
-  dot.style.cssText = `
-    width: 10px;
-    height: 10px;
-    border-radius: 50%;
-    background: #999;
-  `
-  label.appendChild(dot)
-  vinyl.appendChild(label)
-  wrap.appendChild(vinyl)
 }
 
 // ===== Show products for a genre =====
@@ -483,7 +435,7 @@ async function refreshCartSidebar() {
     sidebar.classList.toggle('open', items.length > 0)
     if (!items.length) { sidebar.innerHTML = ''; return }
 
-    const total   = items.reduce((s, i) => s + Number(i.price) * (i.quantity || 1), 0)
+    const total   = calculateCartTotal(items)
     const qty     = items.reduce((s, i) => s + (i.quantity || 1), 0)
 
     sidebar.innerHTML = `
@@ -557,36 +509,18 @@ async function init() {
   const all    = await getProducts()
   _allGenres = genres
 
-  // Hero — static background image + centered tagline
-  const heroBg = document.getElementById('hero-bg')
-  if (heroBg && all.length) {
-    heroBg.style.backgroundImage = `url('./images/${all[0].image}')`
-    heroBg.style.backgroundSize = 'cover'
-    heroBg.style.backgroundPosition = 'center'
-  }
-  gsap.set(['#hero-bg', '.hero-overlay', '.hero-stage'], { autoAlpha: 1 })
+  gsap.set(['.hero-stage'], { autoAlpha: 1 })
 
-  // Genre scatter
-  buildGenreScatter(genres, all)
+  // Genre grid
+  buildGenreGrid(genres, all)
   addBtnListeners()
 
-  // Genre scatter — scrub animation
-  const scatterTl = gsap.timeline({
-    scrollTrigger: {
-      trigger: '#genre-scatter',
-      start: 'top 80%',
-      end: 'top 10%',
-      scrub: 1,
-    }
-  })
-  document.querySelectorAll('#genre-scatter .genre-block').forEach((el, i) => {
-    const fromX = i % 2 === 0 ? -60 : 60
-    scatterTl.fromTo(el,
-      { opacity: 0, x: fromX, scale: 0.85 },
-      { opacity: 1, x: 0, scale: 1, duration: 0.8, ease: 'back.out(1.4)' },
-      i * 0.12
-    )
-  })
+  const introBtn = document.getElementById('genre-intro-btn')
+  if (introBtn && genres.length) introBtn.addEventListener('click', () => openGenreOverlay(genres[0]))
+
+  // No scroll-triggered reveal here — frame-by-frame review of the
+  // reference recording shows the collection tiles are just static
+  // content as you scroll past them, no stagger/fade choreography.
 
   // Editorial section scrub
   const edTl = gsap.timeline({
@@ -634,16 +568,43 @@ async function init() {
   })()
 
   // ===== Footer rises up over the pinned stories section (last section) =====
+  // Single ScrollTrigger drives the pin AND both reveals through one
+  // timeline, so Stories/CTA/Footer share one source of scroll-progress
+  // truth and can never drift out of sync with each other, no matter how
+  // the phase timings below are tuned.
+  //
+  // The pin lasts '+=330%' (~3 viewport heights). This number was chosen
+  // for its effect on the WHOLE PAGE's scroll percentage, not just its own
+  // internal progress — footer's rise architecturally must end at 100% of
+  // the page (it's a fixed overlay, nothing scrollable after it), and all
+  // content before Stories is a fixed 5470px, so the pin's start-percentage
+  // of the whole page is start/(start+pinLength) — a LONGER pin is what
+  // pushes that percentage EARLIER, not a shorter one. At +=330%, pin-start
+  // lands at ~65% of the whole page (down from ~75% before), and the
+  // "nothing moving yet" hold is capped to a small slice of the pin so it
+  // only spans ~65%-70% of the whole page, not ~75%-85% as before.
+  //
+  // Tween positions are fractions of 0-1, which — because scrub maps
+  // ScrollTrigger progress directly to timeline totalProgress — read
+  // exactly as % of the pin's own range. In whole-page terms (pin spans
+  // ~65%-100%), each phase below maps to roughly the range noted:
+  //   0%   - 15%  Stories holds stable/readable   (~65.0% - 70.1% of page)
+  //   15%  - 50%  CTA rises continuously into view (~70.1% - 82.4% of page)
+  //   50%  - 58%  CTA's brief moment of presence   (~82.4% - 85.2% of page)
+  //   56%  - 100% Footer rises, overlapping the CTA hold's tail at 56%
+  //               instead of waiting for it to fully end at 58%
+  //               (~84.5% - 100% of page)
   ;(function () {
-    const footer  = document.getElementById('site-footer')
-    const stories = document.getElementById('stories-section')
+    const footer     = document.getElementById('site-footer')
+    const stories    = document.getElementById('stories-section')
+    const closingCta = document.getElementById('closing-cta-section')
     if (!footer || !stories) return
 
     const tl = gsap.timeline({
       scrollTrigger: {
         trigger: stories,
         start: 'top top',
-        end: '+=100%',
+        end: '+=330%',
         scrub: 1,
         pin: stories,
         pinSpacing: true,
@@ -652,11 +613,19 @@ async function init() {
       }
     })
     // y:'100%'→'0%' overrides the CSS transform cleanly (yPercent would stack on it)
-    tl.fromTo(footer, { y: '100%' }, { y: '0%', ease: 'none' })
+    if (closingCta) tl.fromTo(closingCta, { y: '100%' }, { y: '0%', ease: 'none', duration: 0.35 }, 0.15)
+    tl.fromTo(footer, { y: '100%' }, { y: '0%', ease: 'none', duration: 0.44 }, closingCta ? 0.56 : 0.15)
   })()
 
   // Refresh all ScrollTrigger positions after content is built
   ScrollTrigger.refresh()
+
+  // Web fonts (Libre Bodoni/Public Sans) swap in asynchronously and reflow
+  // text after the refresh above already ran, which silently drifts every
+  // scroll-trigger's start/end px offsets. Refresh again once fonts settle.
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => ScrollTrigger.refresh())
+  }
 }
 
 init()

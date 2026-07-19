@@ -2,6 +2,7 @@ import { logout } from './logout.js'
 import { checkAuth, renderGreeting, showHideMenuItems } from './authUI.js'
 import { getProducts, getGenres } from './productService.js'
 import { addBtnListeners, updateCartIcon } from './cartService.js'
+import { calculateCartTotal } from './cartTotal.js'
 gsap.registerPlugin(ScrollTrigger)
 
 
@@ -434,7 +435,7 @@ async function refreshCartSidebar() {
     sidebar.classList.toggle('open', items.length > 0)
     if (!items.length) { sidebar.innerHTML = ''; return }
 
-    const total   = items.reduce((s, i) => s + Number(i.price) * (i.quantity || 1), 0)
+    const total   = calculateCartTotal(items)
     const qty     = items.reduce((s, i) => s + (i.quantity || 1), 0)
 
     sidebar.innerHTML = `

@@ -1,5 +1,6 @@
 import { logout } from './logout.js'
 import { checkAuth, renderGreeting, showHideMenuItems } from './authUI.js'
+import { calculateCartTotal } from './cartTotal.js'
 
 document.getElementById('logout-btn').addEventListener('click', logout)
 
@@ -79,7 +80,7 @@ function renderItems(items) {
 }
 
 function renderSummary(items) {
-  const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0)
+  const total = calculateCartTotal(items)
   const formatted = `$${total.toFixed(2)}`
 
   dom.cartTotal.textContent    = formatted

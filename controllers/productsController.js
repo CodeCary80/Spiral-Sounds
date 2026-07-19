@@ -1,5 +1,73 @@
 import { getDBConnection } from '../db/db.js'
 
+// Maps common subgenre/alias search terms to the store's actual genre categories,
+// so searching e.g. "New Wave" still surfaces records tagged "rock".
+const SUBGENRE_MAP = {
+  'new wave': 'rock',
+  'grunge': 'rock',
+  'psychedelic rock': 'rock',
+  'hard rock': 'rock',
+  'garage rock': 'rock',
+
+  'indie rock': 'indie',
+  'indie pop': 'indie',
+  'lo fi': 'indie',
+  'dream pop': 'indie',
+  'shoegaze': 'indie',
+
+  'drone': 'ambient',
+  'new age': 'ambient',
+  'dark ambient': 'ambient',
+  'field recording': 'ambient',
+
+  'folk rock': 'folk',
+  'americana': 'folk',
+  'singer songwriter': 'folk',
+  'bluegrass': 'folk',
+
+  'post punk': 'punk',
+  'hardcore': 'punk',
+  'pop punk': 'punk',
+  'ska punk': 'punk',
+
+  'bebop': 'jazz',
+  'swing': 'jazz',
+  'fusion': 'jazz',
+  'free jazz': 'jazz',
+  'smooth jazz': 'jazz',
+
+  'techno': 'electronic',
+  'house': 'electronic',
+  'synthwave': 'electronic',
+  'idm': 'electronic',
+  'downtempo': 'electronic',
+
+  'r&b': 'soul',
+  'funk': 'soul',
+  'motown': 'soul',
+  'neo soul': 'soul',
+
+  'baroque': 'classical',
+  'romantic': 'classical',
+  'chamber music': 'classical',
+  'opera': 'classical',
+
+  'synth pop': 'pop',
+  'synthpop': 'pop',
+  'dance pop': 'pop',
+  'city pop': 'pop',
+  'bubblegum pop': 'pop',
+
+  'thrash metal': 'metal',
+  'death metal': 'metal',
+  'black metal': 'metal',
+  'doom metal': 'metal',
+
+  'delta blues': 'blues',
+  'chicago blues': 'blues',
+  'blues rock': 'blues',
+}
+
 export async function getGenres(req, res) {
 
   try {
@@ -36,10 +104,17 @@ export async function getProducts(req, res) {
 
     } else if (search) {
 
-      query += ' WHERE title ILIKE ? OR artist ILIKE ? OR genre ILIKE ?'
       const searchPattern = `%${search}%`
-      params.push(searchPattern, searchPattern, searchPattern)
-      
+      const mappedGenre = SUBGENRE_MAP[search.trim().toLowerCase()]
+
+      if (mappedGenre) {
+        query += ' WHERE genre = ? OR title ILIKE ? OR artist ILIKE ? OR genre ILIKE ?'
+        params.push(mappedGenre, searchPattern, searchPattern, searchPattern)
+      } else {
+        query += ' WHERE title ILIKE ? OR artist ILIKE ? OR genre ILIKE ?'
+        params.push(searchPattern, searchPattern, searchPattern)
+      }
+
     }
     console.log('QUERY:', query)
     console.log('PARAMS:', params)

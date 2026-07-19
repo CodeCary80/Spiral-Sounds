@@ -1178,6 +1178,7 @@ button:active {
   margin-top: auto;
   padding: 0.6em 1em;
   font-size: 0.65rem;
+  color: var(--color-bg);
 }
 
 .genre-label {
@@ -1250,7 +1251,7 @@ button:active {
 
 .detail-genre-tag {
   background-color: var(--color-accent);
-  color: var(--color-text-on-dark);
+  color: var(--color-bg);
   font-size: 0.55rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
@@ -1613,6 +1614,7 @@ button:active {
   margin-top: 1rem;
   padding: 0.75rem 1rem;
   font-size: 0.75rem;
+  color: #fff;
 }
 
 .auth-divider {

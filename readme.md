@@ -2,7 +2,7 @@
 
 A full-stack vinyl e-commerce platform built with Node.js, Express.js, and Vanilla JS — featuring session-based authentication, Stripe payments, and scroll-driven GSAP animations.
 
-**[Live Demo](https://spiral-sounds-8dk9.onrender.com)** · **[GitHub](https://github.com/CodeCary80/Spiral-Sounds)**
+**[Live Demo](https://spiral-sounds-8dk9.onrender.com)** 
 
 ---
 

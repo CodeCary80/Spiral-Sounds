@@ -37,6 +37,8 @@ function renderDetail(album) {
       <!-- Right: info -->
       <div class="detail-right">
 
+        <a href="/?genre=${encodeURIComponent(album.genre)}" class="detail-back-link">← Back to ${album.genre}</a>
+
         <span class="detail-genre-tag">${album.genre}</span>
 
         <div>

@@ -1249,6 +1249,18 @@ button:active {
   gap: 1rem;
 }
 
+.detail-back-link {
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  align-self: flex-start;
+}
+
+.detail-back-link:hover {
+  color: var(--color-accent);
+}
+
 .detail-genre-tag {
   background-color: var(--color-accent);
   color: var(--color-bg);

@@ -463,6 +463,7 @@ button:active {
 
 .turntable-stage .tt-base,
 .turntable-stage .tt-spindle,
+.turntable-stage .tt-knob,
 .turntable-stage .tt-tonearm {
   position: absolute;
   inset: 0;
@@ -572,39 +573,30 @@ button:active {
   outline: none;
 }
 
-/* Control text printed on the chassis, not a button sitting on a web page.
-   The deck's controls run down a line that the camera angle renders as a
-   diagonal — the two buttons and the knob sit on x = -0.587y + 1547 — so the
-   label is nudged left to stay on that axis rather than hanging straight
-   below the knob. The offset is a share of the wrapper's width, so it tracks
-   the deck at every size. */
-.play-control-label {
-  position: absolute;
-  top: 107%;
-  left: 50%;
-  margin-left: -47%;
-  transform: translateX(-50%);
-  font-family: var(--fg-font-sans);
-  /* Scales with the deck so it stays the same size relative to the knob at
-     every width, clamped so it never drops below legibility. */
-  font-size: clamp(8.5px, 1.55cqw, 13px);
-  font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--color-accent);
-  opacity: 0.72;
-  white-space: nowrap;
+/* The dial is baked into the base art, so pressing it means shifting its own
+   layer down over the copy still drawn underneath. Held down for as long as
+   the record plays, released when it stops. */
+.turntable-stage .tt-knob {
+  z-index: 4;
   pointer-events: none;
+  transition: transform 220ms ease, filter 220ms ease;
 }
 
-.tt-power:focus-visible ~ .play-control-label {
-  opacity: 1;
-  text-decoration: underline;
-  text-underline-offset: 3px;
+.turntable-stage.is-playing .tt-knob,
+.turntable-stage:has(.tt-power:active) .tt-knob {
+  transform: translateY(0.74%);
+  filter: brightness(0.97);
+}
+
+/* Focus has to land somewhere visible: press the dial in, as though held. */
+.turntable-stage:has(.tt-power:focus-visible) .tt-knob {
+  transform: translateY(0.74%);
+  filter: brightness(0.94);
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .turntable-stage .tt-tonearm { transition: none; }
+  .turntable-stage .tt-tonearm,
+  .turntable-stage .tt-knob { transition: none; }
 }
 
 @media (max-width: 860px) {

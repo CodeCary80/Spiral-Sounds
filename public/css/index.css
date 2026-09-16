@@ -572,11 +572,17 @@ button:active {
   outline: none;
 }
 
-/* Control text printed on the chassis, not a button sitting on a web page. */
+/* Control text printed on the chassis, not a button sitting on a web page.
+   The deck's controls run down a line that the camera angle renders as a
+   diagonal — the two buttons and the knob sit on x = -0.587y + 1547 — so the
+   label is nudged left to stay on that axis rather than hanging straight
+   below the knob. The offset is a share of the wrapper's width, so it tracks
+   the deck at every size. */
 .play-control-label {
   position: absolute;
-  top: calc(100% + 0.3rem);
+  top: 107%;
   left: 50%;
+  margin-left: -47%;
   transform: translateX(-50%);
   font-family: var(--fg-font-sans);
   /* Scales with the deck so it stays the same size relative to the knob at

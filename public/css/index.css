@@ -391,6 +391,43 @@ button:active {
   margin: 0;
 }
 
+/* The dial that plays the preview has no affordance of its own — putting the
+   instruction in the type column keeps the chassis clean and sidesteps having
+   to align anything to the deck's perspective. Swapped for a now-playing line
+   once the record is running. */
+.hero-cue {
+  font-family: var(--fg-font-sans);
+  font-size: 0.64rem;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  margin: 0;
+  transition: color 0.3s ease;
+}
+
+.hero-cue.is-playing {
+  color: var(--color-accent);
+}
+
+/* The arrow points at the deck, which sits to the right on a wide screen and
+   underneath once the hero stacks — so it's set in CSS rather than baked into
+   the string. Dropped once the record is playing; there's nothing left to
+   point at. */
+.hero-cue::after {
+  content: '\00a0\2197';
+}
+
+.hero-cue.is-playing::after {
+  content: '';
+}
+
+@media (max-width: 860px) {
+  .hero-cue::after {
+    content: '\00a0\2193';
+  }
+}
+
 .hero-dek {
   font-family: var(--fg-font-sans);
   font-style: italic;

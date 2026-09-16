@@ -1,5 +1,5 @@
 // Hero turntable player. One `playing` flag drives everything: the audio
-// element, the record rotation, the tonearm's cue-down and the button's name —
+// element, the record rotation, the tonearm's cue-down and the line under the headline —
 // so the UI can't claim a state the audio isn't in.
 //
 // Rotation runs through the Web Animations API rather than a CSS animation
@@ -8,10 +8,11 @@
 
 const stage = document.getElementById('turntable-stage')
 const powerBtn = document.getElementById('tt-power')
+const cue = document.getElementById('hero-cue')
 const audio = document.getElementById('tt-audio')
 const rotor = stage?.querySelector('.record-rotor')
 
-if (stage && powerBtn && audio && rotor) {
+if (stage && powerBtn && cue && audio && rotor) {
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
   const spin = rotor.animate(
@@ -50,6 +51,10 @@ if (stage && powerBtn && audio && rotor) {
   function render() {
     stage.classList.toggle('is-playing', playing)
     powerBtn.setAttribute('aria-label', playing ? 'Pause record' : 'Play record')
+    cue.classList.toggle('is-playing', playing)
+    cue.innerHTML = playing
+      ? '&#8545;&nbsp; Now playing &middot; press again to pause'
+      : '&#9654;&nbsp; Press the silver dial to play'
   }
 
   function stop() {

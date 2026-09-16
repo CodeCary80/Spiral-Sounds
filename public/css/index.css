@@ -452,6 +452,7 @@ button:active {
    only, so spinning can never disturb the plane's geometry. */
 .turntable-stage {
   position: relative;
+  container-type: inline-size;
   aspect-ratio: 1448 / 1086;
   flex: 1 1 0;
   align-self: center;
@@ -520,106 +521,84 @@ button:active {
   transform: rotate(0deg);
 }
 
-/* Transparent hit area over the aluminium knob baked into the base art. */
-.tt-power {
+/* One control: the transparent hit area over the aluminium knob, plus the
+   label that names it. Both live in .play-control so the label is placed
+   against the wrapper rather than measured separately off the stage — when
+   they were positioned independently they drifted apart across breakpoints. */
+.play-control {
   position: absolute;
   z-index: 5;
-  left: 74.6%;
-  top: 58.7%;
+  left: 79.07%;
+  top: 64.46%;
   width: 9%;
   height: 11.4%;
+  transform: translate(-50%, -50%);
+}
+
+.tt-power {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  /* The knob is only ~30px across on a phone, so keep a thumb-sized target. */
+  min-width: 44px;
+  min-height: 44px;
   padding: 0;
   border: none;
   border-radius: 50%;
   background: transparent;
   cursor: pointer;
-  transition: transform 0.12s ease, box-shadow 0.12s ease;
+  transition: background 0.18s ease;
+}
+
+/* The knob itself is baked into the base art, so "brightening" it means
+   laying a faint wash over it — no ring, no glow. */
+.tt-power:hover {
+  background: radial-gradient(circle at 42% 38%, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0) 68%);
 }
 
 .tt-power:active {
-  transform: translateY(2px);
-  box-shadow: 0 1px 3px rgba(28, 26, 23, 0.18);
+  transform: translate(-50%, calc(-50% + 1px));
 }
 
-/* No ring around the dial. Keyboard focus is shown by lighting up the deck's
-   play mark and bringing the caption back instead — visible without drawing
-   a circle that reads as part of the hardware. */
+/* The site-wide button:focus rule draws an accent ring, which on this control
+   reads as a red circle stamped on the knob — and a mouse click alone is
+   enough to trigger :focus. Drop it here; keyboard focus is carried by the
+   label below instead. */
+.tt-power:focus,
 .tt-power:focus-visible {
   outline: none;
 }
 
-.tt-power:focus-visible ~ .tt-cue {
-  opacity: 1;
-}
-
-.turntable-stage .tt-power:focus-visible ~ .tt-hint {
-  opacity: 1;
-}
-
-/* A play mark screen-printed on the deck under the dial, squashed into the
-   deck's plane by the same factor as the record so it sits on the surface
-   rather than floating over it. Permanent, like the markings on real gear. */
-.tt-cue {
+/* Control text printed on the chassis, not a button sitting on a web page. */
+.play-control-label {
   position: absolute;
-  z-index: 4;
-  left: 78.02%;
-  top: 70.9%;
-  width: 2.1%;
-  height: 3.1%;
-  background: var(--color-accent);
-  opacity: 0.75;
-  clip-path: polygon(0 0, 100% 50%, 0 100%);
-  /* Rotate first, squash second: the mark is authored flat on the deck and
-     then projected. 21.3deg squares its back edge to the plinth's front edge
-     — the deck's front runs at a screen slope of 0.24, which un-squashes to
-     that angle in the deck's own plane. */
-  transform: scaleY(0.6211) rotate(21.3deg);
-  transition: opacity 0.25s ease;
-  pointer-events: none;
-}
-
-/* Caption pointing out the dial, retired for good once it has been used. */
-.tt-hint {
-  position: absolute;
-  z-index: 5;
-  right: 2%;
-  top: 97%;
+  top: calc(100% + 0.3rem);
+  left: 50%;
+  transform: translateX(-50%);
   font-family: var(--fg-font-sans);
-  font-size: 0.62rem;
-  letter-spacing: 0.16em;
+  /* Scales with the deck so it stays the same size relative to the knob at
+     every width, clamped so it never drops below legibility. */
+  font-size: clamp(8.5px, 1.55cqw, 13px);
+  font-weight: 500;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--color-text-muted);
+  color: var(--color-accent);
+  opacity: 0.72;
   white-space: nowrap;
-  transition: opacity 0.5s ease;
   pointer-events: none;
 }
 
-.turntable-stage.has-played .tt-hint {
-  opacity: 0;
+.tt-power:focus-visible ~ .play-control-label {
+  opacity: 1;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .turntable-stage .tt-tonearm { transition: none; }
-}
-
-.tt-lamp {
-  position: absolute;
-  z-index: 5;
-  left: 85.4%;
-  top: 63.2%;
-  width: 1.1%;
-  aspect-ratio: 1;
-  border-radius: 50%;
-  background: #6b2f26;
-  opacity: 0.35;
-  transition: opacity 0.35s ease, box-shadow 0.35s ease;
-  pointer-events: none;
-}
-
-.turntable-stage.is-playing .tt-lamp {
-  opacity: 1;
-  background: #c0392b;
-  box-shadow: 0 0 6px rgba(192, 57, 43, 0.65);
 }
 
 @media (max-width: 860px) {
@@ -629,13 +608,6 @@ button:active {
     width: 100%;
     max-width: 340px;
     margin: 0 auto;
-  }
-  /* The knob is only ~30px across at this size — grow the invisible hit area
-     to a thumb-sized target, centred on the same point. */
-  .tt-power {
-    min-width: 44px;
-    min-height: 44px;
-    translate: -17% -18%;
   }
 }
 

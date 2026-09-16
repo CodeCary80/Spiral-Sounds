@@ -504,13 +504,13 @@ button:active {
   border-radius: 50%;
 }
 
-/* The arm art is cut from the reference in its playing position, so rest is
-   expressed as a swing back out from the bearing at (1192, 362) — hence the
-   origin. Rotating in 2D is an approximation of a pivot in the deck's plane,
-   which holds up at this small an angle. */
+/* The arm layer is fitted with its collar on the bearing at (1193, 315), so
+   that point is the origin — rotate about the bearing's centre instead and
+   the collar slides sideways out of its housing. Rotating in 2D is an
+   approximation of a pivot in the deck's plane, which holds at this angle. */
 .turntable-stage .tt-tonearm {
   z-index: 4;
-  transform-origin: 82.32% 33.33%;
+  transform-origin: 82.39% 29%;
   transform: rotate(-13deg);
   transition: transform 1000ms cubic-bezier(0.22, 0.61, 0.36, 1);
   pointer-events: none;
@@ -546,24 +546,24 @@ button:active {
   outline-offset: 3px;
 }
 
-/* Ring + caption that point out the dial, retired for good once the visitor
-   has pressed it once. */
-.tt-power::after {
-  content: '';
+/* A play mark screen-printed on the deck under the dial, squashed into the
+   deck's plane by the same factor as the record so it sits on the surface
+   rather than floating over it. Permanent, like the markings on real gear. */
+.tt-cue {
   position: absolute;
-  inset: -8%;
-  border-radius: 50%;
-  border: 1px solid rgba(192, 57, 43, 0.5);
-  animation: tt-pulse 2.6s ease-out infinite;
+  z-index: 4;
+  left: 78.2%;
+  top: 72.2%;
+  width: 2.1%;
+  height: 3.1%;
+  background: var(--color-accent);
+  opacity: 0.75;
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+  transform: scaleY(0.62);
   pointer-events: none;
 }
 
-@keyframes tt-pulse {
-  0%   { transform: scale(0.92); opacity: 0; }
-  30%  { opacity: 0.75; }
-  100% { transform: scale(1.32); opacity: 0; }
-}
-
+/* Caption pointing out the dial, retired for good once it has been used. */
 .tt-hint {
   position: absolute;
   z-index: 5;
@@ -579,15 +579,12 @@ button:active {
   pointer-events: none;
 }
 
-.turntable-stage.has-played .tt-power::after,
 .turntable-stage.has-played .tt-hint {
   opacity: 0;
-  animation: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
   .turntable-stage .tt-tonearm { transition: none; }
-  .tt-power::after { animation: none; opacity: 0.5; }
 }
 
 .tt-lamp {

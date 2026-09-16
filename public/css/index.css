@@ -443,6 +443,123 @@ button:active {
   }
 }
 
+/* Hero turntable — layered fake-3D composite. Every layer is positioned
+   against .turntable-stage, which is locked to the base art's 1448x1086
+   aspect ratio so all the percentages below map onto the same pixel grid.
+   Layer order: base plinth -> record -> tonearm -> controls.
+   The record is authored as a flat top-down circle: .record-plane carries
+   the perspective squash and placement, .record-rotor carries rotation
+   only, so spinning can never disturb the plane's geometry. */
+.turntable-stage {
+  position: relative;
+  aspect-ratio: 1448 / 1086;
+  flex: 1 1 0;
+  align-self: center;
+  min-width: 0;
+  border-radius: 0;
+  overflow: visible;
+}
+
+.turntable-stage .tt-base,
+.turntable-stage .tt-tonearm {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.turntable-stage .tt-base { z-index: 1; }
+
+.record-plane {
+  position: absolute;
+  z-index: 2;
+  left: 16.64%;
+  top: 15.93%;
+  width: 53.59%;
+  height: 71.46%;
+  transform: scaleY(0.6211);
+  transform-origin: top center;
+  pointer-events: none;
+}
+
+.record-rotor {
+  width: 100%;
+  height: 100%;
+  will-change: transform;
+}
+
+.record-rotor img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 50%;
+}
+
+/* Pivot sits at (1192, 362) in the base art — keep the origin there so a
+   future cue-down animation swings from the real bearing. */
+.turntable-stage .tt-tonearm {
+  z-index: 3;
+  transform-origin: 82.32% 33.33%;
+  pointer-events: none;
+}
+
+/* Transparent hit area over the aluminium knob baked into the base art. */
+.tt-power {
+  position: absolute;
+  z-index: 4;
+  left: 74.6%;
+  top: 58.7%;
+  width: 9%;
+  height: 11.4%;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+
+.tt-power:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 3px rgba(28, 26, 23, 0.18);
+}
+
+.tt-power:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+}
+
+.tt-lamp {
+  position: absolute;
+  z-index: 4;
+  left: 85.4%;
+  top: 63.2%;
+  width: 1.1%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #6b2f26;
+  opacity: 0.35;
+  transition: opacity 0.35s ease, box-shadow 0.35s ease;
+  pointer-events: none;
+}
+
+.turntable-stage.is-playing .tt-lamp {
+  opacity: 1;
+  background: #c0392b;
+  box-shadow: 0 0 6px rgba(192, 57, 43, 0.65);
+}
+
+@media (max-width: 860px) {
+  .turntable-stage {
+    flex: none;
+    height: auto;
+    width: 100%;
+    max-width: 340px;
+    margin: 0 auto;
+  }
+}
+
 .vinyl-mockup {
   position: relative;
   width: 200px;

@@ -63,8 +63,17 @@
         <p class="hero-kicker">Spiral Sounds &nbsp;·&nbsp; Toronto</p>
         <h1 class="hero-tagline">Records for those<br>who listen with vision.</h1>
       </div>
-      <div class="hero-photo">
-        <img src="images/header-3.jpg" alt="A vinyl record spinning on a turntable">
+      <div class="hero-photo turntable-stage" id="turntable-stage">
+        <img class="tt-base" src="images/turntable-base.png" alt="A walnut and ivory turntable with a record on the platter">
+        <div class="record-plane">
+          <div class="record-rotor">
+            <img src="images/vinyl-record-disc.png" alt="">
+          </div>
+        </div>
+        <img class="tt-tonearm" src="images/tonearm-cutout-v2.png" alt="">
+        <button class="tt-power" id="tt-power" type="button" aria-label="Play record"></button>
+        <span class="tt-lamp" id="tt-lamp" aria-hidden="true"></span>
+        <audio id="tt-audio" preload="none" src="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/54/e8/0a/54e80a8b-1d60-6b59-e908-6fd65c4ff783/mzaf_2469862574651846302.plus.aac.p.m4a"></audio>
       </div>
     </div>
 
@@ -275,6 +284,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
   <script src="js/index.js" type="module"></script>
+  <script src="js/heroTurntable.js" type="module"></script>
   <script src="js/menu.js" type="module"></script>
 
 </body>

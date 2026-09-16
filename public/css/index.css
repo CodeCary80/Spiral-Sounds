@@ -411,7 +411,7 @@ button:active {
   font-weight: 500;
   letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: var(--color-text-muted);
+  color: #ffffff;
   margin: 0;
   /* The playing line is longer than the resting one; letting it wrap leaves
      the second line outside the wash. */
@@ -427,13 +427,11 @@ button:active {
   position: absolute;
   inset: -1.25em -2.4em;
   z-index: -1;
-  background: radial-gradient(72% 150% at 50% 50%, rgba(233, 233, 209, 1) 0 40%, rgba(233, 233, 209, 0) 76%);
-  filter: blur(16px);
+  /* The core has to stay solid across the whole line — white type over the
+     gradient's falloff would drop out against the page. */
+  background: radial-gradient(82% 165% at 50% 50%, rgba(177, 68, 52, 1) 0 58%, rgba(177, 68, 52, 0) 82%);
+  filter: blur(13px);
   pointer-events: none;
-}
-
-.hero-cue.is-playing {
-  color: var(--color-accent);
 }
 
 /* The arrow points at the deck, which sits to the right on a wide screen and
@@ -451,6 +449,11 @@ button:active {
 @media (max-width: 860px) {
   .hero-cue::after {
     content: '\00a0\2193';
+  }
+  /* The stacked layout leaves only the 24px page gutter to the left, and at
+     the wider inset the wash ran off the screen edge. */
+  .hero-cue::before {
+    inset: -1.1em -1.1em;
   }
 }
 

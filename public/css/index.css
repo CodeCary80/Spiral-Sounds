@@ -363,6 +363,9 @@ button:active {
 
 .hero-text {
   flex: 0 0 36%;
+  /* Without this the un-wrapping cue line widens the column when it switches
+     to the longer playing text, which shrinks the deck beside it. */
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -396,14 +399,37 @@ button:active {
    to align anything to the deck's perspective. Swapped for a now-playing line
    once the record is running. */
 .hero-cue {
+  position: relative;
+  /* Without its own stacking context the wash below, sitting at z-index -1,
+     paints behind the hero section's opaque background and vanishes. */
+  isolation: isolate;
+  align-self: flex-start;
   font-family: var(--fg-font-sans);
-  font-size: 0.64rem;
+  /* Tracks the viewport so the longer playing line still clears the deck at
+     the narrowest two-column width. */
+  font-size: clamp(0.62rem, 1.05vw, 0.82rem);
   font-weight: 500;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--color-text-muted);
   margin: 0;
+  /* The playing line is longer than the resting one; letting it wrap leaves
+     the second line outside the wash. */
+  white-space: nowrap;
   transition: color 0.3s ease;
+}
+
+/* A soft wash of the deck's own ivory sits behind the line so it carries at a
+   glance without becoming a button. Blurred well past the text box so it
+   reads as a smudge of colour rather than a highlighted label. */
+.hero-cue::before {
+  content: '';
+  position: absolute;
+  inset: -1.25em -2.4em;
+  z-index: -1;
+  background: radial-gradient(72% 150% at 50% 50%, rgba(233, 233, 209, 1) 0 40%, rgba(233, 233, 209, 0) 76%);
+  filter: blur(16px);
+  pointer-events: none;
 }
 
 .hero-cue.is-playing {

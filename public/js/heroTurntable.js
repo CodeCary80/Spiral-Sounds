@@ -62,6 +62,7 @@ if (stage && powerBtn && audio && rotor) {
 
   async function start() {
     playing = true
+    stage.classList.add('has-played')
     render()
     rampTo(1, 900)
     try {

@@ -541,9 +541,19 @@ button:active {
   box-shadow: 0 1px 3px rgba(28, 26, 23, 0.18);
 }
 
+/* No ring around the dial. Keyboard focus is shown by lighting up the deck's
+   play mark and bringing the caption back instead — visible without drawing
+   a circle that reads as part of the hardware. */
 .tt-power:focus-visible {
-  outline: 2px solid var(--color-accent);
-  outline-offset: 3px;
+  outline: none;
+}
+
+.tt-power:focus-visible ~ .tt-cue {
+  opacity: 1;
+}
+
+.turntable-stage .tt-power:focus-visible ~ .tt-hint {
+  opacity: 1;
 }
 
 /* A play mark screen-printed on the deck under the dial, squashed into the
@@ -552,14 +562,19 @@ button:active {
 .tt-cue {
   position: absolute;
   z-index: 4;
-  left: 78.2%;
-  top: 72.2%;
+  left: 78.02%;
+  top: 70.9%;
   width: 2.1%;
   height: 3.1%;
   background: var(--color-accent);
   opacity: 0.75;
   clip-path: polygon(0 0, 100% 50%, 0 100%);
-  transform: scaleY(0.62);
+  /* Rotate first, squash second: the mark is authored flat on the deck and
+     then projected. 21.3deg squares its back edge to the plinth's front edge
+     — the deck's front runs at a screen slope of 0.24, which un-squashes to
+     that angle in the deck's own plane. */
+  transform: scaleY(0.6211) rotate(21.3deg);
+  transition: opacity 0.25s ease;
   pointer-events: none;
 }
 

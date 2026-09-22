@@ -24,3 +24,10 @@ TOOL_EXPERIMENT_SUMMARY.md
 # Local progress/summary notes — not part of the shipped project
 *_PROGRESS.md
 *_SUMMARY.md
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/

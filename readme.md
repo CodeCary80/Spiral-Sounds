@@ -116,9 +116,37 @@ npm test
 
 The integration tests exercise the real Express app in-memory via Supertest (no real port bound) and, for the cart-clearing test, the live Supabase database through a fixed throwaway account that's created and cleaned up automatically on each run — this project doesn't have a separate test database.
 
+### End-to-end tests (Playwright)
+
+5 tests, each run in chromium, firefox and webkit.
+
+#### Prerequisites
+
+`.env` containing `DATABASE_URL` and `STRIPE_SECRET_KEY`.
+
+#### Files
+
+- `homepage.spec.ts`: title of the home page
+- `cart.spec.ts`: redirect to the login page when logged out, and logged-in users can add items to the cart
+- `checkout.spec.ts`: empty cart shows the empty message and disables the checkout button
+- `search.spec.ts`: searching for a nonexistent item shows "No records found."
+
+#### How to run tests
+
+```bash
+npm run test:e2e
+```
+
+#### Trade-offs
+
+- Each test registers its own uniquely named account, so the three browsers running in parallel never collide on a shared user.
+- Teardown deletes that account from `users` and `cart_items`, so runs leave no leftover data.
+- Like the Vitest integration tests, these run against the live Supabase database, since there's no separate test database.
+
 ---
 
 ## CI/CD
 
 - **CI:** GitHub Actions runs `node --check server.js` on every push
 - **CD:** Render auto-deploys on push to `main`
+- **E2E:** `playwright.yml` runs the Playwright suite on pull requests into `main` and on pushes to `main`; `DATABASE_URL` and `STRIPE_SECRET_KEY` are stored as GitHub Actions secrets

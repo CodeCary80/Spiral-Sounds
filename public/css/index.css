@@ -363,6 +363,9 @@ button:active {
 
 .hero-text {
   flex: 0 0 36%;
+  /* Without this the un-wrapping cue line widens the column when it switches
+     to the longer playing text, which shrinks the deck beside it. */
+  min-width: 0;
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
@@ -389,6 +392,69 @@ button:active {
   line-height: 1.08;
   letter-spacing: -0.01em;
   margin: 0;
+}
+
+/* The dial that plays the preview has no affordance of its own — putting the
+   instruction in the type column keeps the chassis clean and sidesteps having
+   to align anything to the deck's perspective. Swapped for a now-playing line
+   once the record is running. */
+.hero-cue {
+  position: relative;
+  /* Without its own stacking context the wash below, sitting at z-index -1,
+     paints behind the hero section's opaque background and vanishes. */
+  isolation: isolate;
+  align-self: flex-start;
+  font-family: var(--fg-font-sans);
+  /* Tracks the viewport so the longer playing line still clears the deck at
+     the narrowest two-column width. */
+  font-size: clamp(0.62rem, 1.05vw, 0.82rem);
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #ffffff;
+  margin: 0;
+  /* The playing line is longer than the resting one; letting it wrap leaves
+     the second line outside the wash. */
+  white-space: nowrap;
+  transition: color 0.3s ease;
+}
+
+/* A soft wash of the deck's own ivory sits behind the line so it carries at a
+   glance without becoming a button. Blurred well past the text box so it
+   reads as a smudge of colour rather than a highlighted label. */
+.hero-cue::before {
+  content: '';
+  position: absolute;
+  inset: -1.25em -2.4em;
+  z-index: -1;
+  /* The core has to stay solid across the whole line — white type over the
+     gradient's falloff would drop out against the page. */
+  background: radial-gradient(82% 165% at 50% 50%, rgba(177, 68, 52, 1) 0 58%, rgba(177, 68, 52, 0) 82%);
+  filter: blur(13px);
+  pointer-events: none;
+}
+
+/* The arrow points at the deck, which sits to the right on a wide screen and
+   underneath once the hero stacks — so it's set in CSS rather than baked into
+   the string. Dropped once the record is playing; there's nothing left to
+   point at. */
+.hero-cue::after {
+  content: '\00a0\2197';
+}
+
+.hero-cue.is-playing::after {
+  content: '';
+}
+
+@media (max-width: 860px) {
+  .hero-cue::after {
+    content: '\00a0\2193';
+  }
+  /* The stacked layout leaves only the 24px page gutter to the left, and at
+     the wider inset the wash ran off the screen edge. */
+  .hero-cue::before {
+    inset: -1.1em -1.1em;
+  }
 }
 
 .hero-dek {
@@ -440,6 +506,153 @@ button:active {
   }
   .hero-photo {
     height: 320px;
+  }
+}
+
+/* Hero turntable — layered fake-3D composite. Every layer is positioned
+   against .turntable-stage, which is locked to the base art's 1448x1086
+   aspect ratio so all the percentages below map onto the same pixel grid.
+   Layer order: base plinth -> record -> tonearm -> controls.
+   The record is authored as a flat top-down circle: .record-plane carries
+   the perspective squash and placement, .record-rotor carries rotation
+   only, so spinning can never disturb the plane's geometry. */
+.turntable-stage {
+  position: relative;
+  container-type: inline-size;
+  aspect-ratio: 1448 / 1086;
+  flex: 1 1 0;
+  align-self: center;
+  min-width: 0;
+  border-radius: 0;
+  overflow: visible;
+}
+
+.turntable-stage .tt-base,
+.turntable-stage .tt-spindle,
+.turntable-stage .tt-tonearm {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.turntable-stage .tt-base { z-index: 1; }
+
+/* The spindle is lifted back out of the base art so it reads as passing
+   through the record's centre hole rather than being hidden under it. */
+.turntable-stage .tt-spindle {
+  z-index: 3;
+  pointer-events: none;
+}
+
+.record-plane {
+  position: absolute;
+  z-index: 2;
+  left: 16.71%;
+  top: 15.10%;
+  width: 53.59%;
+  height: 71.46%;
+  transform: scaleY(0.6211);
+  transform-origin: top center;
+  pointer-events: none;
+}
+
+.record-rotor {
+  width: 100%;
+  height: 100%;
+  will-change: transform;
+}
+
+.record-rotor img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 50%;
+}
+
+/* The arm layer is fitted with its collar on the bearing at (1193, 315), so
+   that point is the origin — rotate about the bearing's centre instead and
+   the collar slides sideways out of its housing. Rotating in 2D is an
+   approximation of a pivot in the deck's plane, which holds at this angle. */
+.turntable-stage .tt-tonearm {
+  z-index: 4;
+  transform-origin: 82.39% 29%;
+  transform: rotate(-13deg);
+  transition: transform 1000ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  pointer-events: none;
+}
+
+.turntable-stage.is-playing .tt-tonearm {
+  transform: rotate(0deg);
+}
+
+/* One control: the transparent hit area over the aluminium knob, plus the
+   label that names it. Both live in .play-control so the label is placed
+   against the wrapper rather than measured separately off the stage — when
+   they were positioned independently they drifted apart across breakpoints. */
+.play-control {
+  position: absolute;
+  z-index: 5;
+  left: 79.07%;
+  top: 64.46%;
+  width: 9%;
+  height: 11.4%;
+  transform: translate(-50%, -50%);
+}
+
+.tt-power {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  /* The knob is only ~30px across on a phone, so keep a thumb-sized target. */
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+/* The knob itself is baked into the base art, so "brightening" it means
+   laying a faint wash over it — no ring, no glow. */
+.tt-power:hover {
+  background: radial-gradient(circle at 42% 38%, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0) 68%);
+}
+
+.tt-power:active {
+  transform: translate(-50%, calc(-50% + 1px));
+}
+
+/* The site-wide button:focus rule draws an accent ring, and on this control a
+   mouse click alone is enough to trigger :focus — which is where the red
+   circle on the knob came from. Suppress it for pointer use; keyboard users
+   still need to see where focus is, so :focus-visible keeps a ring. */
+.tt-power:focus {
+  outline: none;
+}
+
+.tt-power:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .turntable-stage .tt-tonearm { transition: none; }
+}
+
+@media (max-width: 860px) {
+  .turntable-stage {
+    flex: none;
+    height: auto;
+    width: 100%;
+    max-width: 340px;
+    margin: 0 auto;
   }
 }
 
@@ -1247,6 +1460,18 @@ button:active {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+}
+
+.detail-back-link {
+  font-size: 0.65rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+  align-self: flex-start;
+}
+
+.detail-back-link:hover {
+  color: var(--color-accent);
 }
 
 .detail-genre-tag {

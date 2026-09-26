@@ -99,17 +99,20 @@ function buildGenreGrid(genres, allProducts, carouselIds = new Set()) {
   const wrap = document.getElementById('genre-grid')
   if (!wrap) return
 
-  genres.forEach((genre, i) => {
+  // This scatter is a hand-placed 5-slot showcase, not a genre index — the
+  // full list already lives on the "View all genres" page. Cap it at 5 so a
+  // growing catalog (now 12 genres) can't overflow #genre-grid's fixed
+  // height and bleed into the Showroom section below it.
+  genres.slice(0, GENRE_SLOTS.length).forEach((genre, i) => {
     const genreProducts = allProducts.filter(p => p.genre.toLowerCase() === genre.toLowerCase())
     const album =
       genreProducts.find(p => !carouselIds.has(p.id))
       || genreProducts[0]
     const count = genreProducts.length
 
-    const slot = GENRE_SLOTS[i % GENRE_SLOTS.length]
-    const cycleClass = i >= GENRE_SLOTS.length ? ' genre-tile--cycle-2' : ''
+    const slot = GENRE_SLOTS[i]
     const el = document.createElement('div')
-    el.className = 'genre-tile ' + slot.cls + cycleClass
+    el.className = 'genre-tile ' + slot.cls
     el.dataset.genre = genre
 
     el.innerHTML = `
@@ -517,6 +520,13 @@ async function init() {
 
   const introBtn = document.getElementById('genre-intro-btn')
   if (introBtn && genres.length) introBtn.addEventListener('click', () => openGenreOverlay(genres[0]))
+
+  // Arriving via a detail page's "back to genre" link — reopen that genre
+  // instead of landing on the plain homepage.
+  const requestedGenre = new URLSearchParams(window.location.search).get('genre')
+  if (requestedGenre && genres.some(g => g.toLowerCase() === requestedGenre.toLowerCase())) {
+    openGenreOverlay(requestedGenre)
+  }
 
   // No scroll-triggered reveal here — frame-by-frame review of the
   // reference recording shows the collection tiles are just static

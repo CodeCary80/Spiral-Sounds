@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Spiral Sounds mark: a disc split by a tapered S. Cream fills the gap so it reads on any tab colour. -->
+  <mask id="m"><circle cx="50" cy="50" r="48" fill="#fff"/><path d="M78 4 C 30 0, 14 36, 44 50 C 66 60, 62 86, 22 96 C 72 94, 84 58, 56 46 C 34 37, 36 12, 78 4 Z" fill="#000"/></mask>
+  <circle cx="50" cy="50" r="48" fill="#f3f0ed"/>
+  <circle cx="50" cy="50" r="48" fill="#8b2e22" mask="url(#m)"/>
+</svg>

@@ -348,8 +348,9 @@ grid.addEventListener('click', async e => {
   const btn = e.target.closest('.add-btn')
   if (!btn) return
   btn.disabled = true
-  const ok = await addToCart(btn.dataset.id)
-  if (!ok) { location.href = '/login.html'; return }
+  const added = await addToCart(btn.dataset.id)
+  if (added.needsLogin) { location.href = '/login.html'; return }
+  if (added.error) { btn.textContent = added.error; btn.title = added.error; return }   // stays disabled: nothing more to add
   btn.textContent = 'In bag ✓'
   btn.classList.add('done')
   btn.disabled = false

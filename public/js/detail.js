@@ -155,7 +155,9 @@ async function boot() {
   const buttons = [$('#add'), $('#add2')]
   buttons.forEach(btn => btn.addEventListener('click', async () => {
     buttons.forEach(b => { b.disabled = true })
-    if (!(await addToCart(rec.id))) { location.href = '/login.html'; return }
+    const added = await addToCart(rec.id)
+    if (added.needsLogin) { location.href = '/login.html'; return }
+    if (added.error) { buttons.forEach(b => { b.textContent = added.error }); return }   // stays disabled
     buttons.forEach(b => { b.innerHTML = 'In bag ✓'; b.classList.add('done'); b.disabled = false })
     const items = await getCart()
     setBagCount((items || []).reduce((a, i) => a + i.quantity, 0))

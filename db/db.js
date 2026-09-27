@@ -15,31 +15,56 @@ function toPostgres(sql) {
   return sql.replace(/\?/g, () => `$${++i}`)
 }
 
+// get / all / run over any "queryable" — the pool (each call may use a
+// different connection) or one checked-out client (inside a transaction).
+function wrap(q) {
+  return {
+    // Returns a single row or null
+    async get(sql, params = []) {
+      const { rows } = await q.query(toPostgres(sql), params)
+      return rows[0] ?? null
+    },
+
+    // Returns an array of rows
+    async all(sql, params = []) {
+      const { rows } = await q.query(toPostgres(sql), params)
+      return rows
+    },
+
+    // Executes INSERT / UPDATE / DELETE
+    // Automatically appends RETURNING id for INSERT so result.lastID keeps working
+    async run(sql, params = []) {
+      const pgSql    = toPostgres(sql)
+      const isInsert = /^\s*INSERT/i.test(pgSql)
+      const finalSql = isInsert && !/RETURNING/i.test(pgSql)
+        ? `${pgSql} RETURNING id`
+        : pgSql
+      const { rows, rowCount } = await q.query(finalSql, params)
+      return { lastID: rows[0]?.id, changes: rowCount }
+    },
+  }
+}
+
 // Drop-in replacement for the old SQLite db object.
 // Controllers call getDBConnection() and use db.get/all/run exactly as before.
 const db = {
-  // Returns a single row or null
-  async get(sql, params = []) {
-    const { rows } = await pool.query(toPostgres(sql), params)
-    return rows[0] ?? null
-  },
+  ...wrap(pool),
 
-  // Returns an array of rows
-  async all(sql, params = []) {
-    const { rows } = await pool.query(toPostgres(sql), params)
-    return rows
-  },
-
-  // Executes INSERT / UPDATE / DELETE
-  // Automatically appends RETURNING id for INSERT so result.lastID keeps working
-  async run(sql, params = []) {
-    const pgSql    = toPostgres(sql)
-    const isInsert = /^\s*INSERT/i.test(pgSql)
-    const finalSql = isInsert && !/RETURNING/i.test(pgSql)
-      ? `${pgSql} RETURNING id`
-      : pgSql
-    const { rows, rowCount } = await pool.query(finalSql, params)
-    return { lastID: rows[0]?.id, changes: rowCount }
+  // Runs fn(tx) on a single connection inside BEGIN/COMMIT; any throw rolls
+  // every statement back. tx has the same get/all/run API.
+  async transaction(fn) {
+    const client = await pool.connect()
+    try {
+      await client.query('BEGIN')
+      const result = await fn(wrap(client))
+      await client.query('COMMIT')
+      return result
+    } catch (err) {
+      await client.query('ROLLBACK').catch(() => {})
+      throw err
+    } finally {
+      client.release()
+    }
   },
 }
 

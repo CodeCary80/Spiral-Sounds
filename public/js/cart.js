@@ -60,6 +60,16 @@ function renderThanks() {
   scrollTo({ top: 0 })
 }
 
+function renderRefunded(message) {
+  main.innerHTML = `<div class="state">
+    <p class="caps">Refunded</p>
+    <h1 class="h1"><span class="ln"><span>So close.</span></span></h1>
+    <p class="lead">${esc(message || 'A record sold out while you were paying. Your payment has been refunded in full.')}</p>
+    <a class="btn" href="/cart.html">Back to your bag <span aria-hidden="true">↗</span></a>
+  </div>`
+  scrollTo({ top: 0 })
+}
+
 function renderBag() {
   const qty = items.reduce((a, i) => a + i.quantity, 0)
   const total = calculateCartTotal(items)
@@ -167,10 +177,23 @@ async function pay(btn) {
     return
   }
   if (paymentIntent?.status === 'succeeded') {
-    await fetch('/api/cart/all', { method: 'DELETE', credentials: 'include' }).catch(() => {})
-    setBagCount(0)
-    renderThanks()
-    items = []
+    // The server re-checks the payment with Stripe, takes the stock and clears
+    // the bag in one step; retrying is safe if the first attempt drops.
+    btn.textContent = 'Confirming order…'
+    const body = JSON.stringify({ paymentIntentId: paymentIntent.id })
+    const send = () => fetch('/api/orders/complete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body })
+    const res = await send().catch(() => null) || await send().catch(() => null)
+    const data = res ? await res.json().catch(() => ({})) : {}
+    if (res?.ok) {
+      items = (await getCart()) || []
+      setBagCount(items.reduce((a, i) => a + i.quantity, 0))
+      renderThanks()
+    } else if (data.status === 'refunded') {
+      renderRefunded(data.error)
+    } else {
+      msg.textContent = data.error || 'Payment went through, but we couldn’t confirm the order. Please contact us — you won’t be charged twice.'
+      btn.hidden = true
+    }
   }
 }
 

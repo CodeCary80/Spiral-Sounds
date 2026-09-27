@@ -7,6 +7,7 @@ import { meRouter } from './routes/me.js'
 import { cartRouter } from './routes/cart.js'
 import session from 'express-session'
 import { paymentsRouter } from './routes/payments.js'
+import { ordersRouter } from './routes/orders.js'
 
 const app = express()
 const secret = process.env.SPIRAL_SESSION_SECRET || 'jellyfish-baskingshark'
@@ -35,5 +36,7 @@ app.use('/api/auth', authRouter)
 app.use('/api/cart', cartRouter)
 
 app.use('/api/payments', paymentsRouter)
+
+app.use('/api/orders', ordersRouter)
 
 export { app }

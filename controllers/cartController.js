@@ -9,10 +9,25 @@ export async function addToCart(req, res) {
   }
 
   const userId  = req.session.userId
+  const product = await db.get('SELECT stock FROM products WHERE id = ?', [productId])
+  if (!product) {
+    return res.status(404).json({ error: 'Record not found' })
+  }
+
   const existing = await db.get(
     'SELECT * FROM cart_items WHERE user_id = ? AND product_id = ?',
     [userId, productId]
   )
+
+  // The bag can't hold more copies than the shelf. (A bag doesn't reserve
+  // stock — the authoritative check happens when the order is completed.)
+  const stock = Number(product.stock)
+  if ((existing?.quantity ?? 0) + 1 > stock) {
+    return res.status(409).json({
+      error: stock > 0 ? `Only ${stock} left on the shelf` : 'Sold out',
+      stock,
+    })
+  }
 
   if (existing) {
     await db.run('UPDATE cart_items SET quantity = quantity + 1 WHERE id = ?', [existing.id])

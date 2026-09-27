@@ -43,7 +43,7 @@ export async function getAll(req, res) {
 
   // Quote alias — cartItemId must stay camelCase for the frontend
   const items = await db.all(
-    `SELECT ci.id AS "cartItemId", ci.quantity,
+    `SELECT ci.id AS "cartItemId", ci.product_id AS "productId", ci.quantity,
             p.title, p.artist, p.price, p.image
      FROM cart_items ci
      JOIN products p ON p.id = ci.product_id

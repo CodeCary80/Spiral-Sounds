@@ -1,0 +1,98 @@
+/* =====================================================================
+   Spiral Sounds — shared site styles (redesign, Sept 2026)
+   Tokens, paper grain, the brand lockup, header account + bag controls,
+   and the cross-page record-cover transition. Page files add their own
+   layout on top (home.css, …). Reference: design/mockups/.
+   ===================================================================== */
+
+:root {
+  --ink: #1c1a17;
+  --cream: #f3f0ed;
+  --paper: #efebe4;
+  --taupe: #ddd6cb;
+  --muted: #6b655c;
+  --accent: #8b2e22;
+  --display: 'Oranienbaum', serif;
+  --sans: 'Public Sans', sans-serif;
+  --drop-ease: cubic-bezier(.22, 1.18, .36, 1);
+  --gutter: 3.2vw;
+}
+
+/* A clicked cover is named "record-cover" and morphs into the detail page's
+   cover (and back). Browsers without cross-document transitions just navigate. */
+@view-transition { navigation: auto; }
+::view-transition-group(record-cover) { animation-duration: .5s; animation-timing-function: cubic-bezier(.65, 0, .25, 1); }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .3s; }
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--paper); font-family: var(--sans); color: var(--ink); }
+
+/* one continuous sheet of paper grain over the whole page */
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: 100; pointer-events: none; opacity: .08; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.visually-hidden {
+  position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+/* ---------- brand lockup: spiral mark + condensed Didone wordmark ---------- */
+.brand { display: inline-flex; align-items: center; gap: max(8px, .7vw); color: inherit; text-decoration: none; }
+.brand-mark { width: max(30px, 3vw); height: max(30px, 3vw); flex: none; color: var(--accent); }
+.logo {
+  display: inline-block; font: 400 3.6vw/1 var(--display); color: var(--ink); text-transform: uppercase;
+  -webkit-text-stroke: .045em var(--ink); paint-order: stroke fill; letter-spacing: .005em;
+  transform: scaleY(1.35); transform-origin: left center; white-space: nowrap;
+}
+
+/* ---------- header controls: account (initials avatar + menu) and bag ---------- */
+.acct { position: relative; }
+.acct-link { color: inherit; text-decoration: none; }
+.acct-link:hover { color: var(--accent); }
+.acct-btn {
+  display: inline-flex; align-items: center; background: none; border: 0; padding: 0; cursor: pointer;
+  color: inherit; font: inherit; letter-spacing: inherit; text-transform: inherit;
+}
+.acct-av {
+  display: grid; place-items: center; width: max(30px, 2.3em); height: max(30px, 2.3em); border-radius: 50%; flex: none;
+  background: var(--accent); color: var(--cream); font: 400 max(14px, 1.05em)/1 var(--display); letter-spacing: .02em; text-transform: uppercase;
+  box-shadow: 0 0 0 2px var(--paper), 0 0 0 3px var(--accent); transition: background .2s ease, box-shadow .2s ease;
+}
+.acct-btn:hover .acct-av, .acct.open .acct-av { background: var(--ink); box-shadow: 0 0 0 2px var(--paper), 0 0 0 3px var(--ink); }
+.acct-menu {
+  position: absolute; right: 0; top: calc(100% + .9em); z-index: 120; min-width: 13em; background: var(--paper);
+  border: 1.5px solid var(--ink); box-shadow: 0 1.2em 2.4em -1em rgba(28,26,23,.45); padding: .4em 0; display: none;
+  font: 500 14px var(--sans); letter-spacing: normal; text-transform: none;
+}
+.acct.open .acct-menu { display: block; }
+.acct-menu p { margin: 0; padding: .7em 1.1em .8em; border-bottom: 1px solid var(--taupe); color: var(--muted); font-size: 12px; }
+.acct-menu p b { display: block; color: var(--ink); font-size: 14px; }
+.acct-menu a, .acct-menu button {
+  display: block; width: 100%; text-align: left; padding: .65em 1.1em; background: none; border: 0; cursor: pointer;
+  font: inherit; color: var(--ink); text-decoration: none;
+}
+.acct-menu a:hover, .acct-menu button:hover { background: #e4ddd2; color: var(--accent); }
+
+.bag-link { color: inherit; text-decoration: none; }
+.bag-link:hover { color: var(--accent); }
+.bag-ic { position: relative; display: inline-grid; place-items: center; width: max(30px, 2.3em); height: max(30px, 2.3em); vertical-align: middle; }
+.bag-ic svg { width: 100%; height: 100%; }
+.bag-n {
+  position: absolute; top: -.25em; right: -.5em; min-width: 1.55em; height: 1.55em; padding: 0 .3em; border-radius: 999px;
+  display: grid; place-items: center; background: var(--accent); color: var(--cream); box-shadow: 0 0 0 2px var(--paper);
+  font: 700 max(10px, .7em)/1 var(--sans); letter-spacing: 0; transition: transform .25s cubic-bezier(.2, 1.6, .4, 1);
+}
+.bag-n.zero { display: none; }
+.bag-n.pop { transform: scale(1.35); }
+
+@keyframes rise { to { transform: none; } }
+@keyframes fadeIn { to { opacity: 1; } }
+@keyframes fadeUp { to { opacity: 1; transform: none; } }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}

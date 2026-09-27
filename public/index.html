@@ -5,290 +5,238 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
-  <link rel="stylesheet" href="css/index.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://use.typekit.net/ynr0vvq.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Bodoni:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Public+Sans:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oranienbaum&family=Public+Sans:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="/css/site.css">
+  <link rel="stylesheet" href="/css/home.css">
   <title>Spiral Sounds</title>
 </head>
 
 <body>
+  <!-- Spiral mark: a disc split by a tapered S. Reused by the header, the record labels and the favicon. -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+    <mask id="ss-mask"><circle cx="50" cy="50" r="48" fill="#fff"/><path d="M78 4 C 30 0, 14 36, 44 50 C 66 60, 62 86, 22 96 C 72 94, 84 58, 56 46 C 34 37, 36 12, 78 4 Z" fill="#000"/></mask>
+    <symbol id="ss-mark" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="currentColor" mask="url(#ss-mask)"/></symbol>
+  </defs></svg>
 
-  <div class="page-content">
-
-  <!-- ===== HERO — Full Screen ===== -->
-  <section class="hero-section" id="hero-section">
-
-    <!-- Sticky nav inside hero -->
-    <header class="site-header">
-      <div class="header-navbar">
-
-        <!-- Logo -->
-        <div class="header-logo">
-          <a href="/">
-            <span class="header-logo-text">Spiral Sounds</span>
-          </a>
-        </div>
-
-        <!-- Search -->
-        <div class="header-search">
-          <form role="search">
-            <label for="search-input" class="visually-hidden">Search products</label>
-            <input type="text" placeholder="Search records..." id="search-input" autocomplete="off">
-          </form>
-          <span class="search-arrow">→</span>
-        </div>
-
-        <!-- Auth -->
-        <div class="header-auth">
-          <p id="greeting" class="header-greeting"></p>
-          <nav aria-label="Main menu" class="header-menu">
-            <a href="/login.html" id="login">Log in</a>
-            <a href="/signup.html" id="signup">Sign up</a>
-            <button class="header-logout-btn" id="logout-btn">Log out</button>
-            <a href="/cart.html" id="cart-banner" class="cart-link"></a>
-          </nav>
-          <button class="menu-toggle" aria-label="Toggle menu">
-            <img src="images/menu.svg" alt="">
-          </button>
-        </div>
-
-      </div>
+  <!-- ===== Hero ===== -->
+  <section class="hero" id="hero">
+    <header class="hdr">
+      <a class="brand" href="/"><svg class="brand-mark" aria-hidden="true"><use href="#ss-mark"/></svg><span class="logo">Spiral Sounds</span></a>
+      <form class="search" role="search">
+        <label for="search-input" class="visually-hidden">Search records</label>
+        <input type="search" id="search-input" placeholder="Search records" autocomplete="off">
+        <button type="submit" class="search-arrow" aria-label="Search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg>
+        </button>
+      </form>
+      <nav class="nav" aria-label="Account"><span data-account></span><a class="bag-link" data-bag href="/cart.html"></a></nav>
     </header>
 
-    <!-- Hero — split masthead: text left, vinyl photo center-right -->
-    <div class="hero-stage">
-      <div class="hero-text">
-        <p class="hero-kicker">Spiral Sounds &nbsp;·&nbsp; Toronto</p>
-        <h1 class="hero-tagline">Records for those<br>who listen with vision.</h1>
-        <p class="hero-cue" id="hero-cue" aria-hidden="true">&#9654;&nbsp; Press the silver dial to play</p>
-      </div>
-      <div class="hero-photo turntable-stage" id="turntable-stage">
-        <img class="tt-base" src="images/turntable-base.png" alt="A walnut and ivory turntable with a record on the platter">
-        <div class="record-plane">
-          <div class="record-rotor">
-            <img src="images/vinyl-record-disc.png" alt="">
+    <div class="hero-body">
+      <h1 class="hero-h">
+        <span class="ln"><span><i>Records for those</i></span></span>
+        <span class="ln"><span><i>who listen with vision.</i></span></span>
+      </h1>
+      <div class="deck-view">
+        <div class="deck" id="deck">
+          <img class="tt-base" src="/images/turntable-base.png" alt="A walnut and ivory turntable with a record on the platter">
+          <div class="record-plane">
+            <img class="record-static" src="/images/vinyl-record-disc.png" alt="">
+            <div class="record-rotor">
+              <svg class="label-mark" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="48" fill="#efe4d2"/><use href="#ss-mark" width="100" height="100"/><circle cx="50" cy="50" r="2.2" fill="#0d0c0b"/></svg>
+            </div>
           </div>
+          <img class="tt-tonearm" src="/images/tonearm-cutout-v2.png" alt="">
+          <button class="record-hit" id="record-hit" type="button" aria-label="Play or pause the record"></button>
+          <div class="play-control"><button class="tt-power" id="tt-power" type="button" aria-label="Play record"></button></div>
+          <audio id="tt-audio" preload="none" src="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/54/e8/0a/54e80a8b-1d60-6b59-e908-6fd65c4ff783/mzaf_2469862574651846302.plus.aac.p.m4a"></audio>
         </div>
-        <img class="tt-spindle" src="images/spindle.png" alt="">
-        <img class="tt-tonearm" src="images/tonearm-cutout-v2.png" alt="">
-        <div class="play-control">
-          <button class="tt-power" id="tt-power" type="button" aria-label="Play record"></button>
-        </div>
-        <audio id="tt-audio" preload="none" src="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/54/e8/0a/54e80a8b-1d60-6b59-e908-6fd65c4ff783/mzaf_2469862574651846302.plus.aac.p.m4a"></audio>
+      </div>
+      <div class="hero-foot">
+        <a class="hero-cta" href="#collection">Explore the collection <span aria-hidden="true">↘</span></a>
+        <button class="hero-cue" id="hero-cue" type="button"></button>
       </div>
     </div>
-
   </section>
 
-  <!-- ===== EDITORIAL SECTION ===== -->
-  <section class="editorial-section" id="editorial-section">
+  <!-- ===== Genre collage ===== -->
+  <section class="collection" id="collection" aria-label="The collection">
+    <div class="rule-row top fade"><span>Browse by genre</span><span class="arrow" aria-hidden="true">↓</span></div>
 
-    <div class="editorial-eyebrow">
-      <span class="editorial-diamond">♦</span>
-      About Spiral Sounds
-      <span class="editorial-diamond">♦</span>
+    <h2 class="visually-hidden">The Collection</h2>
+    <div class="word the" data-text="The" aria-hidden="true"></div>
+    <div class="word big" data-text="Collection" aria-hidden="true"></div>
+
+    <!-- Hand-placed sleeves; covers were picked to sit well against the red masthead. -->
+    <div class="genre-tile" data-genre="punk" role="button" tabindex="0" style="left:8cqw; top:12.6cqw; width:19.5cqw; height:19.5cqw; --r:-5deg; --d:0">
+      <div class="fall"><div class="disc-wrap" style="--px:42%; --py:0%"><div class="disc"></div></div><div class="sleeve" style="background-image:url(/images/vinyl66.jpg)"></div></div>
+    </div>
+    <div class="genre-tile" data-genre="ambient" role="button" tabindex="0" style="left:18.4cqw; top:29.6cqw; width:18cqw; height:18cqw; --r:-4deg; --d:2">
+      <div class="fall"><div class="disc-wrap" style="--px:42%; --py:0%"><div class="disc"></div></div><div class="sleeve" style="background-image:url(/images/vinyl58.jpg)"></div></div>
+    </div>
+    <div class="genre-tile" data-genre="rock" role="button" tabindex="0" style="left:44cqw; top:25cqw; width:18.5cqw; height:18.5cqw; --r:-4deg; --d:3">
+      <div class="fall"><div class="disc-wrap" style="--px:42%; --py:0%"><div class="disc"></div></div><div class="sleeve" style="background-image:url(/images/vinyl46.jpg)"></div></div>
+    </div>
+    <div class="genre-tile" data-genre="soul" role="button" tabindex="0" style="left:71cqw; top:12.4cqw; width:20cqw; height:20cqw; --r:5deg; --d:1">
+      <div class="fall"><div class="disc-wrap" style="--px:-42%; --py:0%"><div class="disc"></div></div><div class="sleeve" style="background-image:url(/images/vinyl36.jpg)"></div></div>
+    </div>
+    <div class="genre-tile" data-genre="indie" role="button" tabindex="0" style="left:70cqw; top:34.8cqw; width:20cqw; height:20cqw; --r:8deg; --d:4">
+      <div class="fall"><div class="disc-wrap" style="--px:-42%; --py:0%"><div class="disc"></div></div><div class="sleeve" style="background-image:url(/images/vinyl53.jpg)"></div></div>
     </div>
 
-    <h2 class="editorial-headline">
-      <span class="ed-line">Music you can</span>
-      <span class="ed-line">hold in your hands.</span>
-      <em class="ed-line">Every flip tells the rest of the story.</em>
+    <span class="label" style="left:3.5cqw; top:20.4cqw; --d:0">Punk</span>
+    <span class="label" style="left:11cqw; top:37.4cqw; --d:2">Ambient</span>
+    <span class="label" style="left:44.6cqw; top:45.6cqw; --d:3">Rock</span>
+    <span class="label r" style="right:3.5cqw; top:25.6cqw; --d:1">Soul</span>
+    <span class="label r" style="right:3.5cqw; top:44cqw; --d:4">Indie</span>
+
+    <div class="intro fade">
+      <p class="tag"><span data-genre-count>12</span> genres &nbsp;·&nbsp; chosen, not stocked</p>
+      <button class="btn-dark" id="all-genres" type="button">View all genres <span aria-hidden="true">↗</span></button>
+    </div>
+
+    <div class="rule-row bottom fade"></div>
+  </section>
+
+  <!-- ===== Showroom ===== -->
+  <section class="showroom" id="showroom">
+    <div class="showroom-pin">
+      <div class="rule-row"><span>Visit the showroom</span></div>
+      <div class="showroom-head">
+        <h2 class="showroom-h">
+          <span class="ln"><span style="--i:0"><i>Come dig</i></span></span>
+          <span class="ln"><span style="--i:1"><i>through the crates.</i></span></span>
+        </h2>
+        <div class="showroom-info">
+          <p>155 Ossington Ave<br>Toronto, ON</p>
+          <a class="link-under showroom-link" href="#visit">Get directions <span aria-hidden="true">↓</span></a>
+        </div>
+      </div>
+      <div class="showroom-frame" id="showroom-frame"><img src="/images/showroom.jpg" alt="Inside the Spiral Sounds shop — crates of records under string lights"></div>
+    </div>
+  </section>
+
+  <!-- ===== Client stories ===== -->
+  <section class="stories" id="stories">
+    <div class="sec-rule"><span>Client stories</span></div>
+    <h2 class="stories-h"><span class="ln"><span><i>Three listeners. Three different worlds.</i></span></span></h2>
+
+    <div class="stories-grid">
+      <article class="story" style="--i:0">
+        <div class="portrait r45" style="--panel:#d6ccbe; --i:0"><img src="/images/story-marcus.webp" alt="Marcus, holding a record on his living-room sofa" loading="lazy"></div>
+        <div class="who">
+          <div><h3 class="name">Marcus Reid</h3><p class="role">Jazz · Toronto</p></div>
+          <div class="shelf">On his shelf<br>400+ records</div>
+        </div>
+        <dl class="qa"><dt><b>Q.</b>Why keep coming back to vinyl?</dt>
+          <dd><b>A.</b>It slows the evening down. I choose one record and give it my full attention.</dd></dl>
+      </article>
+
+      <article class="story" style="--i:1">
+        <div class="who first"><div><h3 class="name">Sophie Chen</h3><p class="role">Indie · Vancouver</p></div></div>
+        <p class="pull"><i>“I came in for one record<br>and left with six.”</i></p>
+        <div class="portrait r43" style="--panel:#cfc4b4; --i:1"><img src="/images/story-sophie.webp" alt="Sophie flipping through crates in a record shop" loading="lazy"></div>
+        <p class="cap">Customer since 2022.</p>
+        <dl class="qa"><dt><b>Q.</b>What makes a record yours?</dt>
+          <dd><b>A.</b>A lyric I carry home, or a melody that follows me for days.</dd></dl>
+      </article>
+
+      <article class="story" style="--i:2">
+        <div class="portrait r32" style="--panel:#dbd2c6; --i:2"><img src="/images/story-daniel.webp" alt="Daniel lowering a record onto a turntable at night" loading="lazy"></div>
+        <div class="who"><div><h3 class="name">Daniel Osei</h3><p class="role">DJ &amp; producer · Montreal</p></div></div>
+        <dl class="qa"><dt><b>Q.</b>What is your listening ritual?</dt>
+          <dd><b>A.</b>Phone away. One lamp on. Let the whole side play.</dd></dl>
+        <div class="rotation r32">
+          <a class="sleeve-mini" href="/detail.html?id=17" aria-label="What's Going On by Marvin Gaye" title="What's Going On by Marvin Gaye" style="left:6%; transform:rotate(-6deg); background-image:url(/images/vinyl17.jpg)"></a>
+          <a class="sleeve-mini" href="/detail.html?id=14" aria-label="Discovery by Daft Punk" title="Discovery by Daft Punk" style="left:30%; top:18%; transform:rotate(3deg); background-image:url(/images/vinyl14.jpg)"></a>
+          <a class="sleeve-mini" href="/detail.html?id=36" aria-label="Songs in the Key of Life by Stevie Wonder" title="Songs in the Key of Life by Stevie Wonder" style="left:54%; transform:rotate(8deg); background-image:url(/images/vinyl36.jpg)"></a>
+        </div>
+        <p class="cap">Tonight's rotation.</p>
+      </article>
+    </div>
+
+    <div class="sec-rule bottom"><span>Listening notes — Vol. 01</span><span>Illustrative profiles</span></div>
+  </section>
+
+  <!-- ===== Closing CTA: "Take something home." ===== -->
+  <div id="finale-sentinel" aria-hidden="true"></div>
+  <section class="finale" id="closing">
+    <h2 class="finale-h">
+      <span class="ln"><span style="--i:0"><i>Take</i></span></span>
+      <span class="ln"><span style="--i:1"><i>Something</i></span></span>
+      <span class="ln"><span style="--i:2"><i>Home.</i></span></span>
     </h2>
+    <button class="finale-browse" id="finale-browse" type="button">Browse the collection <span aria-hidden="true">↗</span></button>
+    <p class="still" id="still">&#9654;&nbsp; Still playing — the record you started up top</p>
 
-    <div class="editorial-cta-wrap">
-      <button class="editorial-cta" id="browse-btn">↳ &nbsp;Browse the collection</button>
-    </div>
-
-    <div class="editorial-bottom-bar">
-      <div class="editorial-tip">
-        <span class="editorial-diamond">♦</span>
-        Browse by genre
+    <div class="finale-disc" aria-hidden="true">
+      <div class="finale-sleeve"></div>
+      <div class="spin" id="closing-spin">
+        <div class="grooves"></div>
+        <svg viewBox="0 0 600 600">
+          <circle cx="300" cy="300" r="92" fill="#e9dfcb"/>
+          <circle cx="300" cy="300" r="92" fill="none" stroke="rgba(0,0,0,.18)" stroke-width="2"/>
+          <use href="#ss-mark" x="204" y="204" width="192" height="192" style="color:#8b2e22"/>
+          <circle cx="300" cy="300" r="8" fill="#141311"/>
+        </svg>
       </div>
-      <div class="editorial-scroll-hint">↓ Scroll</div>
-    </div>
-
-  </section>
-
-  <!-- ===== PRODUCTS SECTION ===== -->
-  <main class="products-section" id="products-section">
-
-    <!-- Genre grid view (default) -->
-    <div id="genre-view">
-      <div class="genre-grid-wrap" id="genre-grid">
-        <div class="genre-intro">
-          <p class="genre-intro-kicker">The Collection</p>
-          <p class="genre-intro-text">Every genre here is chosen, not stocked. If it's on the shelf, someone on staff already loves it.</p>
-          <button class="genre-intro-btn" id="genre-intro-btn">↳ View all genres</button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Product list view (shown after clicking a genre) -->
-    <div id="product-list-view" style="display:none;">
-      <div class="genre-back-bar" id="genre-back-bar">
-        <span class="genre-back-arrow">←</span>
-        <span class="genre-back-label">All Genres</span>
-        <span style="color:rgba(255,255,255,0.3); margin:0 0.3rem;">·</span>
-        <span class="genre-back-name" id="genre-back-name"></span>
-      </div>
-      <div id="products-container" style="width:100%;display:block;"></div>
-    </div>
-
-  </main>
-
-  <!-- ===== SHOWCASE ===== -->
-  <section class="showcase-section" id="showcase-section">
-    <div class="showcase-sticky" id="showcase-sticky">
-
-      <div class="showcase-header">
-        <div class="showcase-header-label">
-          <span>♦</span> Showroom
-        </div>
-      </div>
-
-      <div class="showcase-frame" id="showcase-frame">
-            <img src="/images/vinyl-store-3.jpg" alt="Spiral Sounds store" class="showcase-img">
-      </div>
-
-      <div class="showcase-overlay">
-        <p class="showcase-overlay-label">Address</p>
-        <p class="showcase-address-block">155 Ossington Ave<br>Toronto, ON M6J 2Z8</p>
-        <button class="showcase-cta">↳ &nbsp; Visit us</button>
-      </div>
-
     </div>
   </section>
 
-  <!-- ===== CLIENT STORIES ===== -->
-  <section class="stories-section" id="stories-section">
-
-    <div class="stories-header">
-      <div class="stories-label">
-        <span class="stories-diamond">♦</span> Client stories
-      </div>
-      <div class="stories-header-right">
-        <div class="stories-counter" id="stories-counter">
-          <b>01</b> / 03
-        </div>
-        <div class="stories-nav">
-          <button class="stories-nav-btn" id="stories-prev" aria-label="Previous story">←</button>
-          <button class="stories-nav-btn" id="stories-next" aria-label="Next story">→</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="stories-wrap" id="stories-wrap">
-
-      <div class="story story-active" id="story-0">
-        <div class="story-photo" style="background:#0b1012"><span class="story-initial">M</span></div>
-        <div class="story-quote-mark" aria-hidden="true">&#8220;</div>
-        <div class="story-content">
-          <p class="story-quote"><span class="story-quote-line">Every record I've bought from Spiral Sounds has become</span> <span class="story-quote-line">the soundtrack to something I'll never forget.</span> <span class="story-quote-line">This isn't just a store — it's a curation.</span></p>
-          <div class="story-meta">
-            <div class="story-name">Marcus Reid</div>
-            <div class="story-role">Jazz collector, Toronto</div>
-            <div class="story-album">Owns 400+ records</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="story" id="story-1">
-        <div class="story-photo" style="background:#212325"><span class="story-initial">S</span></div>
-        <div class="story-quote-mark" aria-hidden="true">&#8220;</div>
-        <div class="story-content">
-          <p class="story-quote"><span class="story-quote-line">I came in looking for one record and left with six.</span> <span class="story-quote-line">The staff knew exactly what I needed before I did.</span> <span class="story-quote-line">That's the magic of this place.</span></p>
-          <div class="story-meta">
-            <div class="story-name">Sophie Chen</div>
-            <div class="story-role">Indie enthusiast, Vancouver</div>
-            <div class="story-album">Customer since 2022</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="story" id="story-2">
-        <div class="story-photo" style="background:#3a352e"><span class="story-initial">D</span></div>
-        <div class="story-quote-mark" aria-hidden="true">&#8220;</div>
-        <div class="story-content">
-          <p class="story-quote"><span class="story-quote-line">Vinyl bought here sounds different. Not the pressing —</span> <span class="story-quote-line">the feeling. Knowing a real person chose this record</span> <span class="story-quote-line">for this shelf changes everything.</span></p>
-          <div class="story-meta">
-            <div class="story-name">Daniel Osei</div>
-            <div class="story-role">DJ & producer, Montreal</div>
-            <div class="story-album">Weekly visitor</div>
-          </div>
-        </div>
-      </div>
-
-    </div>
-
-  </section>
-
-  <!-- ===== CLOSING CTA — editorial closing page, rises with the footer ===== -->
-  <section class="closing-cta-section" id="closing-cta-section">
-    <div class="closing-cta-disc" aria-hidden="true"></div>
-    <h2 class="closing-cta-headline">Your next favorite<br>record is waiting.</h2>
-    <button class="closing-cta-btn" id="closing-cta-btn">Browse the Collection →</button>
-  </section>
-
-  </div><!-- /.page-content -->
-
-  <footer id="site-footer">
-
-    <div class="footer-inner">
-      <div class="footer-logo-area">
-        <span class="footer-logo-diamond">♦</span>
-        <span class="footer-logo-name">Spiral Sounds</span>
-      </div>
-
-      <div class="footer-card">
-        <div class="footer-card-left">
-          <p class="footer-card-label">Address</p>
-          <p class="footer-card-text">155 Ossington Ave<br>Toronto, ON M6J 2Z8<br>Canada</p>
-
-          <p class="footer-card-label" style="margin-top:24px">Hours</p>
-          <p class="footer-card-text">Mon – Sat &nbsp; 11am – 8pm<br>Sunday &nbsp;&nbsp;&nbsp;&nbsp; 12pm – 6pm</p>
-
-          <button class="footer-card-btn">↳ &nbsp; Get directions</button>
-        </div>
-        <div class="footer-card-map">
-          <iframe
-            src="https://maps.google.com/maps?q=155+Ossington+Ave,+Toronto,+ON+M6J+2Z8,+Canada&output=embed&z=15"
-            allowfullscreen=""
-            loading="lazy"
-            referrerpolicy="no-referrer-when-downgrade">
-          </iframe>
-        </div>
+  <!-- ===== Footer ===== -->
+  <footer class="foot" id="site-footer">
+    <div class="foot-inner">
+      <div><h4>Shop</h4><ul>
+        <li><a href="#collection" data-open-genres>Browse by genre</a></li>
+        <li><a href="#hero" data-focus-search>Search records</a></li>
+        <li><a href="/cart.html">Your bag</a></li>
+        <li><a href="#">Gift cards</a></li>
+      </ul></div>
+      <div><h4>Visit</h4><ul>
+        <li id="visit"><a href="https://www.google.com/maps/search/?api=1&amp;query=155+Ossington+Ave,+Toronto,+ON+M6J+2Z8" target="_blank" rel="noopener" aria-label="155 Ossington Ave, Toronto — open in Google Maps (new tab)">155 Ossington Ave<br>Toronto, ON M6J 2Z8</a></li>
+        <li class="muted">Mon – Sat&nbsp; 11am – 8pm<br>Sunday&nbsp; 12pm – 6pm</li>
+        <li><a href="https://www.google.com/maps/dir/?api=1&amp;destination=155+Ossington+Ave,+Toronto,+ON+M6J+2Z8" target="_blank" rel="noopener">Get directions</a></li>
+      </ul></div>
+      <div><h4>About</h4><ul>
+        <li><a href="#">Our story</a></li>
+        <li><a href="#showroom">The showroom</a></li>
+        <li><a href="#stories">Client stories</a></li>
+        <li><a href="#">Careers</a></li>
+      </ul></div>
+      <div><h4>Info</h4><ul>
+        <li><a href="#">Contact us</a></li>
+        <li><a href="#">Shipping &amp; returns</a></li>
+        <li><a href="#">FAQs</a></li>
+        <li><a href="#">Privacy</a></li>
+      </ul></div>
+      <div><h4>Follow</h4>
+        <nav class="social" aria-label="Social media">
+          <a href="#" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.4" cy="6.6" r=".6" fill="currentColor"/></svg></a>
+          <a href="#" aria-label="TikTok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3v11.5a3.5 3.5 0 1 1-3.5-3.5"/><path d="M14 3c.4 2.6 2.2 4.4 5 4.6"/></svg></a>
+          <a href="#" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="M10.2 9.3v5.4l4.6-2.7z" fill="currentColor"/></svg></a>
+          <a href="#" aria-label="Spotify"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9.5"/><path d="M7.2 9.6c3.4-1 6.9-.7 9.8.9M7.8 12.7c2.7-.7 5.5-.5 7.8.8M8.5 15.6c2-.5 4-.3 5.7.6"/></svg></a>
+        </nav>
       </div>
     </div>
-
-    <div class="footer-bottom">
-      <span class="footer-brand">© Spiral Sounds</span>
-      <span class="footer-scroll-top" id="footer-scroll-top">↑ Back to top</span>
-    </div>
-
   </footer>
+  <footer class="end-bar"><span>© 2026 Spiral Sounds</span><a href="#hero">Back to top ↑</a></footer>
 
-  <!-- ===== GENRE PAGE OVERLAY — rises on genre click ===== -->
-  <div id="genre-page" class="genre-page">
-    <div class="genre-page-header">
-      <div class="genre-page-back" id="genre-page-back">
-        <span class="genre-page-back-arrow">←</span>
-        <span class="genre-page-back-label">All genres</span>
-      </div>
-      <div class="genre-page-tabs" id="genre-page-tabs"></div>
+  <!-- ===== Genre overlay ("sheet") ===== -->
+  <div class="scrim" id="scrim"></div>
+  <div class="sheet" id="genre-page" role="dialog" aria-modal="true" aria-label="Browse records">
+    <div class="sheet-top">
+      <button class="sheet-back" id="sheet-back" type="button">← Back</button>
+      <a class="bag-link" data-bag href="/cart.html"></a>
     </div>
-    <div class="genre-page-content">
-      <div class="genre-page-body" id="genre-page-body"></div>
-      <div class="genre-cart-sidebar" id="genre-cart-sidebar"></div>
+    <div class="sheet-body">
+      <aside class="sheet-left" id="sheet-left"></aside>
+      <div class="sheet-grid" id="genre-page-grid"></div>
+      <aside class="bag" aria-label="Your bag"><div class="bag-inner" id="bag-panel"></div></aside>
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
-  <script src="js/index.js" type="module"></script>
-  <script src="js/heroTurntable.js" type="module"></script>
-  <script src="js/menu.js" type="module"></script>
-
+  <script src="/js/home.js" type="module"></script>
 </body>
 </html>

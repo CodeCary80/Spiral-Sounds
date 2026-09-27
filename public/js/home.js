@@ -5,6 +5,7 @@
 import { initHeader, setBagCount } from './header.js'
 import { getProducts, getGenres } from './productService.js'
 import { getCart, addToCart } from './cartApi.js'
+import { handOffCover } from './handoff.js'
 
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
 const $ = sel => document.querySelector(sel)
@@ -137,7 +138,10 @@ $('.showroom-link').addEventListener('click', e => {
 // ===================== Stories + finale =====================
 once($('#stories'), el => el.classList.add('play'), .2)
 document.querySelectorAll('.rotation .sleeve-mini').forEach(a =>
-  a.addEventListener('click', () => { a.style.viewTransitionName = 'record-cover' }))
+  a.addEventListener('click', () => {
+    a.style.viewTransitionName = 'record-cover'
+    handOffCover({ id: new URL(a.href).searchParams.get('id'), image: a.dataset.image })
+  }))
 
 // The closing record turns with the scroll; while the hero deck is playing it
 // also turns at the deck's speed and the "still playing" line appears.
@@ -333,7 +337,11 @@ left.addEventListener('click', e => {
 
 grid.addEventListener('click', async e => {
   const art = e.target.closest('.rec-art')
-  if (art) { art.querySelector('.cover').style.viewTransitionName = 'record-cover'; return }
+  if (art) {
+    art.querySelector('.cover').style.viewTransitionName = 'record-cover'
+    handOffCover(products.find(p => p.id === +art.dataset.id) || view.list.find(p => p.id === +art.dataset.id))
+    return
+  }
   const btn = e.target.closest('.add-btn')
   if (!btn) return
   btn.disabled = true

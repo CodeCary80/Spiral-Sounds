@@ -353,11 +353,6 @@
 .foot .social a:hover { background: var(--cream); color: var(--accent); }
 .social svg { width: 44%; height: 44%; }
 
-.end-bar {
-  display: flex; justify-content: space-between; align-items: center; background: #141311; color: var(--cream);
-  padding: 1.2vw var(--gutter); min-height: 3.6vw; font: 500 max(10px, .8vw) var(--sans); letter-spacing: .3em; text-transform: uppercase;
-}
-.end-bar a { color: var(--cream); text-decoration: none; letter-spacing: .04em; text-transform: none; font-size: max(12px, 1vw); }
 
 /* ================= Genre overlay ("sheet") ================= */
 /* Grows out of whatever opened it (home.js animates clip-path from that

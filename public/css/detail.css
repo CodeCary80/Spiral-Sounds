@@ -1,0 +1,109 @@
+/* =====================================================================
+   Record detail page (redesign). Builds on site.css.
+   Reference: design/mockups/detail.html.
+   ===================================================================== */
+
+/* ---------- cover + purchase ---------- */
+.rec-hero { display: grid; grid-template-columns: 1.08fr 1fr; gap: 5vw; padding: 4vw var(--gutter) 4.4vw; align-items: start; }
+/* The cover is in the static markup (not rendered by JS) so the cross-page
+   transition has something to land on at first paint; an inline script in
+   the head fills its image from the click that brought us here. */
+.cover {
+  aspect-ratio: 1; background: var(--cover, none) center / cover var(--ink); border-radius: 2px;
+  box-shadow: 0 .2vw .3vw rgba(28,26,23,.2), 0 2.6vw 3.6vw -1.4vw rgba(28,26,23,.5);
+  view-transition-name: record-cover;
+}
+.info { padding-top: 2.2vw; min-height: 20vw; }
+.artist { margin: 0 0 1.2vw; }
+
+/* title block, with the genre as a rubber stamp beside it (links back to that genre's sheet) */
+.head { position: relative; padding: 0 9.5vw 1.8vw 0; border-bottom: 1px solid var(--ink); }
+.title { margin: 0; font: 400 6.4vw/1.02 var(--display); color: var(--accent); -webkit-text-stroke: .035em var(--accent); paint-order: stroke fill; }
+.title .ln { display: block; overflow: hidden; padding: .22em .03em .08em; margin: -.22em -.03em -.08em; }
+.title .ln span { display: block; transform: translateY(110%); animation: rise .8s var(--drop-ease) .18s forwards; }
+.stamp {
+  position: absolute; right: 0; top: 50%; width: 8.2vw; min-width: 88px; aspect-ratio: 1; color: var(--accent);
+  transform: translateY(-58%) rotate(-12deg); transition: transform .25s cubic-bezier(.2,.8,.2,1);
+}
+.stamp svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.stamp text { font-family: var(--display); font-weight: 400; stroke: currentColor; stroke-width: 3; paint-order: stroke fill; }
+.stamp:hover { transform: translateY(-58%) rotate(-6deg) scale(1.05); }
+.stamp:focus-visible { outline: 2px solid var(--accent); outline-offset: 4px; border-radius: 50%; }
+
+.price { margin: 2.2vw 0 1.4vw; font: 400 max(34px, 3.8vw)/1 var(--display); -webkit-text-stroke: .03em var(--ink); paint-order: stroke fill; }
+/* stock: ink when there's plenty, red at 3 or fewer, muted when sold out */
+.stock { margin: 0 0 1.3vw; font: 600 max(14px, 1.12vw)/1.3 var(--sans); }
+.stock.low { color: var(--accent); }
+.stock.out { color: var(--muted); }
+.add-btn {
+  width: 100%; display: flex; justify-content: center; align-items: center; gap: .8vw; background: var(--ink); color: var(--cream);
+  border: 0; cursor: pointer; font: 600 max(15px, 1.35vw) var(--sans); letter-spacing: .02em; padding: 1.35vw; transition: background .2s ease;
+}
+.add-btn:hover, .add-btn.done { background: var(--accent); }
+.add-btn:disabled { background: var(--taupe); color: var(--muted); cursor: not-allowed; }
+.add-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.jump {
+  display: inline-flex; gap: .6vw; margin-top: 2vw; padding-bottom: .35vw; border-bottom: 1.5px solid var(--ink);
+  color: var(--ink); text-decoration: none; font: 400 max(14px, 1.2vw) var(--sans);
+}
+.jump:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ---------- at a glance + tracklist ---------- */
+.notes { margin: 0 var(--gutter); display: grid; grid-template-columns: 1fr 2fr; border-top: 1.5px solid var(--ink); }
+.notes > div { padding: 2.6vw 0 3.4vw; }
+.notes > .facts { padding-right: 3vw; }
+.notes > div + div { padding-left: 3vw; border-left: 1px solid var(--ink); }
+.h2 { margin: .9vw 0 1.8vw; font: 400 max(30px, 3.2vw)/1 var(--display); -webkit-text-stroke: .025em var(--ink); paint-order: stroke fill; }
+.facts dl { margin: 0; }
+.facts div { display: flex; justify-content: space-between; gap: 1vw; padding: .85vw 0; border-bottom: 1px solid var(--taupe); font: 400 max(14px, 1.1vw) var(--sans); }
+.facts dt { color: var(--muted); }
+.facts dd { margin: 0; text-align: right; text-transform: capitalize; }
+.tracks { columns: 2; column-gap: 3vw; margin: 0; padding: 0; list-style: none; }
+.tracks li {
+  break-inside: avoid; display: grid; grid-template-columns: 2.4vw 1fr auto; gap: .8vw; padding: .8vw 0;
+  border-bottom: 1px solid var(--taupe); font: 400 max(14px, 1.08vw)/1.35 var(--sans);
+}
+.tracks .n, .tracks .d { color: var(--muted); font-variant-numeric: tabular-nums; }
+.soon { margin: 0; font: 400 max(15px, 1.2vw) var(--sans); color: var(--muted); }
+
+/* ---------- keep listening ---------- */
+.more { margin: 0 var(--gutter); padding: 2.6vw 0 4vw; border-top: 1.5px solid var(--ink); }
+.more-head { display: flex; justify-content: space-between; align-items: baseline; gap: 2vw; }
+.more-head .jump { margin-top: 0; flex: none; }
+.more-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.4vw; }
+.card { color: var(--ink); text-decoration: none; }
+.card .c {
+  aspect-ratio: 1; background: var(--ink) center / cover; border-radius: 2px; margin-bottom: 1vw;
+  box-shadow: 0 .15vw .2vw rgba(28,26,23,.2), 0 1.6vw 2.4vw -1vw rgba(28,26,23,.45);
+}
+.card b { display: block; font: 700 max(13px, 1.02vw)/1.3 var(--sans); }
+.card span { display: block; margin-top: .3vw; font: 400 max(13px, .98vw) var(--sans); color: var(--muted); }
+.card em { display: block; margin-top: .6vw; font: 600 max(10px, .78vw) var(--sans); font-style: normal; letter-spacing: .2em; }
+.card:hover b { color: var(--accent); }
+
+/* ---------- sticky purchase bar ---------- */
+/* Slides up once the main "Add to bag" has scrolled out of view and stays to
+   the bottom of the page; the body reserves its height so it never covers the footer. */
+.buybar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; background: var(--paper);
+  border-top: 1.5px solid var(--ink); box-shadow: 0 -1.2vw 2.4vw -1.4vw rgba(28,26,23,.35);
+  transform: translateY(110%); transition: transform .35s cubic-bezier(.2,.8,.2,1);
+}
+.buybar.on { transform: none; }
+.buybar-in { margin: 0 var(--gutter); display: flex; align-items: center; gap: 1.4vw; padding: .9vw 0; }
+.buybar .t { width: max(44px, 3.4vw); aspect-ratio: 1; background: center / cover; border-radius: 2px; box-shadow: 0 .5vw 1vw -.4vw rgba(28,26,23,.45); flex: none; }
+.buybar .who { min-width: 0; flex: 1; }
+.buybar .who b { display: block; font: 700 max(14px, 1.1vw)/1.25 var(--sans); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.buybar .who span { display: block; font: 400 max(13px, .95vw) var(--sans); color: var(--muted); }
+.buybar .p { font: 400 max(24px, 2.1vw)/1 var(--display); -webkit-text-stroke: .03em var(--ink); paint-order: stroke fill; flex: none; }
+.buybar .left { display: block; margin-top: .35vw; font: 600 max(10px, .72vw) var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--muted); text-align: right; }
+.buybar .left.low { color: var(--accent); }
+.buybar .add-btn { width: auto; flex: none; padding: 1vw 2.4vw; font-size: max(14px, 1.1vw); }
+
+.missing { padding: 8vw var(--gutter); }
+.missing .h2 { color: var(--accent); }
+
+@media (prefers-reduced-motion: reduce) {
+  .title .ln span { transform: none; animation: none; }
+  .buybar { transition: none; }
+}

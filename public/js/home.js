@@ -4,7 +4,8 @@
 
 import { initHeader, setBagCount } from './header.js'
 import { getProducts, getGenres } from './productService.js'
-import { getCart, addToCart } from './cartApi.js'
+import { getCart, addToCart, setQuantity, removeFromCart } from './cartApi.js'
+import { stepper } from './qty.js'
 import { handOffCover } from './handoff.js'
 
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -242,7 +243,7 @@ function renderBag() {
     <div class="bag-items">${items.map(i => `
       <div class="bag-item">
         <div class="thumb" style="background-image:url('/images/${esc(i.image)}')"></div>
-        <div><b>${esc(i.title)}</b><span>${esc(i.artist)}</span></div>
+        <div><b>${esc(i.title)}</b><span>${esc(i.artist)}</span>${stepper(i, { small: true, removeAtOne: true })}</div>
         <em>$${(i.quantity * Number(i.price)).toFixed(2)}</em>
       </div>`).join('')}</div>
     <div class="bag-total"><span>Total</span><span>$${total.toFixed(2)}</span></div>
@@ -354,6 +355,23 @@ grid.addEventListener('click', async e => {
   btn.disabled = false
   cart = await getCart()
   renderBag()
+})
+
+// − / + in the bag panel
+bagPanel.addEventListener('click', async e => {
+  const btn = e.target.closest('.qty [data-step]')
+  if (!btn) return
+  const box = btn.closest('.qty')
+  const next = Number(box.dataset.qty) + Number(btn.dataset.step)
+  box.classList.add('busy')
+  const res = next < 1 ? { ok: await removeFromCart(box.dataset.item) } : await setQuantity(box.dataset.item, next)
+  if (!res.ok) { box.classList.remove('busy'); box.title = res.error || 'Could not update the quantity.'; return }
+  cart = await getCart()
+  renderBag()
+  // a removed record goes back to "Add to bag" in the grid
+  grid.querySelectorAll('.add-btn.done').forEach(b => {
+    if (!inCart(+b.dataset.id)) { b.classList.remove('done'); b.textContent = 'Add to bag' }
+  })
 })
 
 $('#sheet-back').addEventListener('click', closeSheet)

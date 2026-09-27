@@ -109,6 +109,22 @@ body::before {
 .bag-n.zero { display: none; }
 .bag-n.pop { transform: scale(1.35); }
 
+/* ---------- quantity stepper (bag page + sheet bag panel) ---------- */
+.qty { display: inline-flex; align-items: center; border: 1.5px solid var(--ink); height: 34px; }
+.qty button {
+  width: 32px; height: 100%; display: grid; place-items: center; background: none; border: 0; cursor: pointer;
+  font: 500 17px/1 var(--sans); color: var(--ink); transition: background .15s ease, color .15s ease;
+}
+.qty button:hover:not(:disabled) { background: var(--ink); color: var(--cream); }
+.qty button:disabled { color: var(--taupe); cursor: not-allowed; }
+.qty button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.qty output { min-width: 28px; text-align: center; font: 600 14px var(--sans); font-variant-numeric: tabular-nums; }
+.qty.busy { opacity: .55; pointer-events: none; }
+.qty-note { display: block; margin-top: 6px; font: 500 12px var(--sans); color: var(--accent); }
+.qty.sm { height: 26px; }
+.qty.sm button { width: 24px; font-size: 14px; }
+.qty.sm output { min-width: 20px; font-size: 12px; }
+
 @keyframes rise { to { transform: none; } }
 @keyframes fadeIn { to { opacity: 1; } }
 @keyframes fadeUp { to { opacity: 1; transform: none; } }

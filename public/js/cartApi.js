@@ -30,3 +30,16 @@ export async function removeFromCart(cartItemId) {
   const res = await fetch(`/api/cart/${cartItemId}`, { method: 'DELETE', credentials: 'include' })
   return res.status === 204
 }
+
+// Sets one line's quantity. Resolves { ok, quantity } — on a stock limit the
+// server answers 409 with the shelf count, returned here as `stock`.
+export async function setQuantity(cartItemId, quantity) {
+  const res = await fetch(`/api/cart/${cartItemId}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
+    body: JSON.stringify({ quantity }),
+  })
+  const data = await res.json().catch(() => ({}))
+  return { ok: res.ok, ...data }
+}

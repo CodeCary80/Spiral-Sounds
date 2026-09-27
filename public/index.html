@@ -11,6 +11,11 @@
   <link rel="stylesheet" href="/css/site.css">
   <link rel="stylesheet" href="/css/home.css">
   <title>Spiral Sounds</title>
+  <script>
+    // Coming back from a record (/?genre=punk&id=66): show the genre sheet from
+    // the very first frame instead of flashing the hero until the data loads.
+    if (new URLSearchParams(location.search).has('genre')) document.documentElement.classList.add('sheet-first')
+  </script>
 </head>
 
 <body>

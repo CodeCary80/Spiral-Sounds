@@ -372,6 +372,10 @@
 .sheet.open { visibility: visible; }
 .sheet-top, .sheet-body { transition: opacity .2s ease; }
 .sheet:not(.shown) .sheet-top, .sheet:not(.shown) .sheet-body { opacity: 0; }
+/* returning to a genre: the sheet covers the page before home.js has filled it */
+.sheet-first .sheet { visibility: visible; }
+.sheet-first .sheet .sheet-top, .sheet-first .sheet .sheet-body { opacity: 1; }
+.sheet-first body { overflow: hidden; }
 .sheet-top {
   flex: none; margin: 0 var(--gutter); height: max(56px, 4.6vw); border-bottom: 1.5px solid var(--ink);
   display: flex; align-items: center; justify-content: space-between; gap: 3vw;

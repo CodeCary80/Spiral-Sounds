@@ -417,6 +417,8 @@ async function boot() {
   // once, and name the record's cover so the page transition lands on it.
   const q = new URLSearchParams(location.search)
   const g = q.get('genre')?.toLowerCase()
+  // an unknown genre in the URL: drop the early cover and show the home page
+  if (!(g && (g === 'all' || genres.includes(g)))) document.documentElement.classList.remove('sheet-first')
   if (g && (g === 'all' || genres.includes(g))) {
     const tile = document.querySelector(`.genre-tile[data-genre="${g}"]`)
     scrollTo(0, collection.offsetTop)
@@ -425,6 +427,7 @@ async function boot() {
     sheet.style.transition = 'none'
     sheet.style.clipPath = 'none'
     sheet.classList.add('open', 'shown')
+    document.documentElement.classList.remove('sheet-first')   // the real open state takes over
     scrim.classList.add('on')
     document.documentElement.style.overflow = 'hidden'
     const b = (tile || collection).getBoundingClientRect()

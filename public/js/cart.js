@@ -4,7 +4,8 @@
 
 import { initHeader, setBagCount } from './header.js'
 import { getProducts } from './productService.js'
-import { getCart, removeFromCart } from './cartApi.js'
+import { getCart, removeFromCart, setQuantity } from './cartApi.js'
+import { stepper } from './qty.js'
 import { calculateCartTotal } from './cartTotal.js'
 import { handOffCover } from './handoff.js'
 
@@ -74,7 +75,7 @@ function renderBag() {
           <div>
             <h3><a href="/detail.html?id=${i.productId}" data-id="${i.productId}" data-image="${esc(i.image)}">${esc(i.title)}</a></h3>
             <p class="artist">${esc(i.artist)}</p>
-            ${i.quantity > 1 ? `<p class="meta caps">Qty ${i.quantity}</p>` : ''}
+            <div class="line-qty">${stepper(i)}</div>
           </div>
           <div class="right">
             <div><span class="price">${money(i.quantity * Number(i.price))}</span>${i.quantity > 1 ? `<span class="each">${money(i.price)} each</span>` : ''}</div>
@@ -174,6 +175,8 @@ async function pay(btn) {
 }
 
 main.addEventListener('click', async e => {
+  const step = e.target.closest('.qty [data-step]')
+  if (step) { changeQuantity(step); return }
   const rm = e.target.closest('.remove')
   if (rm) {
     const row = rm.closest('.line')
@@ -190,6 +193,25 @@ main.addEventListener('click', async e => {
   if (e.target.closest('#checkout-btn')) { openPayment(e.target.closest('#checkout-btn')); return }
   if (e.target.closest('#pay-btn')) pay(e.target.closest('#pay-btn'))
 })
+
+// ---------- quantity ----------
+
+async function changeQuantity(btn) {
+  const box = btn.closest('.qty')
+  const next = Number(box.dataset.qty) + Number(btn.dataset.step)
+  box.classList.add('busy')
+  const res = await setQuantity(box.dataset.item, next)
+  box.classList.remove('busy')
+  if (res.ok) {
+    // the bag changed, so any open payment step is stale — re-render drops it
+    items = items.map(i => (String(i.cartItemId) === box.dataset.item ? { ...i, quantity: res.quantity } : i))
+    renderBag()
+    return
+  }
+  // out of stock (or the line vanished elsewhere): say so under the stepper
+  box.closest('.line-qty').querySelector('.qty-note')?.remove()
+  box.insertAdjacentHTML('afterend', `<span class="qty-note" role="status">${res.error || 'Could not update the quantity.'}</span>`)
+}
 
 // ---------- boot ----------
 

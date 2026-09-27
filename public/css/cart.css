@@ -68,16 +68,7 @@
 .pay.open { grid-template-rows: 1fr; }
 .pay > div { overflow: hidden; }
 .pay-in { padding-top: 1.6vw; border-top: 1.5px solid var(--ink); }
-.field { margin: 1.1vw 0 1.3vw; }
-.field label { display: block; margin-bottom: .5vw; font: 500 max(12px, .9vw) var(--sans); color: var(--muted); }
-.field .opt { font-weight: 400; }
-.input {
-  width: 100%; background: #fbf9f6; border: 1px solid var(--taupe); border-radius: 3px; padding: .95vw 1.1vw;
-  font: 400 max(14px, 1.1vw) var(--sans); color: var(--ink); outline: none;
-}
-.input:focus { border-color: var(--ink); }
-.input.bad { border-color: var(--accent); }
-.err { margin: .5vw 0 0; font: 500 max(12px, .85vw) var(--sans); color: var(--accent); }
+.pay-in > .caps { margin: 0 0 1.2vw; }
 #payment-element { min-height: 120px; margin-bottom: 1.4vw; }
 .pay-msg { margin: 0 0 1.2vw; font: 500 max(13px, .95vw)/1.45 var(--sans); color: var(--accent); }
 .pay-msg:empty { display: none; }

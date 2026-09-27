@@ -48,11 +48,11 @@ function renderEmpty() {
   </div>`
 }
 
-function renderThanks(email) {
+function renderThanks() {
   main.innerHTML = `<div class="state">
     <p class="caps">Order placed</p>
     <h1 class="h1"><span class="ln"><span>Thank you.</span></span></h1>
-    <p class="lead">Your records are being pulled from the shelf and packed up.${email ? ` A receipt is on its way to <b>${esc(email)}</b>.` : ''}</p>
+    <p class="lead">Your records are being pulled from the shelf and packed up.</p>
     <a class="btn" href="/?genre=all">Keep digging <span aria-hidden="true">↗</span></a>
     ${picks()}
   </div>`
@@ -93,10 +93,6 @@ function renderBag() {
       <button class="btn" id="checkout-btn" type="button">Checkout <span aria-hidden="true">→</span></button>
       <div class="pay" id="pay"><div><div class="pay-in">
         <p class="caps">Payment details</p>
-        <div class="field">
-          <label for="email">Email for your receipt <span class="opt">— optional</span></label>
-          <input class="input" id="email" type="email" autocomplete="email" placeholder="you@example.com">
-        </div>
         <div id="payment-element"></div>
         <p class="pay-msg" id="pay-msg" role="alert"></p>
         <p class="note">Test mode — use card 4242 4242 4242 4242, any future date and any CVC.</p>
@@ -154,23 +150,13 @@ async function openPayment(btn) {
 }
 
 async function pay(btn) {
-  const box = document.getElementById('email')
   const msg = document.getElementById('pay-msg')
-  const email = box.value.trim()
   msg.textContent = ''
-  document.querySelector('.err')?.remove()
-  // the email is optional, but if one is typed it has to look like an address
-  if (email && !box.checkValidity()) {
-    box.classList.add('bad')
-    box.insertAdjacentHTML('afterend', '<p class="err">That email doesn’t look right — fix it or leave it blank.</p>')
-    box.focus()
-    return
-  }
   btn.disabled = true
   btn.textContent = 'Processing…'
   const { error, paymentIntent } = await stripe.confirmPayment({
     elements,
-    confirmParams: { return_url: `${location.origin}/cart.html`, ...(email ? { receipt_email: email } : {}) },
+    confirmParams: { return_url: `${location.origin}/cart.html` },
     redirect: 'if_required',
   })
   if (error) {
@@ -182,7 +168,7 @@ async function pay(btn) {
   if (paymentIntent?.status === 'succeeded') {
     await fetch('/api/cart/all', { method: 'DELETE', credentials: 'include' }).catch(() => {})
     setBagCount(0)
-    renderThanks(email)
+    renderThanks()
     items = []
   }
 }
@@ -203,11 +189,6 @@ main.addEventListener('click', async e => {
   if (link) { handOffCover({ id: link.dataset.id, image: link.dataset.image }); return }
   if (e.target.closest('#checkout-btn')) { openPayment(e.target.closest('#checkout-btn')); return }
   if (e.target.closest('#pay-btn')) pay(e.target.closest('#pay-btn'))
-})
-main.addEventListener('input', e => {
-  if (e.target.id !== 'email') return
-  e.target.classList.remove('bad')
-  document.querySelector('.err')?.remove()
 })
 
 // ---------- boot ----------

@@ -466,3 +466,112 @@
   .portrait, .finale { clip-path: none !important; animation: none !important; }
   .disc { animation: none; }
 }
+
+/* ======================= Phones (≤ 760px) ======================= */
+@media (max-width: 760px) {
+  /* header: brand + account on the first row, search full width below */
+  .hdr {
+    height: auto; padding: 12px 0 0; row-gap: 10px; border-bottom: 0;
+    grid-template-columns: 1fr auto; grid-template-areas: "brand nav" "search search";
+  }
+  .hdr .brand { grid-area: brand; }
+  .hdr .logo { font-size: 26px; }
+  .hdr .brand-mark { width: 26px; height: 26px; }
+  .search { grid-area: search; width: 100%; min-width: 0; padding: 6px 0 8px; }
+  .nav { grid-area: nav; gap: 14px; }
+
+  /* hero: headline wraps, the whole deck fits the width, actions stack */
+  .hero-body { margin: 12px var(--gutter) 16px; padding: 28px 16px 20px; }
+  .hero-h { white-space: normal; text-wrap: balance; font-size: 11vw; line-height: 1.04; }
+  .deck-view { padding: 0; }
+  .deck { height: auto; width: 100%; scale: 1.06; }
+  .hero-foot { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .hero-cta { font-size: 16px; padding-bottom: 4px; }
+  .hero-cue { font-size: 10px; letter-spacing: .24em; gap: 8px; }
+
+  /* collage: a taller spread with bigger sleeves in two loose columns */
+  .collection { aspect-ratio: 20 / 42; }
+  .word { top: 10cqw; }
+  .word.big { top: 10.8cqw; }
+  .collection .rule-row { font-size: 2.8cqw; letter-spacing: .3em; }
+  .collection .rule-row.top { padding-bottom: 2.4cqw; }
+  .genre-tile[data-genre="punk"]    { left: 5cqw  !important; top: 30cqw  !important; width: 43cqw !important; height: 43cqw !important; }
+  .genre-tile[data-genre="soul"]    { left: 52cqw !important; top: 37cqw  !important; width: 43cqw !important; height: 43cqw !important; }
+  .genre-tile[data-genre="ambient"] { left: 7cqw  !important; top: 81cqw  !important; width: 39cqw !important; height: 39cqw !important; }
+  .genre-tile[data-genre="rock"]    { left: 52cqw !important; top: 90cqw  !important; width: 40cqw !important; height: 40cqw !important; }
+  .genre-tile[data-genre="indie"]   { left: 22cqw !important; top: 133cqw !important; width: 42cqw !important; height: 42cqw !important; }
+  .collection .label { font-size: 3cqw; padding-bottom: 1.4cqw; }
+  .collection .label::after { width: 7cqw; }
+  .collection .label:nth-of-type(1) { left: 5cqw !important;  top: 75cqw !important; }
+  .collection .label:nth-of-type(2) { left: 7cqw !important;  top: 122cqw !important; }
+  .collection .label:nth-of-type(3) { left: auto !important; right: 8cqw; top: 132cqw !important; }
+  .collection .label:nth-of-type(3)::after { left: auto; right: 0; transform-origin: right; }
+  .collection .label:nth-of-type(4) { right: 5cqw !important; top: 82cqw !important; }
+  .collection .label:nth-of-type(5) { right: auto !important; left: 22cqw !important; top: 177cqw !important; }
+  .collection .label:nth-of-type(5)::after { left: 0; right: auto; transform-origin: left; }
+  .collection .intro { bottom: 6cqw; }
+  .collection .intro .tag { font-size: 2.8cqw; margin-bottom: 3cqw; }
+  .btn-dark { font-size: 3.8cqw; padding: 3cqw 5cqw; gap: 2cqw; }
+  .disc-wrap { display: none; }            /* no hover on touch: the record would never slide out */
+
+  /* showroom */
+  .showroom { margin-top: 24px; }
+  .showroom .rule-row { top: 14px; padding-bottom: 10px; }
+  .showroom-head { top: 58px; flex-direction: column; align-items: flex-start; gap: 16px; }
+  .showroom-h { font-size: 10vw; white-space: normal; text-wrap: balance; }
+  .showroom-info { text-align: left; }
+  .showroom-info p { margin-bottom: 8px; }
+
+  /* client stories: one column */
+  .stories { padding-top: 48px; }
+  .sec-rule { padding-bottom: 10px; }
+  .sec-rule.bottom { flex-wrap: wrap; gap: 8px 16px; padding-top: 12px; }
+  .stories-h { white-space: normal; text-wrap: balance; font-size: 10vw; margin-top: 18px; }
+  .stories-grid { grid-template-columns: 1fr; margin: 24px 0 28px; }
+  .story, .story:first-child, .story:last-child { padding: 28px 0; }
+  .story:first-child { padding-top: 0; }
+  .story + .story { border-left: 0; border-top: 1px solid var(--ink); }
+  .who { margin: 16px 0 14px; }
+  .pull { font-size: 8vw; padding: 14px 0 16px; margin-bottom: 16px; }
+  .cap { margin: 8px 0 16px; font-size: 12px; }
+  .qa dd { margin-top: 6px; }
+
+  /* finale: bigger words, the record sinks into the lower right */
+  .finale { padding: 48px var(--gutter) 56px; }
+  .finale-h { font-size: 19vw; margin-top: 0; }
+  .finale-browse { margin-top: 28px; padding: 16px 22px; gap: 12px; }
+  .still { margin: 18px 0 auto; font-size: 10px; letter-spacing: .22em; gap: 8px; }
+  .finale-disc { width: 96vw; left: 34vw; top: auto; bottom: -34vw; }
+  .finale-sleeve { width: 44vw; left: -14vw; top: 6vw; }
+
+  /* footer: two columns, social across the bottom */
+  .foot { padding: 32px var(--gutter) 36px; }
+  .foot-inner { grid-template-columns: 1fr 1fr; gap: 28px 16px; padding-top: 24px; }
+  .foot-inner > div:last-child { grid-column: 1 / -1; }
+  .foot h4 { margin-bottom: 12px; }
+  .foot li { margin-bottom: 10px; }
+  .social { gap: 12px; }
+
+  /* sheet: one scrolling column — genre panel, then a two-up grid; the bag becomes a bar */
+  .sheet-top { height: 56px; }
+  .sheet-body, .sheet.bag-open .sheet-body { display: block; overflow-y: auto; }
+  .sheet-left { border-right: 0; border-bottom: 1px solid var(--ink); padding: 20px var(--gutter) 22px; overflow: visible; }
+  .g-name { font-size: 18vw; }
+  .g-desc { max-width: none; margin: 14px 0 16px; }
+  .g-count { padding-top: 12px; }
+  .g-change { margin-top: 18px; gap: 8px; }
+  .g-list { grid-auto-flow: row; grid-template-rows: none; grid-template-columns: repeat(3, auto); justify-content: start; gap: 8px 22px; margin-top: 16px; padding: 0 0 4px 14px; border-bottom: 0; }
+  .g-list button.active::before { left: -12px; }
+  .sheet-grid, .sheet.bag-open .sheet-grid { overflow: visible; grid-template-columns: 1fr 1fr; gap: 28px 14px; padding: 22px var(--gutter) 40px; }
+  .sheet.bag-open .sheet-grid { padding-bottom: 110px; }
+  .rec-art { margin-bottom: 10px; }
+  .rec-row { flex-direction: column; align-items: stretch; gap: 10px; margin-top: 10px; padding-top: 10px; }
+  .add-btn { padding: 10px 12px; white-space: nowrap; }
+  .bag { display: none; }
+  .sheet.bag-open .bag { display: block; position: fixed; left: 0; right: 0; bottom: 0; z-index: 2; border-left: 0; border-top: 1.5px solid var(--ink); box-shadow: 0 -10px 24px -14px rgba(28,26,23,.4); }
+  .bag-inner { width: auto; height: auto; flex-direction: row; align-items: center; gap: 14px; padding: 12px var(--gutter); }
+  .bag h4 { margin: 0; padding: 0; border: 0; flex-direction: column; gap: 4px; letter-spacing: .24em; }
+  .bag-items, .bag .view { display: none; }
+  .bag-total { margin: 0 0 0 auto; gap: 8px; }
+  .bag .checkout { padding: 12px 18px; }
+}

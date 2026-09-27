@@ -5,106 +5,70 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
-  <link rel="stylesheet" href="css/index.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://use.typekit.net/ynr0vvq.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Bodoni:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Public+Sans:wght@400;500;600&display=swap">
-  <title>Sign Up — Spiral Sounds</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oranienbaum&family=Public+Sans:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="/css/site.css">
+  <link rel="stylesheet" href="/css/auth.css">
+  <title>Sign up — Spiral Sounds</title>
 </head>
 
-<body>
+<body class="signup" data-mode="signup">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+    <mask id="ss-mask"><circle cx="50" cy="50" r="48" fill="#fff"/><path d="M78 4 C 30 0, 14 36, 44 50 C 66 60, 62 86, 22 96 C 72 94, 84 58, 56 46 C 34 37, 36 12, 78 4 Z" fill="#000"/></mask>
+    <symbol id="ss-mark" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="currentColor" mask="url(#ss-mask)"/></symbol>
+  </defs></svg>
 
-  <!-- ===== HEADER ===== -->
-  <header class="site-header">
-    <div class="header-navbar">
-
-      <a href="/" class="header-logo">
-        <span class="header-logo-text">← Spiral Sounds</span>
-      </a>
-
-      <div class="header-auth" style="margin-left:auto;">
-        <nav aria-label="Main menu" class="header-menu">
-          <a href="/login.html">Log in</a>
-        </nav>
-      </div>
-
+  <!-- ===== Sign up (shares its template and script with the log-in page) ===== -->
+  <main class="poster">
+    <div class="top">
+      <a class="brand mark" href="/"><svg class="brand-mark" aria-hidden="true"><use href="#ss-mark"/></svg><span>Spiral Sounds</span></a>
+      <a class="back" href="/">Back to store ↗</a>
     </div>
-  </header>
 
-  <!-- ===== SIGNUP FORM ===== -->
-  <main class="auth-page">
-    <div class="auth-box">
+    <p class="word one" aria-hidden="true" data-text="Spiral"></p>
+    <div class="sleeve a" style="background-image:url(/images/vinyl46.jpg)" aria-hidden="true"></div>
+    <div class="record" aria-hidden="true"><div class="spin">
+      <div class="grooves"></div>
+      <svg viewBox="0 0 600 600">
+        <circle cx="300" cy="300" r="112" fill="#eadfcc"/>
+        <use href="#ss-mark" x="183" y="183" width="234" height="234" style="color:#8b2e22"/>
+        <circle cx="300" cy="300" r="9" fill="#0b0a09"/>
+      </svg>
+    </div></div>
+    <p class="word two" aria-hidden="true" data-text="Sounds"></p>
+    <div class="sleeve b" style="background-image:url(/images/vinyl66.jpg)" aria-hidden="true"></div>
 
-      <div class="auth-title">Create Account</div>
-      <div class="auth-subtitle">Join Spiral Sounds</div>
-
-      <form id="signup-form" autocomplete="off">
-        <div class="auth-field">
-          <label class="auth-label" for="signup-name">Full Name</label>
-          <input
-            class="auth-input"
-            type="text"
-            id="signup-name"
-            name="name"
-            required
-          >
+    <section class="card" aria-labelledby="h1">
+      <p class="kicker">Your account</p>
+      <h1 class="h1" id="h1"><i>Sign up.</i></h1>
+      <p class="notice" id="notice" hidden>Create an account to check out — your bag will be waiting.</p>
+      <form id="signup-form" novalidate>
+        <div class="field">
+          <label for="name">Full name</label>
+          <div class="box"><input id="name" name="name" type="text" autocomplete="name" required></div>
         </div>
-
-        <div class="auth-field">
-          <label class="auth-label" for="signup-email">Email</label>
-          <input
-            class="auth-input"
-            type="email"
-            id="signup-email"
-            name="email"
-            required
-          >
+        <div class="field">
+          <label for="email">Email address</label>
+          <div class="box"><input id="email" name="email" type="email" autocomplete="email" required></div>
         </div>
-
-        <div class="auth-field">
-          <label class="auth-label" for="signup-username">Username</label>
-          <input
-            class="auth-input"
-            type="text"
-            id="signup-username"
-            name="username"
-            required
-            pattern="^[a-zA-Z0-9_\-]{1,20}$"
-            title="1–20 characters: letters, numbers, underscores or hyphens."
-          >
+        <div class="field">
+          <label for="username">Username<small id="username-count" aria-live="polite">0 / 20</small></label>
+          <div class="box"><input id="username" name="username" type="text" autocomplete="username" required maxlength="20" autocapitalize="off" spellcheck="false"></div>
+          <p class="hint" id="username-hint">Letters, numbers, _ or -</p>
         </div>
-
-        <div class="auth-field">
-          <label class="auth-label" for="signup-password">Password</label>
-          <input
-            class="auth-input"
-            type="password"
-            id="signup-password"
-            name="password"
-            required
-          >
+        <div class="field">
+          <label for="password">Password</label>
+          <div class="box"><input id="password" name="password" type="password" autocomplete="new-password" required><button type="button" class="show" aria-controls="password" aria-pressed="false">Show</button></div>
         </div>
-
-        <p id="error-message" class="auth-error"></p>
-
-        <button type="submit" class="auth-btn">Create Account</button>
+        <p class="form-error" id="error-message" role="alert"></p>
+        <button class="submit" id="submit" type="submit">Create account <span aria-hidden="true">→</span></button>
       </form>
-
-      <div class="auth-divider"></div>
-
-      <div class="auth-link-row">
-        Already registered? <a class="auth-link" href="/login.html">Sign in here</a>
-      </div>
-
-    </div>
+      <p class="swap">Already have an account?<br><a id="swap" href="/login.html">Log in <span aria-hidden="true">↗</span></a></p>
+      <p class="fine">© 2026 Spiral Sounds</p>
+    </section>
   </main>
 
-  <footer>
-    <p>© Spiral Sounds</p>
-  </footer>
-
-  <script src="js/signup.js" type="module"></script>
-
+  <script src="/js/auth.js" type="module"></script>
 </body>
 </html>

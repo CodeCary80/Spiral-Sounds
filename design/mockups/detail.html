@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="mark.svg">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Record — Spiral Sounds</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oranienbaum&family=Public+Sans:wght@400;500;600;700;800&display=swap">
+<script src="products.js"></script>
+<script src="bag.js"></script>
+<script src="user.js"></script>
+<style>
+:root {
+  --ink: #1c1a17;
+  --cream: #f3f0ed;
+  --paper: #efebe4;
+  --taupe: #ddd6cb;
+  --muted: #6b655c;
+  --accent: #8b2e22;
+  --sans: 'Public Sans', sans-serif;
+  --drop-ease: cubic-bezier(.22, 1.18, .36, 1);
+}
+/* Cross-document view transition: the cover the visitor clicked in the genre
+   sheet carries the name "record-cover" and morphs into this page's cover. */
+@view-transition { navigation: auto; }
+::view-transition-group(record-cover) { animation-duration: .5s; animation-timing-function: cubic-bezier(.65, 0, .25, 1); }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .3s; }
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: 100; pointer-events: none; opacity: .08; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+a { color: inherit; }
+
+/* ---------- header ---------- */
+.hdr { margin: 0 3.2vw; height: max(64px, 5.4vw); display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; border-bottom: 1.5px solid var(--ink); }
+.caps { font: 600 max(10px, .8vw) var(--sans); letter-spacing: .32em; text-transform: uppercase; }
+.hdr .back { text-decoration: none; }
+.hdr .back:hover, .hdr .bag:hover { color: var(--accent); }
+.logo { font: 400 max(28px, 2.9vw)/1 'Oranienbaum', serif; text-transform: uppercase; color: var(--ink); text-decoration: none;
+  -webkit-text-stroke: .045em var(--ink); paint-order: stroke fill; transform: scaleY(1.3); white-space: nowrap; }
+.hdr .bag { justify-self: end; color: var(--ink); text-decoration: none; }
+
+/* ---------- hero: cover + purchase ---------- */
+.rec-hero { display: grid; grid-template-columns: 1.08fr 1fr; gap: 5vw; padding: 4vw 3.2vw 4.4vw; align-items: start; }
+.cover { aspect-ratio: 1; background: var(--ink) center / cover; border-radius: 2px;
+  box-shadow: 0 .2vw .3vw rgba(28,26,23,.2), 0 2.6vw 3.6vw -1.4vw rgba(28,26,23,.5);
+  view-transition-name: record-cover; }
+.info { padding-top: 2.2vw; }
+.artist { margin: 0 0 1.2vw; }
+.title { margin: 0; font: 400 6.4vw/1.02 'Oranienbaum', serif; color: var(--accent);
+  -webkit-text-stroke: .035em var(--accent); paint-order: stroke fill; }
+.title .ln { display: block; overflow: hidden; padding: .22em .03em .08em; margin: -.22em -.03em -.08em; }
+.title .ln span { display: block; transform: translateY(110%); animation: rise .8s var(--drop-ease) .18s forwards; }
+@keyframes rise { to { transform: none; } }
+/* genre as a rubber stamp beside the title; links back to that genre's sheet */
+.head { position: relative; padding: 0 9.5vw 1.8vw 0; border-bottom: 1px solid var(--ink); }
+.stamp { position: absolute; right: 0; top: 50%; width: 8.2vw; min-width: 88px; aspect-ratio: 1; color: var(--accent);
+  transform: translateY(-58%) rotate(-12deg); transition: transform .25s cubic-bezier(.2,.8,.2,1); }
+.stamp svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.stamp text { font-weight: 400; stroke: currentColor; stroke-width: 3; paint-order: stroke fill; }
+.stamp:hover { transform: translateY(-58%) rotate(-6deg) scale(1.05); }
+.desc { margin: 1.8vw 0 0; font: 400 max(15px, 1.3vw)/1.55 var(--sans); max-width: 30vw; }
+.price { margin: 2.2vw 0 1.4vw; font: 400 max(34px, 3.8vw)/1 'Oranienbaum', serif; color: var(--ink); -webkit-text-stroke: .03em var(--ink); paint-order: stroke fill; }
+.add { width: 100%; display: flex; justify-content: center; align-items: center; gap: .8vw; background: var(--ink); color: var(--cream); border: 0; cursor: pointer;
+  font: 600 max(15px, 1.35vw) var(--sans); letter-spacing: .02em; padding: 1.35vw; transition: background .2s ease; }
+.add:hover, .add.done { background: var(--accent); }
+/* Stock line: ink when there's plenty, red when 3 or fewer, muted when sold out. */
+.stock { margin: 0 0 1.3vw; font: 600 max(14px, 1.12vw)/1.3 var(--sans); color: var(--ink); }
+.stock.low { color: var(--accent); }
+.stock.out { color: var(--muted); }
+.add:disabled { background: var(--taupe); color: var(--muted); cursor: not-allowed; }
+.buybar .left { display: block; margin-top: .35vw; font: 600 max(10px, .72vw) var(--sans); letter-spacing: .18em; text-transform: uppercase; color: var(--muted); text-align: right; }
+.buybar .left.low { color: var(--accent); }
+.jump { display: inline-flex; gap: .6vw; margin-top: 2vw; padding-bottom: .35vw; border-bottom: 1.5px solid var(--ink); text-decoration: none; font: 400 max(14px, 1.2vw) var(--sans); }
+.jump:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ---------- the record + tracklist ---------- */
+.notes { margin: 0 3.2vw; display: grid; grid-template-columns: 1fr 2fr; border-top: 1.5px solid var(--ink); }
+.notes > div { padding: 2.6vw 0 3.4vw; }
+.notes > div + div { padding-left: 3vw; border-left: 1px solid var(--ink); }
+.notes > .facts { padding-right: 3vw; }
+.h2 { margin: .9vw 0 1.8vw; font: 400 max(30px, 3.2vw)/1 'Oranienbaum', serif; color: var(--ink); -webkit-text-stroke: .025em var(--ink); paint-order: stroke fill; }
+.facts dl { margin: 0; }
+.facts div { display: flex; justify-content: space-between; gap: 1vw; padding: .85vw 0; border-bottom: 1px solid var(--taupe); font: 400 max(14px, 1.1vw) var(--sans); }
+.facts dt { color: var(--muted); }
+.facts dd { margin: 0; text-align: right; text-transform: capitalize; }
+.tracks { columns: 2; column-gap: 3vw; margin: 0; padding: 0; list-style: none; counter-reset: t; }
+.tracks li { break-inside: avoid; display: grid; grid-template-columns: 2.4vw 1fr auto; gap: .8vw; padding: .8vw 0; border-bottom: 1px solid var(--taupe);
+  font: 400 max(14px, 1.08vw)/1.35 var(--sans); }
+.tracks .n { color: var(--muted); font-variant-numeric: tabular-nums; }
+.tracks .d { color: var(--muted); font-variant-numeric: tabular-nums; }
+.total { margin: 1.2vw 0 0; }
+
+/* ---------- keep listening ---------- */
+.more { margin: 0 3.2vw; padding: 2.6vw 0 4vw; border-top: 1.5px solid var(--ink); }
+.more-head { display: flex; justify-content: space-between; align-items: baseline; gap: 2vw; }
+.more-head .jump { margin-top: 0; flex: none; }
+.more-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.4vw; }
+.card { text-decoration: none; color: var(--ink); }
+.card .c { aspect-ratio: 1; background: var(--ink) center / cover; border-radius: 2px; margin-bottom: 1vw;
+  box-shadow: 0 .15vw .2vw rgba(28,26,23,.2), 0 1.6vw 2.4vw -1vw rgba(28,26,23,.45); }
+.card b { display: block; font: 700 max(13px, 1.02vw)/1.3 var(--sans); }
+.card span { display: block; margin-top: .3vw; font: 400 max(13px, .98vw) var(--sans); color: var(--muted); }
+.card em { display: block; margin-top: .6vw; font: 600 max(10px, .78vw) var(--sans); font-style: normal; letter-spacing: .2em; color: var(--ink); }
+
+.end-bar { display: flex; justify-content: space-between; align-items: center; background: #141311; color: var(--cream); padding: 1.2vw 3.2vw; }
+.end-bar a { text-decoration: none; font: 500 max(12px, 1vw) var(--sans); }
+
+/* ---------- sticky purchase bar ---------- */
+/* Slides up once the main "Add to bag" scrolls out of view, so the tracklist
+   and "Keep listening" never leave the visitor without a way to buy. */
+.buybar {
+  position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; background: var(--paper);
+  border-top: 1.5px solid var(--ink); box-shadow: 0 -1.2vw 2.4vw -1.4vw rgba(28,26,23,.35);
+  transform: translateY(110%); transition: transform .35s cubic-bezier(.2,.8,.2,1);
+}
+.buybar.on { transform: none; }
+.buybar-in { margin: 0 3.2vw; display: flex; align-items: center; gap: 1.4vw; padding: .9vw 0; }
+.buybar .t { width: max(44px, 3.4vw); aspect-ratio: 1; background: center / cover; border-radius: 2px; box-shadow: 0 .5vw 1vw -.4vw rgba(28,26,23,.45); flex: none; }
+.buybar .who { min-width: 0; flex: 1; }
+.buybar .who b { display: block; font: 700 max(14px, 1.1vw)/1.25 var(--sans); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.buybar .who span { display: block; font: 400 max(13px, .95vw) var(--sans); color: var(--muted); }
+.buybar .p { font: 400 max(24px, 2.1vw)/1 'Oranienbaum', serif; -webkit-text-stroke: .03em var(--ink); paint-order: stroke fill; flex: none; }
+.buybar .add { width: auto; flex: none; padding: 1vw 2.4vw; font-size: max(14px, 1.1vw); }
+
+.missing { padding: 8vw 3.2vw; text-align: center; }
+
+@media (prefers-reduced-motion: reduce) {
+  .title .ln span { transform: none; animation: none; }
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
+}
+.hdr .right { justify-self: end; display: flex; align-items: center; gap: max(18px, 1.5vw); }
+.hdr .right a { color: inherit; text-decoration: none; }
+.brand { display: inline-flex; align-items: center; gap: max(8px, .7vw); color: inherit; text-decoration: none; }
+.brand-mark { width: max(28px, 2.5vw); height: max(28px, 2.5vw); flex: none; color: var(--accent); }
+.hdr .brand { justify-self: center; }
+.brand .logo { display: inline-block; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <mask id="ss-mask"><circle cx="50" cy="50" r="48" fill="#fff"/><path d="M78 4 C 30 0, 14 36, 44 50 C 66 60, 62 86, 22 96 C 72 94, 84 58, 56 46 C 34 37, 36 12, 78 4 Z" fill="#000"/></mask>
+  <symbol id="ss-mark" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="currentColor" mask="url(#ss-mask)"/></symbol>
+</defs></svg>
+
+
+<!-- ===== Record detail ===== -->
+<header class="hdr">
+  <a class="back caps" id="back" href="page.html">← Back</a>
+  <a class="brand" href="page.html"><svg class="brand-mark" aria-hidden="true"><use href="#ss-mark"/></svg><span class="logo">Spiral Sounds</span></a>
+  <div class="right caps"><span data-account></span><a class="bag" id="bag" href="cart.html"></a></div>
+</header>
+<main id="main"></main>
+
+<!-- ===== Sticky purchase bar (appears when the main button is off screen) ===== -->
+<div class="buybar" id="buybar" aria-hidden="true"></div>
+<footer class="end-bar"><span class="caps">© 2026 Spiral Sounds</span><a href="#">Back to top ↑</a></footer>
+
+<script>
+const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const cap = s => s[0].toUpperCase() + s.slice(1);
+const secs = d => { const [m, s] = String(d).split(':').map(Number); return (m || 0) * 60 + (s || 0); };
+const fmt = t => { const h = Math.floor(t / 3600), m = Math.floor(t % 3600 / 60), s = t % 60;
+  return h ? `${h}h ${m}m` : `${m}:${String(s).padStart(2, '0')}`; };
+
+const id = +new URLSearchParams(location.search).get('id');
+const rec = window.PRODUCTS.find(p => p.id === id);
+const main = document.getElementById('main');
+
+if (!rec) {
+  main.innerHTML = `<div class="missing"><p class="caps">Record not found.</p><p><a class="jump" href="page.html">Back to the store</a></p></div>`;
+} else {
+  document.title = `${rec.title} — Spiral Sounds`;
+  const back = document.getElementById('back');
+  back.textContent = `← Back to ${rec.genre}`;
+  back.href = `page.html?genre=${rec.genre}&id=${rec.id}`;
+
+  const tracks = rec.tracklist || [];
+  const runtime = tracks.reduce((a, t) => a + secs(t.duration), 0);
+  const qs = new URLSearchParams(location.search);
+  const stock = qs.has('stock') ? +qs.get('stock') : rec.stock;   // ?stock=2 previews the low state
+  const low = stock > 0 && stock <= 3, out = stock <= 0;
+  const stockText = out ? 'Sold out' : low ? `Only ${stock} left on the shelf` : `${stock} copies on the shelf`;
+  const more = window.PRODUCTS.filter(p => p.genre === rec.genre && p.id !== rec.id).slice(0, 4);
+
+  main.innerHTML = `
+    <section class="rec-hero">
+      <div class="cover" id="cover" role="img" aria-label="${esc(rec.title)} cover" style="background-image:url(../../public/images/${rec.image})"></div>
+      <div class="info">
+        <div class="head">
+          <p class="artist caps">${esc(rec.artist)}</p>
+          <h1 class="title" id="title"><span class="ln"><span>${esc(rec.title)}</span></span></h1>
+          <a class="stamp" href="page.html?genre=${rec.genre}" aria-label="More ${rec.genre} records">
+            <svg viewBox="0 0 200 200" aria-hidden="true">
+              <defs>
+                <filter id="wear"><feTurbulence type="fractalNoise" baseFrequency=".9" numOctaves="2" seed="4"/>
+                  <feColorMatrix values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 -1.6 1.9"/>
+                  <feComposite in="SourceGraphic" operator="in"/></filter>
+              </defs>
+              <g filter="url(#wear)" fill="none" stroke="currentColor">
+                <circle cx="100" cy="100" r="92" stroke-width="8"/>
+                <circle cx="100" cy="100" r="79" stroke-width="3"/>
+                <text x="100" y="100" dy=".35em" text-anchor="middle" fill="currentColor" stroke="none"
+                  font-family="Oranienbaum, serif" font-size="${Math.min(64, 250 / rec.genre.length)}" letter-spacing="1" textLength="${Math.min(118, rec.genre.length * 29)}" lengthAdjust="spacingAndGlyphs"
+                  transform="translate(100 100) scale(1 1.35) translate(-100 -100)">${rec.genre.toUpperCase()}</text>
+              </g>
+            </svg>
+          </a>
+        </div>
+        <p class="price">$${Number(rec.price).toFixed(2)}</p>
+        <p class="stock${low ? ' low' : ''}${out ? ' out' : ''}" role="status">${stockText}</p>
+        <button class="add" id="add"${out ? ' disabled' : ''}>${out ? 'Sold out' : 'Add to bag <span>+</span>'}</button>
+        ${tracks.length ? `<a class="jump" href="#tracklist">View tracklist <span>↓</span></a>` : ''}
+      </div>
+    </section>
+
+    <section class="notes" id="tracklist">
+      <div class="facts">
+        <p class="caps">The record</p>
+        <h2 class="h2">At a glance</h2>
+        <dl>
+          <div><dt>Artist</dt><dd>${esc(rec.artist)}</dd></div>
+          <div><dt>Released</dt><dd>${rec.year}</dd></div>
+          <div><dt>Genre</dt><dd>${rec.genre}</dd></div>
+          <div><dt>Tracks</dt><dd>${tracks.length || '—'}</dd></div>
+          <div><dt>Runtime</dt><dd>${runtime ? fmt(runtime) : '—'}</dd></div>
+          <div><dt>Format</dt><dd>12" vinyl LP</dd></div>
+        </dl>
+      </div>
+      <div>
+        <p class="caps" aria-hidden="true">&nbsp;</p>
+        <h2 class="h2">Tracklist</h2>
+        ${tracks.length ? `<ol class="tracks">${tracks.map((t, i) => `
+          <li><span class="n">${String(i + 1).padStart(2, '0')}</span><span>${esc(t.title)}</span><span class="d">${t.duration || ''}</span></li>`).join('')}</ol>`
+          : `<p class="desc">Tracklist coming soon.</p>`}
+      </div>
+    </section>
+
+    ${more.length ? `<section class="more">
+      <p class="caps">More ${rec.genre}</p>
+      <div class="more-head">
+        <h2 class="h2">Keep listening</h2>
+        <a class="jump" href="page.html?genre=${rec.genre}">All ${rec.genre} records <span>↗</span></a>
+      </div>
+      <div class="more-grid">${more.map(p => `
+        <a class="card" href="detail.html?id=${p.id}" data-id="${p.id}">
+          <div class="c" style="background-image:url(../../public/images/${p.image})"></div>
+          <b>${esc(p.title)}</b><span>${esc(p.artist)}</span><em>${p.year} · $${Number(p.price).toFixed(2)}</em>
+        </a>`).join('')}</div>
+    </section>` : ''}
+  `;
+
+  // Long titles ("I Never Loved a Man the Way I Love You") step down until they sit in two lines.
+  const title = document.getElementById('title');
+  const fitTitle = () => {
+    title.style.fontSize = '';
+    let fs = parseFloat(getComputedStyle(title).fontSize);
+    const lh = () => parseFloat(getComputedStyle(title).lineHeight) || fs * 1.02;
+    while (title.querySelector('.ln > span').offsetHeight > lh() * 2.2 && fs > 28) {
+      fs *= .92; title.style.fontSize = fs + 'px';
+    }
+  };
+  fitTitle();
+  document.fonts.ready.then(fitTitle);
+
+  // sticky purchase bar
+  const bar = document.getElementById('buybar');
+  bar.innerHTML = `<div class="buybar-in">
+      <div class="t" style="background-image:url(../../public/images/${rec.image})"></div>
+      <div class="who"><b>${esc(rec.title)}</b><span>${esc(rec.artist)}</span></div>
+      <div class="p">$${Number(rec.price).toFixed(2)}<span class="left${low ? ' low' : ''}">${out ? 'Sold out' : low ? `Only ${stock} left` : `${stock} left`}</span></div>
+      <button class="add" id="add2"${out ? ' disabled' : ''}>${out ? 'Sold out' : 'Add to bag <span>+</span>'}</button>
+    </div>`;
+  const mainBtn = document.getElementById('add');
+  // show whenever the main button has scrolled up out of view — all the way to the bottom
+  new IntersectionObserver(([e]) => {
+    const show = !e.isIntersecting && e.boundingClientRect.top < 0;
+    bar.classList.toggle('on', show);
+    bar.setAttribute('aria-hidden', !show);
+  }).observe(mainBtn);
+  // reserve the bar's height at the end of the page so it never covers the footer
+  const reserve = () => document.body.style.paddingBottom = bar.offsetHeight + 'px';
+  reserve(); addEventListener('resize', reserve);
+
+  // bag (mockup store shared with the other pages) — both buttons stay in sync
+  const btns = [mainBtn, document.getElementById('add2')];
+  const syncBag = () => {
+    document.getElementById('bag').innerHTML = Bag.icon(Bag.count());
+    if (Bag.has(rec.id)) btns.forEach(b => { b.innerHTML = 'In bag ✓'; b.classList.add('done'); });
+  };
+  btns.forEach(btn => btn.addEventListener('click', () => Bag.add(rec.id)));
+  Bag.onChange(syncBag); syncBag();
+
+  // Keep listening → another record: hand the transition name to the clicked card's cover
+  main.addEventListener('click', e => {
+    const card = e.target.closest('.card'); if (!card) return;
+    document.getElementById('cover').style.viewTransitionName = 'none';
+    card.querySelector('.c').style.viewTransitionName = 'record-cover';
+  });
+}
+</script>
+</body>
+</html>

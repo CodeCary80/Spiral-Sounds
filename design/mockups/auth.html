@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="mark.svg">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Log in — Spiral Sounds</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oranienbaum&family=Public+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root {
+  --ink: #1c1a17;
+  --cream: #f3f0ed;
+  --card: #efe8dc;
+  --taupe: #d3c9ba;
+  --muted: #6b655c;
+  --accent: #8b2e22;
+  --red: #7f2419;
+  --sans: 'Public Sans', sans-serif;
+  --drop-ease: cubic-bezier(.22, 1.18, .36, 1);
+}
+/* log in <-> sign up: the card morphs, the poster stays put */
+@view-transition { navigation: auto; }
+::view-transition-group(auth-card) { animation-duration: .45s; animation-timing-function: cubic-bezier(.65,0,.25,1); }
+
+* { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--red); color: var(--ink); font-family: var(--sans); overflow-x: hidden; }
+
+/* ===== Poster (the whole page is the red "Take something home" finale, pushed louder) ===== */
+.poster { position: relative; min-height: 100svh; overflow: hidden; }
+.poster::after {
+  content: ''; position: absolute; inset: 0; z-index: 6; pointer-events: none; opacity: .28; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.top { position: absolute; z-index: 5; left: 2.6vw; right: 2.6vw; top: 1.8vw; display: flex; justify-content: space-between; align-items: center; color: var(--cream); }
+.top .mark { font: 400 max(18px, 1.5vw)/1 'Oranienbaum', serif; text-transform: uppercase; letter-spacing: .04em; text-decoration: none; color: inherit;
+  -webkit-text-stroke: .03em var(--cream); paint-order: stroke fill; }
+.top a.back { font: 500 max(13px, 1.05vw) var(--sans); color: inherit; text-decoration: none; }
+.top a.back:hover { text-decoration: underline; text-underline-offset: .25em; }
+
+/* the two giant words; the record sits between them */
+.word { position: absolute; z-index: 1; left: 1.4vw; margin: 0; color: #eadfcc; text-transform: uppercase; white-space: nowrap;
+  font: 400 23vw/.8 'Oranienbaum', serif; letter-spacing: -.01em;
+  -webkit-text-stroke: .045em #eadfcc; paint-order: stroke fill; transform-origin: left top; }
+.word.one { top: 2.2vw; transform: scaleY(1.28); }
+.word.two { bottom: -3.4vw; transform: scaleY(1.28); transform-origin: left bottom; z-index: 3; }
+.word .ch { display: inline-block; overflow: hidden; padding: .1em .01em 0; vertical-align: top; }
+.word .ch span { display: inline-block; transform: translateY(105%); animation: rise .9s var(--drop-ease) forwards; animation-delay: calc(var(--i) * 55ms); }
+.word.two .ch span { transform: translateY(-105%); animation-delay: calc(.2s + var(--i) * 55ms); }
+@keyframes rise { to { transform: none; } }
+
+.sleeve { position: absolute; z-index: 1; background: center / cover; box-shadow: 0 1.6vw 3vw rgba(0,0,0,.45); filter: sepia(.55) contrast(1.05) brightness(.92); }
+.sleeve::after { content: ''; position: absolute; inset: 0; box-shadow: inset 0 0 2.4vw rgba(60,35,15,.55); mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.55' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E"); }
+.sleeve.a { width: 25vw; aspect-ratio: 1; left: 33vw; top: 16.5vw; transform: rotate(4deg); }
+.sleeve.b { width: 20vw; aspect-ratio: 1; right: -9vw; top: 31vw; transform: rotate(-9deg); z-index: 2; }
+
+.record { position: absolute; z-index: 2; width: 58vw; aspect-ratio: 1; left: -8vw; top: 15vw; opacity: 0; transform: translateX(-6vw) rotate(-40deg);
+  animation: roll 1.3s cubic-bezier(.2,.8,.2,1) .15s forwards; }
+@keyframes roll { to { opacity: 1; transform: none; } }
+.record .spin { position: absolute; inset: 0; animation: spin 14s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.record .grooves { position: absolute; inset: 0; border-radius: 50%;
+  background:
+    conic-gradient(from 30deg, transparent 0 25deg, rgba(255,235,210,.14) 48deg, transparent 80deg 200deg, rgba(255,235,210,.1) 228deg, transparent 262deg),
+    repeating-radial-gradient(circle, #0b0a09 0 1.6px, #16130f 1.6px, #1d1914 3.2px);
+  box-shadow: 1.6vw 2vw 4.4vw rgba(0,0,0,.55); }
+.record svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* ===== The card ===== */
+.card {
+  position: absolute; z-index: 4; right: 6.4vw; top: 50%; transform: translateY(-48%);
+  width: min(460px, 37vw); max-height: calc(100svh - 7vw); overflow-y: auto;
+  background: var(--card); padding: 3.4vw 3.2vw 2.2vw; box-shadow: 0 2.2vw 4vw rgba(0,0,0,.4), 0 0 0 1px rgba(0,0,0,.05);
+  view-transition-name: auth-card; opacity: 0; animation: cardIn .7s cubic-bezier(.2,.8,.2,1) .35s forwards;
+}
+@keyframes cardIn { from { opacity: 0; transform: translateY(-44%); } to { opacity: 1; transform: translateY(-48%); } }
+.card::before { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .35; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.4'/%3E%3C/svg%3E"); }
+.card > * { position: relative; }
+.kicker { margin: 0; font: 600 max(10px, .78vw) var(--sans); letter-spacing: .28em; text-transform: uppercase; }
+.h1 { margin: .8vw 0 0; font: 400 max(56px, 5.6vw)/1 'Oranienbaum', serif; color: var(--ink); -webkit-text-stroke: .05em var(--ink); paint-order: stroke fill; }
+.h1 i { font-style: normal; display: inline-block; transform: scaleY(1.12); transform-origin: left bottom; }
+.notice { margin: 1.2vw 0 0; padding: .8vw 1vw; border-left: 3px solid var(--accent); background: rgba(139,46,34,.07); font: 500 max(13px, .95vw)/1.45 var(--sans); }
+
+form { margin-top: 2vw; }
+.field { margin-bottom: 1.4vw; }
+.field label { display: flex; justify-content: space-between; margin-bottom: .5vw; font: 600 max(13px, 1vw) var(--sans); }
+.field label small { font: 500 max(11px, .8vw) var(--sans); color: var(--muted); font-variant-numeric: tabular-nums; }
+.box { position: relative; }
+.box input { width: 100%; background: #f7f2ea; border: 1.5px solid var(--ink); border-radius: 0; padding: .95vw 1vw; min-height: 46px;
+  font: 400 max(15px, 1.1vw) var(--sans); color: var(--ink); outline: none; transition: box-shadow .2s ease, border-color .2s ease; }
+.box input:focus { box-shadow: 0 0 0 3px rgba(28,26,23,.15); }
+.box input.bad { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(139,46,34,.14); }
+.box .show { position: absolute; right: .9vw; top: 50%; transform: translateY(-50%); background: none; border: 0; cursor: pointer;
+  font: 500 max(13px, .95vw) var(--sans); color: var(--ink); }
+.box .show:hover { color: var(--accent); }
+.hint { margin: .45vw 0 0; min-height: 1.2em; font: 500 max(12px, .82vw)/1.35 var(--sans); color: var(--muted); }
+.hint.bad { color: var(--accent); }
+.form-error { margin: 0 0 1vw; min-height: 1.3em; font: 600 max(13px, .95vw) var(--sans); color: var(--accent); }
+.submit { width: 100%; display: flex; justify-content: center; align-items: center; gap: .7vw; background: var(--accent); color: var(--cream); border: 0; cursor: pointer;
+  font: 600 max(16px, 1.3vw) var(--sans); padding: 1.1vw; min-height: 50px; transition: background .2s ease; }
+.submit:hover { background: var(--ink); }
+.submit:disabled { background: var(--muted); cursor: progress; }
+.swap { margin: 2vw 0 0; font: 400 max(14px, 1vw)/1.6 var(--sans); }
+.swap a { display: inline-flex; gap: .4vw; font-weight: 600; color: var(--ink); text-decoration: none; border-bottom: 1.5px solid var(--ink); }
+.swap a:hover { color: var(--accent); border-color: var(--accent); }
+.fine { margin: 2.2vw 0 0; font: 500 max(10px, .72vw) var(--sans); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+
+/* sign-up has twice the fields: tighten the rhythm so the card fits one screen */
+.card.signup { padding-top: 2.4vw; padding-bottom: 1.6vw; }
+.card.signup .h1 { font-size: max(46px, 4.4vw); }
+.card.signup form { margin-top: 1.2vw; }
+.card.signup .field { margin-bottom: .75vw; }
+.card.signup .box input { min-height: 42px; padding-top: .7vw; padding-bottom: .7vw; }
+.card.signup .notice { margin-top: .8vw; padding: .6vw .9vw; }
+.card.signup .swap { margin-top: 1.2vw; }
+.card.signup .fine { margin-top: 1.2vw; }
+.card.signup .hint { min-height: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .word .ch span, .record, .card { animation: none !important; transform: none; opacity: 1; }
+  .word.one, .word.two { transform: scaleY(1.28); }
+  .card { transform: translateY(-48%); }
+  .record .spin { animation: none; }
+}
+.brand { display: inline-flex; align-items: center; gap: max(8px, .7vw); color: inherit; text-decoration: none; }
+.brand-mark { width: max(26px, 2.3vw); height: max(26px, 2.3vw); flex: none; color: var(--accent); }
+.top .brand-mark { color: var(--cream); width: max(22px, 1.8vw); height: max(22px, 1.8vw); }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <mask id="ss-mask"><circle cx="50" cy="50" r="48" fill="#fff"/><path d="M78 4 C 30 0, 14 36, 44 50 C 66 60, 62 86, 22 96 C 72 94, 84 58, 56 46 C 34 37, 36 12, 78 4 Z" fill="#000"/></mask>
+  <symbol id="ss-mark" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="currentColor" mask="url(#ss-mask)"/></symbol>
+</defs></svg>
+
+
+<!-- ===== Log in / Sign up (one template; ?mode=signup) ===== -->
+<main class="poster">
+  <div class="top">
+    <a class="brand mark" href="page.html"><svg class="brand-mark" aria-hidden="true"><use href="#ss-mark"/></svg><span>Spiral Sounds</span></a>
+    <a class="back" href="page.html">Back to store ↗</a>
+  </div>
+
+  <h2 class="word one" aria-hidden="true" data-text="Spiral"></h2>
+  <div class="sleeve a" style="background-image:url(../../public/images/vinyl46.jpg)" aria-hidden="true"></div>
+  <div class="record" aria-hidden="true"><div class="spin">
+    <div class="grooves"></div>
+    <svg viewBox="0 0 600 600">
+      <defs><path id="lp" d="M300 300 m-78 0 a78 78 0 1 1 156 0 a78 78 0 1 1 -156 0"/></defs>
+      <circle cx="300" cy="300" r="112" fill="#eadfcc"/>
+      <use href="#ss-mark" x="183" y="183" width="234" height="234" style="color:#8b2e22"/>
+      <circle cx="300" cy="300" r="9" fill="#0b0a09"/>
+    </svg>
+  </div></div>
+  <h2 class="word two" aria-hidden="true" data-text="Sounds"></h2>
+  <div class="sleeve b" style="background-image:url(../../public/images/vinyl66.jpg)" aria-hidden="true"></div>
+
+  <section class="card" aria-labelledby="h1">
+    <p class="kicker">Your account</p>
+    <h1 class="h1" id="h1"><i>Log in.</i></h1>
+    <p class="notice" id="notice" hidden>Log in to check out — your bag will be waiting.</p>
+    <form id="form" novalidate></form>
+    <p class="swap" id="swap"></p>
+    <p class="fine">© 2026 Spiral Sounds</p>
+  </section>
+</main>
+
+<script>
+const q = new URLSearchParams(location.search);
+const mode = q.get('mode') === 'signup' ? 'signup' : 'login';
+const next = q.get('next');
+const keep = s => (next ? `&next=${encodeURIComponent(next)}` : '') + s;
+
+// giant words, letter by letter
+document.querySelectorAll('.word').forEach(w => {
+  w.innerHTML = [...w.dataset.text].map((c, i) => `<span class="ch"><span style="--i:${i}">${c}</span></span>`).join('');
+});
+
+// rules mirror the backend (authController): username 1–20 of letters/numbers/_/-; email format
+const USER = /^[a-zA-Z0-9_-]{1,20}$/;
+const FIELDS = {
+  name:     { label: 'Full name', type: 'text', auto: 'name' },
+  email:    { label: 'Email address', type: 'email', auto: 'email' },
+  username: { label: 'Username', type: 'text', auto: 'username', count: true, hint: 'Letters, numbers, _ or -' },
+  password: { label: 'Password', type: 'password', auto: mode === 'signup' ? 'new-password' : 'current-password', show: true },
+};
+const list = mode === 'signup' ? ['name', 'email', 'username', 'password'] : ['username', 'password'];
+
+document.title = (mode === 'signup' ? 'Sign up' : 'Log in') + ' — Spiral Sounds';
+document.querySelector('.card').classList.toggle('signup', mode === 'signup');
+document.querySelector('#h1 i').textContent = mode === 'signup' ? 'Sign up.' : 'Log in.';
+if (next === 'cart') {
+  const n = document.getElementById('notice');
+  n.hidden = false;
+  if (mode === 'signup') n.textContent = 'Create an account to check out — your bag will be waiting.';
+}
+
+const form = document.getElementById('form');
+form.innerHTML = list.map(k => {
+  const f = FIELDS[k];
+  return `<div class="field">
+    <label for="${k}">${f.label}${f.count && mode === 'signup' ? `<small id="${k}-count">0 / 20</small>` : ''}</label>
+    <div class="box"><input id="${k}" name="${k}" type="${f.type}" autocomplete="${f.auto}" required
+      ${k === 'username' ? 'maxlength="20" autocapitalize="off" spellcheck="false"' : ''}>
+      ${f.show ? '<button type="button" class="show" aria-controls="password">Show</button>' : ''}</div>
+    ${mode === 'signup' && f.hint ? `<p class="hint" id="${k}-hint">${f.hint}</p>` : ''}
+  </div>`;
+}).join('') + `<p class="form-error" id="form-error" role="alert"></p>
+  <button class="submit" id="submit" type="submit">${mode === 'signup' ? 'Create account' : 'Log in'} <span>→</span></button>`;
+
+document.getElementById('swap').innerHTML = mode === 'signup'
+  ? `Already have an account?<br><a href="auth.html?mode=login${keep('')}">Log in <span>↗</span></a>`
+  : `New here?<br><a href="auth.html?mode=signup${keep('')}">Create an account <span>↗</span></a>`;
+
+// show / hide password
+form.addEventListener('click', e => {
+  const b = e.target.closest('.show'); if (!b) return;
+  const pw = document.getElementById('password');
+  pw.type = pw.type === 'password' ? 'text' : 'password';
+  b.textContent = pw.type === 'password' ? 'Show' : 'Hide';
+});
+
+// live checks (signup only — login just needs both fields filled)
+const setBad = (id, on, msg) => {
+  document.getElementById(id).classList.toggle('bad', on);
+  const h = document.getElementById(id + '-hint');
+  if (h) { h.classList.toggle('bad', on); if (msg) h.textContent = msg; }
+};
+form.addEventListener('input', e => {
+  document.getElementById('form-error').textContent = '';
+  e.target.classList.remove('bad');
+  if (mode === 'signup' && e.target.id === 'username') {
+    const v = e.target.value;
+    document.getElementById('username-count').textContent = `${v.length} / 20`;
+    const bad = v && !USER.test(v);
+    setBad('username', bad, bad ? 'Only letters, numbers, _ or - (no spaces)' : 'Letters, numbers, _ or -');
+  }
+});
+form.addEventListener('focusout', e => {
+  if (mode === 'signup' && e.target.id === 'email' && e.target.value) setBad('email', !e.target.checkValidity());
+});
+
+// submit (mockup: "taken" / "wrong" preview the server errors; anything else succeeds)
+form.addEventListener('submit', e => {
+  e.preventDefault();
+  const err = document.getElementById('form-error');
+  const empty = list.filter(k => !document.getElementById(k).value.trim());
+  empty.forEach(k => document.getElementById(k).classList.add('bad'));
+  if (empty.length) { err.textContent = 'All fields are required.'; document.getElementById(empty[0]).focus(); return; }
+  if (mode === 'signup') {
+    if (!document.getElementById('email').checkValidity()) { setBad('email', true); err.textContent = 'Invalid email format.'; return; }
+    if (!USER.test(document.getElementById('username').value)) { err.textContent = 'Username must be 1–20 characters, using letters, numbers, _ or -.'; return; }
+  }
+  const btn = document.getElementById('submit');
+  btn.disabled = true; btn.firstChild.textContent = mode === 'signup' ? 'Creating account… ' : 'Logging in… ';
+  setTimeout(() => {
+    const u = document.getElementById('username').value;
+    if (mode === 'login' && u === 'wrong') { err.textContent = 'Invalid credentials.'; }
+    else if (mode === 'signup' && u === 'taken') { setBad('username', true); err.textContent = 'Email or username already in use.'; }
+    else {
+      const name = mode === 'signup' ? document.getElementById('name').value.trim() : u;
+      try { localStorage.setItem('ss-mock-user', JSON.stringify({ name })); } catch {}
+      location.href = next === 'cart' ? 'cart.html' : 'page.html'; return;
+    }
+    btn.disabled = false; btn.firstChild.textContent = mode === 'signup' ? 'Create account ' : 'Log in ';
+  }, 700);
+});
+</script>
+</body>
+</html>

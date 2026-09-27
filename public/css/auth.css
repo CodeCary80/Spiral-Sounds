@@ -1,0 +1,110 @@
+/* =====================================================================
+   Log in / sign up (redesign): the whole page is a red poster — giant
+   SPIRAL / SOUNDS with a spinning record between them — and the form sits
+   on a paper card. Both pages share this file; body.signup tightens the card.
+   Reference: design/mockups/auth.html.
+   ===================================================================== */
+
+:root { --card: #efe8dc; --red: #7f2419; }
+body { background: var(--red); overflow-x: hidden; }
+body::before { display: none; }   /* the poster carries its own, heavier grain */
+/* log in <-> sign up: the card morphs, the poster stays put */
+::view-transition-group(auth-card) { animation-duration: .45s; animation-timing-function: cubic-bezier(.65,0,.25,1); }
+
+/* ===== Poster (the whole page is the red "Take something home" finale, pushed louder) ===== */
+.poster { position: relative; min-height: 100svh; overflow: hidden; }
+.poster::after {
+  content: ''; position: absolute; inset: 0; z-index: 6; pointer-events: none; opacity: .28; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.top { position: absolute; z-index: 5; left: 2.6vw; right: 2.6vw; top: 1.8vw; display: flex; justify-content: space-between; align-items: center; color: var(--cream); }
+.top .mark { font: 400 max(18px, 1.5vw)/1 var(--display); text-transform: uppercase; letter-spacing: .04em; text-decoration: none; color: inherit;
+  -webkit-text-stroke: .03em var(--cream); paint-order: stroke fill; }
+.top a.back { font: 500 max(13px, 1.05vw) var(--sans); color: inherit; text-decoration: none; }
+.top a.back:hover { text-decoration: underline; text-underline-offset: .25em; }
+.top .brand-mark { color: var(--cream); width: max(22px, 1.8vw); height: max(22px, 1.8vw); }
+
+/* the two giant words; the record sits between them */
+.word { position: absolute; z-index: 1; left: 1.4vw; margin: 0; color: #eadfcc; text-transform: uppercase; white-space: nowrap;
+  font: 400 23vw/.8 var(--display); letter-spacing: -.01em;
+  -webkit-text-stroke: .045em #eadfcc; paint-order: stroke fill; transform-origin: left top; }
+.word.one { top: 2.2vw; transform: scaleY(1.28); }
+.word.two { bottom: -3.4vw; transform: scaleY(1.28); transform-origin: left bottom; z-index: 3; }
+.word .ch { display: inline-block; overflow: hidden; padding: .1em .01em 0; vertical-align: top; }
+.word .ch span { display: inline-block; transform: translateY(105%); animation: rise .9s var(--drop-ease) forwards; animation-delay: calc(var(--i) * 55ms); }
+.word.two .ch span { transform: translateY(-105%); animation-delay: calc(.2s + var(--i) * 55ms); }
+
+.sleeve { position: absolute; z-index: 1; background: center / cover; box-shadow: 0 1.6vw 3vw rgba(0,0,0,.45); filter: sepia(.55) contrast(1.05) brightness(.92); }
+.sleeve::after { content: ''; position: absolute; inset: 0; box-shadow: inset 0 0 2.4vw rgba(60,35,15,.55); mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.55' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E"); }
+.sleeve.a { width: 25vw; aspect-ratio: 1; left: 33vw; top: 16.5vw; transform: rotate(4deg); }
+.sleeve.b { width: 20vw; aspect-ratio: 1; right: -9vw; top: 31vw; transform: rotate(-9deg); z-index: 2; }
+
+.record { position: absolute; z-index: 2; width: 58vw; aspect-ratio: 1; left: -8vw; top: 15vw; opacity: 0; transform: translateX(-6vw) rotate(-40deg);
+  animation: roll 1.3s cubic-bezier(.2,.8,.2,1) .15s forwards; }
+@keyframes roll { to { opacity: 1; transform: none; } }
+.record .spin { position: absolute; inset: 0; animation: spin 14s linear infinite; }
+.record .grooves { position: absolute; inset: 0; border-radius: 50%;
+  background:
+    conic-gradient(from 30deg, transparent 0 25deg, rgba(255,235,210,.14) 48deg, transparent 80deg 200deg, rgba(255,235,210,.1) 228deg, transparent 262deg),
+    repeating-radial-gradient(circle, #0b0a09 0 1.6px, #16130f 1.6px, #1d1914 3.2px);
+  box-shadow: 1.6vw 2vw 4.4vw rgba(0,0,0,.55); }
+.record svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+/* ===== The card ===== */
+.card {
+  position: absolute; z-index: 4; right: 6.4vw; top: 50%; transform: translateY(-48%);
+  width: min(460px, 37vw); max-height: calc(100svh - 7vw); overflow-y: auto;
+  background: var(--card); padding: 3.4vw 3.2vw 2.2vw; box-shadow: 0 2.2vw 4vw rgba(0,0,0,.4), 0 0 0 1px rgba(0,0,0,.05);
+  view-transition-name: auth-card; opacity: 0; animation: cardIn .7s cubic-bezier(.2,.8,.2,1) .35s forwards;
+}
+@keyframes cardIn { from { opacity: 0; transform: translateY(-44%); } to { opacity: 1; transform: translateY(-48%); } }
+.card::before { content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .35; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.4'/%3E%3C/svg%3E"); }
+.card > * { position: relative; }
+.kicker { margin: 0; font: 600 max(10px, .78vw) var(--sans); letter-spacing: .28em; text-transform: uppercase; }
+.h1 { margin: .8vw 0 0; font: 400 max(56px, 5.6vw)/1 var(--display); color: var(--ink); -webkit-text-stroke: .05em var(--ink); paint-order: stroke fill; }
+.h1 i { font-style: normal; display: inline-block; transform: scaleY(1.12); transform-origin: left bottom; }
+.notice { margin: 1.2vw 0 0; padding: .8vw 1vw; border-left: 3px solid var(--accent); background: rgba(139,46,34,.07); font: 500 max(13px, .95vw)/1.45 var(--sans); }
+
+form { margin-top: 2vw; }
+.field { margin-bottom: 1.4vw; }
+.field label { display: flex; justify-content: space-between; margin-bottom: .5vw; font: 600 max(13px, 1vw) var(--sans); }
+.field label small { font: 500 max(11px, .8vw) var(--sans); color: var(--muted); font-variant-numeric: tabular-nums; }
+.box { position: relative; }
+.box input { width: 100%; background: #f7f2ea; border: 1.5px solid var(--ink); border-radius: 0; padding: .95vw 1vw; min-height: 46px;
+  font: 400 max(15px, 1.1vw) var(--sans); color: var(--ink); outline: none; transition: box-shadow .2s ease, border-color .2s ease; }
+.box input:focus { box-shadow: 0 0 0 3px rgba(28,26,23,.15); }
+.box input.bad { border-color: var(--accent); background: #f6e3dc; box-shadow: 0 0 0 3px rgba(139,46,34,.18); }
+.box .show { position: absolute; right: .9vw; top: 50%; transform: translateY(-50%); background: none; border: 0; cursor: pointer;
+  font: 500 max(13px, .95vw) var(--sans); color: var(--ink); }
+.box .show:hover { color: var(--accent); }
+.box .show:focus-visible, .submit:focus-visible, .swap a:focus-visible, .top a:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.hint { margin: .45vw 0 0; min-height: 1.2em; font: 500 max(12px, .82vw)/1.35 var(--sans); color: var(--muted); }
+.hint.bad { color: var(--accent); }
+.form-error { margin: 0 0 1vw; min-height: 1.3em; font: 600 max(13px, .95vw) var(--sans); color: var(--accent); }
+.submit { width: 100%; display: flex; justify-content: center; align-items: center; gap: .7vw; background: var(--accent); color: var(--cream); border: 0; cursor: pointer;
+  font: 600 max(16px, 1.3vw) var(--sans); padding: 1.1vw; min-height: 50px; transition: background .2s ease; }
+.submit:hover { background: var(--ink); }
+.submit:disabled { background: var(--muted); cursor: progress; }
+.swap { margin: 2vw 0 0; font: 400 max(14px, 1vw)/1.6 var(--sans); }
+.swap a { display: inline-flex; gap: .4vw; font-weight: 600; color: var(--ink); text-decoration: none; border-bottom: 1.5px solid var(--ink); }
+.swap a:hover { color: var(--accent); border-color: var(--accent); }
+.fine { margin: 2.2vw 0 0; font: 500 max(10px, .72vw) var(--sans); letter-spacing: .16em; text-transform: uppercase; color: var(--muted); }
+
+/* sign-up has twice the fields: tighten the rhythm so the card fits one screen */
+.signup .card { padding-top: 2.4vw; padding-bottom: 1.6vw; }
+.signup .card .h1 { font-size: max(46px, 4.4vw); }
+.signup .card form { margin-top: 1.2vw; }
+.signup .card .field { margin-bottom: .75vw; }
+.signup .card .box input { min-height: 42px; padding-top: .7vw; padding-bottom: .7vw; }
+.signup .card .notice { margin-top: .8vw; padding: .6vw .9vw; }
+.signup .card .swap { margin-top: 1.2vw; }
+.signup .card .fine { margin-top: 1.2vw; }
+.signup .card .hint { min-height: 0; }
+@media (prefers-reduced-motion: reduce) {
+  .word .ch span, .record, .card { animation: none !important; transform: none; opacity: 1; }
+  .word.one, .word.two { transform: scaleY(1.28); }
+  .card { transform: translateY(-48%); }
+  .record .spin { animation: none; }
+}

@@ -5,51 +5,46 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
-  <link rel="stylesheet" href="css/index.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://use.typekit.net/ynr0vvq.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Bodoni:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Public+Sans:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oranienbaum&family=Public+Sans:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="/css/site.css">
+  <link rel="stylesheet" href="/css/detail.css">
   <title>Spiral Sounds</title>
+  <script>
+    // The page that linked here stashed the clicked record's cover. Paint it
+    // before first render so the cross-page cover transition has its target.
+    try {
+      const id = new URLSearchParams(location.search).get('id')
+      const hand = JSON.parse(sessionStorage.getItem('ss-cover') || 'null')
+      if (hand && String(hand.id) === id) document.documentElement.style.setProperty('--cover', `url("/images/${hand.image}")`)
+    } catch {}
+  </script>
 </head>
 
-<body>
+<body class="page">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+    <mask id="ss-mask"><circle cx="50" cy="50" r="48" fill="#fff"/><path d="M78 4 C 30 0, 14 36, 44 50 C 66 60, 62 86, 22 96 C 72 94, 84 58, 56 46 C 34 37, 36 12, 78 4 Z" fill="#000"/></mask>
+    <symbol id="ss-mark" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="currentColor" mask="url(#ss-mask)"/></symbol>
+  </defs></svg>
 
-  <!-- ===== HEADER ===== -->
-  <header class="site-header">
-    <div class="header-navbar">
-
-      <!-- Back -->
-      <a href="/" class="header-logo">
-        <span class="header-logo-text">← Spiral Sounds</span>
-      </a>
-
-      <!-- Auth -->
-      <div class="header-auth" style="margin-left:auto;">
-        <p id="greeting" class="header-greeting"></p>
-        <nav aria-label="Main menu" class="header-menu">
-          <a href="/login.html" id="login">Log in</a>
-          <a href="/signup.html" id="signup">Sign up</a>
-          <button class="header-logout-btn" id="logout-btn">Log out</button>
-          <a href="/cart.html" id="cart-banner" class="cart-link"></a>
-        </nav>
-        <button class="menu-toggle" aria-label="Toggle menu">
-          <img src="images/menu.svg" alt="">
-        </button>
-      </div>
-
-    </div>
+  <!-- ===== Record detail ===== -->
+  <header class="page-hdr">
+    <a class="back caps" id="back" href="/">← Back</a>
+    <a class="brand" href="/"><svg class="brand-mark" aria-hidden="true"><use href="#ss-mark"/></svg><span class="logo">Spiral Sounds</span></a>
+    <nav class="right caps" aria-label="Account"><span data-account></span><a class="bag-link" data-bag href="/cart.html"></a></nav>
   </header>
 
-  <!-- ===== DETAIL VIEW ===== -->
-  <main id="detail-main"></main>
+  <main id="detail-main">
+    <section class="rec-hero">
+      <div class="cover" id="cover" role="img" aria-label="Record cover"></div>
+      <div class="info" id="info" aria-live="polite"></div>
+    </section>
+  </main>
 
-  <footer>
-    <p>© Spiral Sounds</p>
-  </footer>
+  <div class="buybar" id="buybar" aria-hidden="true"></div>
+  <footer class="end-bar"><span>© 2026 Spiral Sounds</span><a href="#">Back to top ↑</a></footer>
 
-  <script src="js/detail.js" type="module"></script>
-  <script src="js/menu.js" type="module"></script>
-
+  <script src="/js/detail.js" type="module"></script>
 </body>
 </html>

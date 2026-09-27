@@ -5,110 +5,34 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/svg+xml" href="/images/favicon.svg">
-  <link rel="stylesheet" href="css/index.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://use.typekit.net/ynr0vvq.css">
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Bodoni:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500;1,600&family=Public+Sans:wght@400;500;600&display=swap">
-  <title>Your Basket — Spiral Sounds</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oranienbaum&family=Public+Sans:wght@400;500;600;700;800&display=swap">
+  <link rel="stylesheet" href="/css/site.css">
+  <link rel="stylesheet" href="/css/cart.css">
+  <title>Your Bag — Spiral Sounds</title>
 </head>
 
-<body>
+<body class="page">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+    <mask id="ss-mask"><circle cx="50" cy="50" r="48" fill="#fff"/><path d="M78 4 C 30 0, 14 36, 44 50 C 66 60, 62 86, 22 96 C 72 94, 84 58, 56 46 C 34 37, 36 12, 78 4 Z" fill="#000"/></mask>
+    <symbol id="ss-mark" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="currentColor" mask="url(#ss-mask)"/></symbol>
+  </defs></svg>
 
-  <!-- ===== HEADER ===== -->
-  <header class="site-header">
-    <div class="header-navbar">
-
-      <!-- Logo / back -->
-      <a href="/" class="header-logo">
-        <span class="header-logo-text">← Spiral Sounds</span>
-      </a>
-
-      <!-- Auth -->
-      <div class="header-auth" style="margin-left:auto;">
-        <p id="greeting" class="header-greeting"></p>
-        <nav aria-label="Main menu" class="header-menu">
-          <a href="/login.html" id="login">Log in</a>
-          <a href="/signup.html" id="signup">Sign up</a>
-          <button class="header-logout-btn" id="logout-btn">Log out</button>
-          <a href="/cart.html" id="cart-banner" class="cart-link"></a>
-        </nav>
-        <button class="menu-toggle" aria-label="Toggle menu">
-          <img src="images/menu.svg" alt="">
-        </button>
-      </div>
-
-    </div>
+  <!-- ===== Bag / checkout ===== -->
+  <header class="page-hdr">
+    <a class="back caps" href="/?genre=all">← Keep shopping</a>
+    <a class="brand" href="/"><svg class="brand-mark" aria-hidden="true"><use href="#ss-mark"/></svg><span class="logo">Spiral Sounds</span></a>
+    <nav class="right caps" aria-label="Account"><span data-account></span><a class="bag-link" data-bag href="/cart.html"></a></nav>
   </header>
 
-  <!-- ===== CART ===== -->
-  <main class="cart-page">
-    <div class="cart-wrapper">
-
-      <!-- Left: item list -->
-      <div class="cart-left">
-        <div class="cart-section-label">Your Basket</div>
-        <ul id="cart-list" style="list-style:none; padding:0; margin:0;"></ul>
-        <p id="user-message" class="cart-message" style="display:none;"></p>
-      </div>
-
-      <!-- Right: order summary + Stripe payment form -->
-      <div class="cart-right">
-        <div>
-          <div class="cart-section-label">Order Summary</div>
-          <div class="cart-summary-row">
-            <span class="cart-summary-key">Subtotal</span>
-            <span class="cart-summary-val" id="cart-subtotal">—</span>
-          </div>
-          <div class="cart-summary-row">
-            <span class="cart-summary-key">Shipping</span>
-            <span class="cart-summary-val">Free</span>
-          </div>
-          <div class="cart-total-row">
-            <span class="cart-total-key">Total</span>
-            <span class="cart-total-val" id="cart-total"></span>
-          </div>
-
-          <button class="cart-checkout-btn" id="checkout-btn">
-            Checkout →
-          </button>
-          <a href="/" class="cart-continue">← Continue Shopping</a>
-
-          <!-- ===== STRIPE PAYMENT SECTION ===== -->
-          <!-- Revealed when "Checkout" is clicked by js/checkout.js -->
-          <div id="payment-section" class="payment-section">
-            <div class="cart-section-label" style="margin-bottom:1.2rem;">
-              Payment Details
-            </div>
-
-            <!-- Stripe mounts its Payment Element here -->
-            <div id="payment-element"></div>
-
-            <!-- Inline error / success messages -->
-            <div id="payment-message" class="payment-message" style="display:none;"></div>
-
-            <button class="cart-checkout-btn" id="pay-btn" style="margin-top:1.2rem;">
-              <span id="pay-btn-text">↳ &nbsp;Pay now</span>
-            </button>
-          </div>
-          <!-- ===== END STRIPE SECTION ===== -->
-
-        </div>
-      </div>
-
-    </div>
+  <main class="cart" id="cart" aria-live="polite">
+    <p class="loading caps">Pulling your records…</p>
   </main>
 
-  <footer>
-    <p>© Spiral Sounds</p>
-  </footer>
+  <footer class="end-bar"><span>© 2026 Spiral Sounds</span><a href="#">Back to top ↑</a></footer>
 
-  <script src="js/menu.js" type="module"></script>
-  <script src="js/cart.js" type="module"></script>
-
-  <!-- Stripe.js must load BEFORE checkout.js -->
   <script src="https://js.stripe.com/v3/"></script>
-  <script src="js/checkout.js" type="module"></script>
-
+  <script src="/js/cart.js" type="module"></script>
 </body>
 </html>

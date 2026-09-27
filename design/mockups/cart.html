@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="mark.svg">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Your Bag — Spiral Sounds</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oranienbaum&family=Public+Sans:wght@400;500;600;700;800&display=swap">
+<script src="products.js"></script>
+<script src="bag.js"></script>
+<script src="user.js"></script>
+<style>
+:root {
+  --ink: #1c1a17;
+  --cream: #f3f0ed;
+  --paper: #efebe4;
+  --taupe: #ddd6cb;
+  --muted: #6b655c;
+  --accent: #8b2e22;
+  --sans: 'Public Sans', sans-serif;
+  --drop-ease: cubic-bezier(.22, 1.18, .36, 1);
+}
+@view-transition { navigation: auto; }
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: .3s; }
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); }
+body::before {
+  content: ''; position: fixed; inset: 0; z-index: 100; pointer-events: none; opacity: .08; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+a { color: inherit; }
+.caps { font: 600 max(10px, .8vw) var(--sans); letter-spacing: .32em; text-transform: uppercase; }
+
+/* ---------- header (same as the detail page) ---------- */
+.hdr { margin: 0 3.2vw; height: max(64px, 5.4vw); display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; border-bottom: 1.5px solid var(--ink); }
+.hdr a { text-decoration: none; }
+.hdr a:hover { color: var(--accent); }
+.logo { font: 400 max(28px, 2.9vw)/1 'Oranienbaum', serif; text-transform: uppercase;
+  -webkit-text-stroke: .045em var(--ink); paint-order: stroke fill; transform: scaleY(1.3); white-space: nowrap; }
+.hdr .count { justify-self: end; }
+
+/* ---------- layout ---------- */
+.cart { display: grid; grid-template-columns: 1fr 30vw; margin: 0 3.2vw; min-height: calc(100svh - max(64px, 5.4vw) - 3.6vw); }
+.items { padding: 3.2vw 3vw 4vw 0; }
+.summary { border-left: 1px solid var(--ink); padding: 3.2vw 0 4vw 3vw; }
+.summary-in { position: sticky; top: 2.4vw; }
+
+.h1 { margin: 1vw 0 0; font: 400 7vw/1 'Oranienbaum', serif; color: var(--accent);
+  -webkit-text-stroke: .035em var(--accent); paint-order: stroke fill; }
+.h1 .ln { display: block; overflow: hidden; padding: .22em .03em .08em; margin: -.22em -.03em -.08em; }
+.h1 .ln span { display: block; transform: translateY(110%); animation: rise .8s var(--drop-ease) .1s forwards; }
+@keyframes rise { to { transform: none; } }
+.sub { margin: max(10px, .8vw) 0 1vw; padding-bottom: 1.4vw; border-bottom: 1.5px solid var(--ink); display: flex; justify-content: space-between; }
+
+/* ---------- line items ---------- */
+.line { display: grid; grid-template-columns: 8.4vw 1fr auto; gap: 2vw; align-items: center; padding: 1.6vw 0; border-bottom: 1px solid var(--taupe);
+  opacity: 0; transform: translateY(1vw); animation: fadeUp .5s cubic-bezier(.2,.8,.2,1) forwards; animation-delay: calc(.2s + var(--n) * 60ms);
+  transition: opacity .3s ease, transform .3s ease; }
+@keyframes fadeUp { to { opacity: 1; transform: none; } }
+.line.leaving { opacity: 0 !important; transform: translateX(-2vw) !important; }
+.line .c { display: block; aspect-ratio: 1; background: var(--ink) center / cover; border-radius: 2px;
+  box-shadow: 0 .15vw .2vw rgba(28,26,23,.2), 0 1.2vw 1.8vw -.8vw rgba(28,26,23,.45); }
+.line h3 { margin: 0; font: 700 max(15px, 1.25vw)/1.3 var(--sans); }
+.line h3 a { text-decoration: none; }
+.line h3 a:hover { color: var(--accent); }
+.line .artist { margin: .3vw 0 0; font: 400 max(14px, 1.08vw) var(--sans); color: var(--muted); }
+.line .meta { margin: .9vw 0 0; color: var(--ink); }
+.line .right { text-align: right; align-self: stretch; display: flex; flex-direction: column; justify-content: space-between; }
+.line .price { font: 400 max(24px, 2.1vw)/1 'Oranienbaum', serif; -webkit-text-stroke: .03em var(--ink); paint-order: stroke fill; }
+.line .each { display: block; margin-top: .4vw; font: 500 max(11px, .8vw) var(--sans); color: var(--muted); }
+.line .remove { align-self: flex-end; background: none; border: 0; padding: 0 0 .2vw; cursor: pointer; color: var(--ink);
+  font: 500 max(13px, .95vw) var(--sans); border-bottom: 1px solid var(--ink); }
+.line .remove:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ---------- summary ---------- */
+.rows { margin: 1.8vw 0 0; }
+.rows div { display: flex; justify-content: space-between; padding: .9vw 0; border-bottom: 1px solid var(--taupe); font: 400 max(14px, 1.1vw) var(--sans); }
+.rows dt { color: var(--muted); }
+.rows dd { margin: 0; }
+.total { display: flex; justify-content: space-between; align-items: baseline; margin: 1.6vw 0 1.8vw; }
+.total strong { font: 400 max(34px, 3.6vw)/1 'Oranienbaum', serif; -webkit-text-stroke: .03em var(--ink); paint-order: stroke fill; }
+.btn { width: 100%; display: flex; justify-content: center; align-items: center; gap: .8vw; background: var(--ink); color: var(--cream); border: 0; cursor: pointer;
+  font: 600 max(15px, 1.25vw) var(--sans); letter-spacing: .02em; padding: 1.3vw; text-decoration: none; transition: background .2s ease; }
+.btn:hover { background: var(--accent); }
+.btn[hidden] { display: none; }
+.btn:disabled { background: var(--taupe); color: var(--muted); cursor: not-allowed; }
+.link { display: inline-flex; gap: .6vw; margin-top: 1.4vw; padding-bottom: .3vw; border-bottom: 1.5px solid var(--ink); text-decoration: none; font: 400 max(14px, 1.1vw) var(--sans); }
+.link:hover { color: var(--accent); border-color: var(--accent); }
+
+/* payment step: revealed under the summary, as on the live site (Stripe mounts here) */
+.pay { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .45s cubic-bezier(.2,.8,.2,1); }
+.pay.open { grid-template-rows: 1fr; }
+.pay > div { overflow: hidden; }
+.pay-in { padding-top: 1.6vw; border-top: 1.5px solid var(--ink); }
+.field { margin-top: 1.1vw; }
+.field label { display: block; margin-bottom: .5vw; font: 500 max(12px, .9vw) var(--sans); color: var(--muted); }
+.field .box { display: flex; justify-content: space-between; align-items: center; background: #fbf9f6; border: 1px solid var(--taupe); border-radius: 3px;
+  padding: .95vw 1.1vw; font: 400 max(14px, 1.1vw) var(--sans); color: var(--muted); }
+.field .box b { font: 700 max(10px, .7vw) var(--sans); letter-spacing: .08em; color: var(--ink); }
+.input { width: 100%; background: #fbf9f6; border: 1px solid var(--taupe); border-radius: 3px; padding: .95vw 1.1vw;
+  font: 400 max(14px, 1.1vw) var(--sans); color: var(--ink); outline: none; }
+.input:focus { border-color: var(--ink); }
+.input.bad { border-color: var(--accent); }
+.field .opt { color: var(--muted); font-weight: 400; }
+.err { margin: .5vw 0 0; font: 500 max(12px, .85vw) var(--sans); color: var(--accent); }
+.two { display: grid; grid-template-columns: 1fr 1fr; gap: 1vw; }
+.note { margin: 1.2vw 0 1.6vw; font: 400 max(11px, .82vw)/1.5 var(--sans); color: var(--muted); }
+
+/* ---------- empty + thank-you states ---------- */
+.state { grid-column: 1 / -1; padding: 5vw 0 5vw; text-align: left; }
+.state p.lead { margin: 1.6vw 0 2.4vw; font: 400 max(16px, 1.4vw)/1.5 var(--sans); max-width: 38vw; }
+.state .btn { width: auto; display: inline-flex; padding: 1.2vw 2.4vw; }
+.picks { margin-top: 4.4vw; padding-top: 2.4vw; border-top: 1.5px solid var(--ink); }
+.picks-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.4vw; margin-top: 1.8vw; }
+.card { text-decoration: none; }
+.card .c { aspect-ratio: 1; background: var(--ink) center / cover; border-radius: 2px; margin-bottom: 1vw;
+  box-shadow: 0 .15vw .2vw rgba(28,26,23,.2), 0 1.6vw 2.4vw -1vw rgba(28,26,23,.45); }
+.card b { display: block; font: 700 max(13px, 1.02vw)/1.3 var(--sans); }
+.card span { display: block; margin-top: .3vw; font: 400 max(13px, .98vw) var(--sans); color: var(--muted); }
+
+.end-bar { display: flex; justify-content: space-between; align-items: center; background: #141311; color: var(--cream); padding: 1.2vw 3.2vw; min-height: 3.6vw; }
+.end-bar a { text-decoration: none; font: 500 max(12px, 1vw) var(--sans); }
+
+@media (prefers-reduced-motion: reduce) {
+  .h1 .ln span, .line { transform: none !important; opacity: 1 !important; animation: none !important; }
+}
+.hdr .right { justify-self: end; display: flex; align-items: center; gap: max(18px, 1.5vw); }
+.hdr .right a { color: inherit; text-decoration: none; }
+.brand { display: inline-flex; align-items: center; gap: max(8px, .7vw); color: inherit; text-decoration: none; }
+.brand-mark { width: max(28px, 2.5vw); height: max(28px, 2.5vw); flex: none; color: var(--accent); }
+.hdr .brand { justify-self: center; }
+.brand .logo { display: inline-block; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+  <mask id="ss-mask"><circle cx="50" cy="50" r="48" fill="#fff"/><path d="M78 4 C 30 0, 14 36, 44 50 C 66 60, 62 86, 22 96 C 72 94, 84 58, 56 46 C 34 37, 36 12, 78 4 Z" fill="#000"/></mask>
+  <symbol id="ss-mark" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="currentColor" mask="url(#ss-mask)"/></symbol>
+</defs></svg>
+
+
+<!-- ===== Cart ===== -->
+<header class="hdr">
+  <a class="caps" href="page.html?genre=all">← Keep shopping</a>
+  <a class="brand" href="page.html"><svg class="brand-mark" aria-hidden="true"><use href="#ss-mark"/></svg><span class="logo">Spiral Sounds</span></a>
+  <div class="right caps"><span data-account></span><span class="count" id="count"></span></div>
+</header>
+<main class="cart" id="cart"></main>
+<footer class="end-bar"><span class="caps">© 2026 Spiral Sounds</span><a href="#">Back to top ↑</a></footer>
+
+<script>
+const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const money = n => '$' + n.toFixed(2);
+const byId = id => window.PRODUCTS.find(p => p.id === id);
+const main = document.getElementById('cart');
+let payOpen = false, placed = false, email = '';
+
+function lines() {
+  return Bag.items().map(x => ({ ...byId(x.id), q: x.q })).filter(x => x.title);
+}
+
+function picks(exclude = []) {
+  // one record from each of four genres, skipping anything already in the bag
+  const out = [], seen = new Set();
+  for (const p of window.PRODUCTS) {
+    if (exclude.includes(p.id) || seen.has(p.genre)) continue;
+    seen.add(p.genre); out.push(p);
+    if (out.length === 4) break;
+  }
+  return `<section class="picks">
+    <p class="caps">From the shelf</p>
+    <div class="picks-grid">${out.map(p => `
+      <a class="card" href="detail.html?id=${p.id}"><div class="c" style="background-image:url(../../public/images/${p.image})"></div>
+        <b>${esc(p.title)}</b><span>${esc(p.artist)}</span></a>`).join('')}</div>
+  </section>`;
+}
+
+function render() {
+  const list = lines();
+  const qty = list.reduce((a, x) => a + x.q, 0);
+  const total = list.reduce((a, x) => a + x.q * Number(x.price), 0);
+  document.getElementById('count').innerHTML = Bag.icon(qty);
+
+  if (placed) {
+    main.innerHTML = `<div class="state">
+      <p class="caps">Order placed</p>
+      <h1 class="h1"><span class="ln"><span>Thank you.</span></span></h1>
+      <p class="lead">Your records are being pulled from the shelf and packed up.${email ? ` A receipt is on its way to <b>${esc(email)}</b>.` : ''}</p>
+      <a class="btn" href="page.html?genre=all">Keep digging <span>↗</span></a>
+      ${picks()}
+    </div>`;
+    return;
+  }
+
+  if (!list.length) {
+    main.innerHTML = `<div class="state">
+      <p class="caps">Your bag</p>
+      <h1 class="h1"><span class="ln"><span>Nothing here yet.</span></span></h1>
+      <p class="lead">Every record in the shop was chosen by someone on staff. Start with a genre you love, or one you don't know yet.</p>
+      <a class="btn" href="page.html?genre=all">Browse the collection <span>↗</span></a>
+      ${picks()}
+    </div>`;
+    return;
+  }
+
+  main.innerHTML = `
+    <section class="items">
+      <div class="sub caps"><span>${qty} record${qty === 1 ? '' : 's'}</span><span>Price</span></div>
+      ${list.map((x, n) => `
+        <article class="line" style="--n:${n}" data-id="${x.id}">
+          <a class="c" href="detail.html?id=${x.id}" aria-label="${esc(x.title)}" style="background-image:url(../../public/images/${x.image})"></a>
+          <div>
+            <h3><a href="detail.html?id=${x.id}">${esc(x.title)}</a></h3>
+            <p class="artist">${esc(x.artist)}</p>
+            <p class="meta caps">${x.genre} · ${x.year}${x.q > 1 ? ` · Qty ${x.q}` : ''}</p>
+          </div>
+          <div class="right">
+            <div><span class="price">${money(x.q * Number(x.price))}</span>${x.q > 1 ? `<span class="each">${money(Number(x.price))} each</span>` : ''}</div>
+            <button class="remove" data-id="${x.id}">Remove</button>
+          </div>
+        </article>`).join('')}
+    </section>
+
+    <aside class="summary"><div class="summary-in">
+      <p class="caps">Order summary</p>
+      <dl class="rows">
+        <div><dt>Subtotal</dt><dd>${money(total)}</dd></div>
+        <div><dt>Shipping</dt><dd>Free</dd></div>
+      </dl>
+      <div class="total"><span class="caps">Total</span><strong>${money(total)}</strong></div>
+      <button class="btn" id="checkout"${payOpen ? ' hidden' : ''}>Checkout <span>→</span></button>
+      <div class="pay${payOpen ? ' open' : ''}" id="pay"><div><div class="pay-in">
+        <p class="caps">Payment details</p>
+        <div class="field"><label for="email">Email for your receipt <span class="opt">— optional</span></label>
+          <input class="input" id="email" type="email" autocomplete="email" placeholder="you@example.com" value="${esc(email)}"></div>
+        <div class="field"><label>Card number</label><div class="box"><span>1234 1234 1234 1234</span><b>VISA · MC · AMEX</b></div></div>
+        <div class="two">
+          <div class="field"><label>Expiry</label><div class="box">MM / YY</div></div>
+          <div class="field"><label>CVC</label><div class="box">CVC</div></div>
+        </div>
+        <p class="note">Layout preview — on the live site Stripe's Payment Element mounts in this space (test mode).</p>
+        <button class="btn" id="paynow">Pay ${money(total)}</button>
+      </div></div></div>
+      ${payOpen ? '' : `<a class="link" href="page.html?genre=all">← Continue shopping</a>`}
+    </div></aside>`;
+}
+
+main.addEventListener('click', e => {
+  const rm = e.target.closest('.remove');
+  if (rm) {
+    const row = rm.closest('.line');
+    row.classList.add('leaving');
+    setTimeout(() => Bag.remove(+rm.dataset.id), 280);
+    return;
+  }
+  if (e.target.closest('#checkout')) { payOpen = true; render(); return; }
+  if (e.target.closest('#paynow')) {
+    // email is optional, but if one is typed it has to look like an address
+    const box = document.getElementById('email');
+    const val = box.value.trim();
+    document.querySelector('.err')?.remove();
+    if (val && !box.checkValidity()) {
+      box.classList.add('bad');
+      box.insertAdjacentHTML('afterend', '<p class="err">That email doesn’t look right — fix it or leave it blank.</p>');
+      box.focus();
+      return;
+    }
+    email = val; placed = true; Bag.clear(); scrollTo({ top: 0, behavior: 'smooth' });
+  }
+});
+main.addEventListener('input', e => { if (e.target.id === 'email') { email = e.target.value; e.target.classList.remove('bad'); document.querySelector('.err')?.remove(); } });
+Bag.onChange(render);
+render();
+</script>
+</body>
+</html>

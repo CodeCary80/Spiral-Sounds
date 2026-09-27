@@ -1,0 +1,96 @@
+/* =====================================================================
+   Bag / checkout page (redesign). Builds on site.css.
+   Reference: design/mockups/cart.html.
+   ===================================================================== */
+
+.cart { display: grid; grid-template-columns: 1fr 30vw; margin: 0 var(--gutter); }
+.items { padding: 3.2vw 3vw 4vw 0; }
+.summary { border-left: 1px solid var(--ink); padding: 3.2vw 0 4vw 3vw; }
+.summary-in { position: sticky; top: 2.4vw; }
+/* once the payment form opens the column is taller than the screen — let it scroll normally */
+.summary-in:has(.pay.open) { position: static; }
+.sub { margin: max(10px, .8vw) 0 1vw; padding-bottom: 1.4vw; border-bottom: 1.5px solid var(--ink); display: flex; justify-content: space-between; }
+
+.h1 { margin: 1vw 0 0; font: 400 7vw/1 var(--display); color: var(--accent); -webkit-text-stroke: .035em var(--accent); paint-order: stroke fill; }
+.h1 .ln { display: block; overflow: hidden; padding: .22em .03em .08em; margin: -.22em -.03em -.08em; }
+.h1 .ln span { display: block; transform: translateY(110%); animation: rise .8s var(--drop-ease) .1s forwards; }
+
+/* ---------- line items ---------- */
+.line {
+  display: grid; grid-template-columns: 8.4vw 1fr auto; gap: 2vw; align-items: center; padding: 1.6vw 0; border-bottom: 1px solid var(--taupe);
+  opacity: 0; transform: translateY(1vw); animation: fadeUp .5s cubic-bezier(.2,.8,.2,1) forwards; animation-delay: calc(.1s + var(--n) * 60ms);
+  transition: opacity .3s ease, transform .3s ease;
+}
+.line.leaving { opacity: 0 !important; transform: translateX(-2vw) !important; }
+.line .c {
+  display: block; aspect-ratio: 1; background: var(--ink) center / cover; border-radius: 2px;
+  box-shadow: 0 .15vw .2vw rgba(28,26,23,.2), 0 1.2vw 1.8vw -.8vw rgba(28,26,23,.45);
+}
+.line h3 { margin: 0; font: 700 max(15px, 1.25vw)/1.3 var(--sans); }
+.line h3 a { color: inherit; text-decoration: none; }
+.line h3 a:hover { color: var(--accent); }
+.line .artist { margin: .3vw 0 0; font: 400 max(14px, 1.08vw) var(--sans); color: var(--muted); }
+.line .meta { margin: .9vw 0 0; }
+.line .right { text-align: right; align-self: stretch; display: flex; flex-direction: column; justify-content: space-between; }
+.line .price { font: 400 max(24px, 2.1vw)/1 var(--display); -webkit-text-stroke: .03em var(--ink); paint-order: stroke fill; }
+.line .each { display: block; margin-top: .4vw; font: 500 max(11px, .8vw) var(--sans); color: var(--muted); }
+.line .remove {
+  align-self: flex-end; background: none; border: 0; padding: 0 0 .2vw; cursor: pointer; color: var(--ink);
+  font: 500 max(13px, .95vw) var(--sans); border-bottom: 1px solid var(--ink);
+}
+.line .remove:hover { color: var(--accent); border-color: var(--accent); }
+
+/* ---------- summary ---------- */
+.rows { margin: 1.8vw 0 0; }
+.rows div { display: flex; justify-content: space-between; padding: .9vw 0; border-bottom: 1px solid var(--taupe); font: 400 max(14px, 1.1vw) var(--sans); }
+.rows dt { color: var(--muted); }
+.rows dd { margin: 0; }
+.total { display: flex; justify-content: space-between; align-items: baseline; margin: 1.6vw 0 1.8vw; }
+.total strong { font: 400 max(34px, 3.6vw)/1 var(--display); -webkit-text-stroke: .03em var(--ink); paint-order: stroke fill; }
+.btn {
+  width: 100%; display: flex; justify-content: center; align-items: center; gap: .8vw; background: var(--ink); color: var(--cream);
+  border: 0; cursor: pointer; text-decoration: none; font: 600 max(15px, 1.25vw) var(--sans); letter-spacing: .02em; padding: 1.3vw;
+  transition: background .2s ease;
+}
+.btn:hover { background: var(--accent); }
+.btn[hidden] { display: none; }
+.btn:disabled { background: var(--taupe); color: var(--muted); cursor: progress; }
+.btn:focus-visible, .remove:focus-visible, .link:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+.link {
+  display: inline-flex; gap: .6vw; margin-top: 1.4vw; padding-bottom: .3vw; border-bottom: 1.5px solid var(--ink);
+  color: var(--ink); text-decoration: none; font: 400 max(14px, 1.1vw) var(--sans);
+}
+.link:hover { color: var(--accent); border-color: var(--accent); }
+.link[hidden] { display: none; }
+
+/* payment step: opens under the summary; Stripe's Payment Element mounts in it */
+.pay { display: grid; grid-template-rows: 0fr; transition: grid-template-rows .45s cubic-bezier(.2,.8,.2,1); }
+.pay.open { grid-template-rows: 1fr; }
+.pay > div { overflow: hidden; }
+.pay-in { padding-top: 1.6vw; border-top: 1.5px solid var(--ink); }
+.pay-in > .caps { margin: 0 0 1.2vw; }
+#payment-element { min-height: 120px; margin-bottom: 1.4vw; }
+.pay-msg { margin: 0 0 1.2vw; font: 500 max(13px, .95vw)/1.45 var(--sans); color: var(--accent); }
+.pay-msg:empty { display: none; }
+.note { margin: 0 0 1.4vw; font: 400 max(11px, .8vw)/1.5 var(--sans); color: var(--muted); }
+
+/* ---------- empty + thank-you states ---------- */
+.state { grid-column: 1 / -1; padding: 5vw 0; }
+.state .lead { margin: 1.6vw 0 2.4vw; font: 400 max(16px, 1.4vw)/1.5 var(--sans); max-width: 38vw; }
+.state .btn { width: auto; display: inline-flex; padding: 1.2vw 2.4vw; }
+.picks { margin-top: 4.4vw; padding-top: 2.4vw; border-top: 1.5px solid var(--ink); }
+.picks-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2.4vw; margin-top: 1.8vw; }
+.card { color: var(--ink); text-decoration: none; }
+.card .c {
+  aspect-ratio: 1; background: var(--ink) center / cover; border-radius: 2px; margin-bottom: 1vw;
+  box-shadow: 0 .15vw .2vw rgba(28,26,23,.2), 0 1.6vw 2.4vw -1vw rgba(28,26,23,.45);
+}
+.card b { display: block; font: 700 max(13px, 1.02vw)/1.3 var(--sans); }
+.card span { display: block; margin-top: .3vw; font: 400 max(13px, .98vw) var(--sans); color: var(--muted); }
+.card:hover b { color: var(--accent); }
+.loading { grid-column: 1 / -1; padding: 5vw 0; color: var(--muted); }
+
+@media (prefers-reduced-motion: reduce) {
+  .h1 .ln span, .line { transform: none !important; opacity: 1 !important; animation: none !important; }
+  .pay { transition: none; }
+}

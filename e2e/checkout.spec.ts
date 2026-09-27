@@ -1,8 +1,8 @@
 import { test, expect } from './fixtures';
 
-test('empty cart shows the empty message and disables checkout', async ({ page, account }) => {
+test('empty bag shows the empty state and no checkout button', async ({ page, account }) => {
   await page.goto('/cart.html');
 
-  await expect(page.locator('.cart-empty')).toContainText('Your basket is empty.');
-  await expect(page.locator('#checkout-btn')).toBeDisabled();
+  await expect(page.locator('.cart-empty')).toContainText('Nothing here yet.');
+  await expect(page.locator('#checkout-btn')).toHaveCount(0);
 });

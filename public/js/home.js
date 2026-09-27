@@ -107,7 +107,8 @@ function fitMasthead() {
   function draw(p) {
     const W = innerWidth, H = innerHeight, e = p * p * (3 - 2 * p)
     const y0 = head.offsetTop + head.offsetHeight + W * .028
-    const h0 = Math.max(H * .4, H - y0 - H * .06), w0 = W * .62, x0 = (W - w0) / 2
+    const narrow = W <= 760
+    const h0 = Math.max(H * (narrow ? .3 : .4), H - y0 - H * .06), w0 = W * (narrow ? .88 : .62), x0 = (W - w0) / 2
     frame.style.left = lerp(x0, 0, e) + 'px'
     frame.style.top = lerp(y0, 0, e) + 'px'
     frame.style.width = lerp(w0, W, e) + 'px'
@@ -179,7 +180,8 @@ let products = []
 let genres = []
 let cart = null          // null = logged out; [] = logged in, empty
 let view = { kind: 'genre', key: 'all', list: [] }
-let listOpen = true
+// the genre list starts folded on phones, where it would push the records below the fold
+let listOpen = !matchMedia('(max-width: 760px)').matches
 
 const inCart = id => !!cart && cart.some(i => i.productId === id)
 const cap = s => s[0].toUpperCase() + s.slice(1)

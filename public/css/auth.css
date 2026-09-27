@@ -108,3 +108,34 @@ form { margin-top: 2vw; }
   .card { transform: translateY(-48%); }
   .record .spin { animation: none; }
 }
+
+/* ======================= Phones (≤ 760px) ======================= */
+/* The poster stays, the card joins the page flow below the record. */
+@media (max-width: 760px) {
+  .poster { padding: 0 16px 34vw; }
+  .top { left: 16px; right: 16px; top: 16px; }
+  .top .mark { font-size: 18px; }
+  .top .brand-mark { width: 22px; height: 22px; }
+  .top a.back { font-size: 14px; }
+  .word.one { top: 13vw; }
+  .word.two { bottom: -2vw; }
+  .record { width: 86vw; left: -24vw; top: 30vw; }
+  .sleeve.a { width: 40vw; left: 50vw; top: 34vw; }
+  .sleeve.b { display: none; }
+  .card, .signup .card {
+    position: relative; right: auto; top: auto; width: 100%; max-height: none; overflow: visible;
+    margin-top: 96vw; padding: 26px 20px 20px; transform: none; animation: fadeUp .7s cubic-bezier(.2,.8,.2,1) .35s forwards;
+  }
+  .h1 { margin-top: 8px; }
+  form { margin-top: 20px; }
+  .field, .signup .card .field { margin-bottom: 14px; }
+  .field label { margin-bottom: 6px; }
+  .box input { padding: 12px; }
+  .box .show { right: 12px; }
+  .hint { margin-top: 6px; }
+  .notice { margin-top: 14px; padding: 10px 12px; }
+  .form-error { margin-bottom: 10px; }
+  .submit { padding: 14px; gap: 10px; }
+  .swap, .signup .card .swap { margin-top: 20px; }
+  .fine, .signup .card .fine { margin-top: 20px; }
+}

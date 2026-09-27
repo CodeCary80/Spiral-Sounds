@@ -118,3 +118,19 @@ body::before {
   html { scroll-behavior: auto; }
   ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
 }
+
+/* ======================= Phones (≤ 760px) ======================= */
+@media (max-width: 760px) {
+  :root { --gutter: 16px; }
+  /* compact header: brand + account on one row, the back link under them */
+  .page-hdr {
+    height: auto; padding: 12px 0 10px; row-gap: 8px;
+    grid-template-columns: 1fr auto; grid-template-areas: "brand right" "back back";
+  }
+  .page-hdr .brand { grid-area: brand; justify-self: start; }
+  .page-hdr .right { grid-area: right; gap: 14px; }
+  .page-hdr .back { grid-area: back; }
+  .page-hdr .logo { font-size: 26px; }
+  .page-hdr .brand-mark { width: 26px; height: 26px; }
+  .end-bar { padding: 14px var(--gutter); letter-spacing: .2em; }
+}

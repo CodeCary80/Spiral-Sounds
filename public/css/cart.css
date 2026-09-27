@@ -94,3 +94,29 @@
   .h1 .ln span, .line { transform: none !important; opacity: 1 !important; animation: none !important; }
   .pay { transition: none; }
 }
+
+/* ======================= Phones (≤ 760px) ======================= */
+@media (max-width: 760px) {
+  .cart { grid-template-columns: 1fr; }
+  .items { padding: 20px 0 8px; }
+  .summary { border-left: 0; border-top: 1.5px solid var(--ink); padding: 22px 0 36px; }
+  .summary-in { position: static; }
+  .sub { padding-bottom: 12px; margin-bottom: 4px; }
+  .line { grid-template-columns: 22vw 1fr auto; gap: 14px; padding: 16px 0; }
+  .line .meta { margin-top: 6px; }
+  .rows { margin-top: 12px; }
+  .rows div { padding: 10px 0; }
+  .total { margin: 18px 0 20px; }
+  .btn { padding: 15px; gap: 10px; }
+  .link { margin-top: 16px; }
+  .pay-in { padding-top: 18px; }
+  #payment-element { margin-bottom: 16px; }
+  .note { margin-bottom: 14px; }
+
+  .state { padding: 36px 0 44px; }
+  .h1 { font-size: 15vw; }
+  .state .lead { max-width: none; margin: 16px 0 24px; }
+  .state .btn { padding: 15px 22px; }
+  .picks { margin-top: 40px; padding-top: 22px; }
+  .picks-grid { grid-template-columns: 1fr 1fr; gap: 24px 14px; margin-top: 16px; }
+}

@@ -15,7 +15,8 @@ export async function getCartCount() {
   return Number(totalItems) || 0
 }
 
-// Resolves true when added; false when the visitor has to log in first.
+// Resolves { ok } when added, { needsLogin } when logged out, or
+// { error } when the shelf can't cover another copy.
 export async function addToCart(productId) {
   const res = await fetch('/api/cart/add', {
     method: 'POST',
@@ -23,7 +24,10 @@ export async function addToCart(productId) {
     credentials: 'include',
     body: JSON.stringify({ productId }),
   })
-  return res.ok
+  if (res.ok) return { ok: true }
+  if (res.status === 401) return { needsLogin: true }
+  const data = await res.json().catch(() => ({}))
+  return { error: data.error || 'Could not add this record.' }
 }
 
 export async function removeFromCart(cartItemId) {

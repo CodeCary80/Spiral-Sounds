@@ -1,73 +1,97 @@
 # Spiral Sounds
 
-A full-stack vinyl e-commerce platform built with Node.js, Express.js, and Vanilla JS — featuring session-based authentication, Stripe payments, and scroll-driven GSAP animations.
+A full-stack vinyl record store — Node.js, Express and vanilla JavaScript, with session auth, Stripe checkout, stock that holds up under retries and races, and an editorial front end designed from scratch.
 
-**[Live Demo](https://spiral-sounds-8dk9.onrender.com)** 
+**[Live demo](https://spiral-sounds-8dk9.onrender.com)** · hosted on Render's free tier, so the first visit after a quiet spell can take ~30 s to wake up.
 
----
-
-## Overview
-
-Spiral Sounds is a warm, editorial-style vinyl record store where users can browse records by genre, search by title, artist, or subgenre, add items to a cart, and complete purchases via Stripe. The project demonstrates a production-ready full-stack architecture — from REST API design and database migration to secure checkout, automated testing, and CI/CD deployment.
+![Home page hero: a red panel with a playable turntable under the headline "Records for those who listen with vision."](docs/screenshots/home-hero.jpg)
 
 ---
 
-## Tech Stack
+## What it does
 
-**Frontend:** Vanilla JS (ES Modules), HTML5, CSS3, GSAP 3 + ScrollTrigger, Stripe.js
+- **Browse** 60 real records across 12 genres, from a hand-laid genre collage or a genre/search overlay
+- **Search** by title, artist or genre, including subgenres ("new wave" still finds the right records)
+- **Play** the hero turntable — press the silver dial and a preview plays while the label spins
+- **Buy** — bag with quantities, Stripe Payment Element checkout, stock taken exactly once per order
+- **Accounts** — sign up / log in with session cookies; the bag and checkout require an account
 
-**Backend:** Node.js, Express.js, express-session, bcryptjs, validator, Stripe Node SDK
+| | |
+|---|---|
+| ![Genre collage: red "THE COLLECTION" masthead with five record sleeves dropped across it](docs/screenshots/home-collection.jpg) | ![Genre overlay for Soul: genre list on the left, records grid, bag panel with a quantity stepper](docs/screenshots/genre-sheet.jpg) |
+| ![Record detail page for Songs in the Key of Life with a red SOUL rubber stamp](docs/screenshots/detail.jpg) | ![Log in page: red poster with giant SPIRAL / SOUNDS and a spinning record behind a paper form card](docs/screenshots/login.jpg) |
 
-**Database:** Supabase PostgreSQL (migrated from SQLite)
+<p>
+  <img src="docs/screenshots/mobile-hero.jpg" width="31%" alt="Home hero on a phone">
+  <img src="docs/screenshots/mobile-collection.jpg" width="31%" alt="Genre collage on a phone">
+  <img src="docs/screenshots/mobile-detail.jpg" width="31%" alt="Record detail on a phone">
+</p>
 
-**Testing:** Vitest, Supertest
+---
 
-**DevOps:** Render (hosting + auto-deploy), GitHub Actions (CI)
+## Design
+
+The site was redesigned in September 2026: static HTML mockups first ([`design/mockups/`](design/mockups/)), iterated page by page, then rebuilt into the app.
+
+- **System** — cream paper with a fine grain, one red for display type and the closing poster, a condensed Didone (Oranienbaum) for headlines, Public Sans for everything else, and a spiral mark used for the logo, favicon and record labels
+- **Motion with a job** — the turntable's label is the only part of the record that turns (the grooves' baked-in highlights stay still, as reflections would on a real deck); the genre overlay grows out of the sleeve you clicked; covers morph into the detail page with cross-document View Transitions
+- **Responsive** — one 760 px breakpoint re-lays every page for phones rather than shrinking it
+
+---
+
+## Tech stack
+
+**Frontend:** vanilla JS (ES modules), HTML, CSS (no framework), Web Animations API, View Transitions, Stripe.js
+
+**Backend:** Node.js, Express, express-session, bcryptjs, Stripe Node SDK
+
+**Database:** Supabase PostgreSQL
+
+**Testing:** Vitest + Supertest (unit and integration), Playwright (end-to-end)
+
+**Hosting / CI:** Render (auto-deploy from `main`), GitHub Actions
 
 ---
 
 ## Architecture
 
 ```
-├── app.js                 # Express app definition — middleware, session, routes (no listen)
-├── server.js              # Starts the HTTP server (imports app.js)
-├── db/
-│   └── db.js              # SQLite→PostgreSQL adapter (toPostgres() + RETURNING id)
-├── routes/                # 5 routers: auth, me, products, cart, payments
-├── controllers/           # Business logic for each route
-│   ├── authController.js  # Register, login, logout with bcrypt + session
-│   ├── cartController.js  # Upsert logic, SQL JOINs, cart count
-│   ├── productsController.js  # Dynamic SQL, ILIKE + subgenre-aware search, genre filter
-│   ├── meController.js    # Session-based auth check
-│   └── paymentsController.js  # Stripe PaymentIntent creation, server-side amount validation
-├── middleware/
-│   └── requireAuth.js     # Session guard for 6 protected endpoints
+├── app.js                   # Express app — middleware, session, routes (no listen, so tests can import it)
+├── server.js                # Starts the HTTP server
+├── db/db.js                 # pg adapter: SQLite-style get/all/run, plus transaction(fn)
+├── routes/                  # auth, me, products, cart, payments, orders
+├── controllers/
+│   ├── productsController.js   # search (ILIKE + subgenre map), genre filter
+│   ├── cartController.js       # add (stock-checked), quantity, remove
+│   ├── paymentsController.js   # PaymentIntent creation, server-side amount + stock checks
+│   ├── ordersController.js     # order completion: verify with Stripe, take stock, refund on sell-out
+│   └── authController.js / meController.js
+├── middleware/requireAuth.js
+├── scripts/                 # catalog import (iTunes Search API), orders table migration
+├── design/mockups/          # the design reference
 └── public/
-    ├── js/                # Frontend ES modules, incl. cartTotal.js (shared with the backend)
-    ├── css/
-    ├── images/            # favicon.svg + product/hero images
-    └── *.html             # 5 pages: index, login, signup, cart, detail
+    ├── css/                 # site.css (shared) + one file per page
+    ├── js/                  # one module per page + shared header, cart API, stepper
+    └── *.html               # index, detail, cart, login, signup
 ```
 
-**Key design decisions:**
+### Key decisions
 
-- **Database adapter:** `db.js` wraps `pg.Pool` with a SQLite-compatible interface — converting `?` placeholders to `$n` syntax and auto-appending `RETURNING id` to INSERT statements, keeping all 5 controllers unchanged during migration.
-- **Auth:** HTTP-only session cookies with bcrypt password hashing. A single `requireAuth` middleware protects all cart and payment routes.
-- **Payments:** Two-step Stripe flow — backend creates a PaymentIntent and returns a `clientSecret`; frontend mounts a Payment Element and calls `confirmPayment()`, never handling card data directly. The server independently recomputes the cart total from the database and rejects any request whose amount doesn't match it, so a tampered client-side amount can't reach Stripe.
-- **Search:** Server-side `ILIKE` query across title, artist, and genre fields, with dynamic SQL construction to support both genre filtering and keyword search from a single endpoint. A `SUBGENRE_MAP` broadens matching so a subgenre search (e.g. "New Wave") still surfaces records tagged with the corresponding parent genre.
-- **Testability:** `app.js` and `server.js` are split so the Express app can be imported directly by tests (via Supertest) without binding a real port. Shared pure logic like cart total calculation lives in a plain module (`public/js/cartTotal.js`) used by both the frontend and the payment validation on the backend.
+- **Payments never trust the client.** The server recomputes the bag total before creating a PaymentIntent and records what's being bought in the intent's metadata.
+- **Completing an order is server-side and idempotent.** After Stripe confirms a payment, `POST /api/orders/complete` retrieves the PaymentIntent from Stripe, then in one transaction records the order, decrements stock and clears the bag.
+  - `orders.payment_intent_id` is `UNIQUE`, so a retry, refresh or simultaneous duplicate returns the same order and stock is taken once
+  - each decrement is a single conditional `UPDATE … SET stock = stock - n WHERE stock >= n`, so two buyers of the last copy can't both succeed
+  - if a record sold out while someone was paying, the transaction rolls back and the payment is refunded in full
+- **Stock is enforced before money moves too** — adding to the bag, changing a quantity and creating a PaymentIntent all reject more copies than the shelf holds.
+- **Auth** — HTTP-only session cookies, bcrypt hashes, one `requireAuth` middleware on every cart, payment and order route.
+- **Search** — server-side `ILIKE` across title, artist and genre; a `SUBGENRE_MAP` widens subgenre searches to their parent genre.
+- **Database adapter** — `db.js` wraps `pg.Pool` with the SQLite-style interface the app started with (placeholder conversion, `RETURNING id`), and adds `transaction(fn)` on a single checked-out client.
 
 ---
 
-## Getting Started
+## Getting started
 
-### Prerequisites
-
-- Node.js 18+
-- A [Supabase](https://supabase.com) PostgreSQL database
-- A [Stripe](https://stripe.com) account (test mode keys)
-
-### Installation
+**Prerequisites:** Node.js 18+, a [Supabase](https://supabase.com) PostgreSQL database, a [Stripe](https://stripe.com) account (test mode).
 
 ```bash
 git clone https://github.com/CodeCary80/Spiral-Sounds.git
@@ -75,9 +99,7 @@ cd Spiral-Sounds
 npm install
 ```
 
-### Environment Variables
-
-Create a `.env` file in the project root:
+Create `.env` in the project root:
 
 ```env
 DATABASE_URL=your_supabase_connection_string
@@ -85,68 +107,47 @@ STRIPE_SECRET_KEY=sk_test_...
 SPIRAL_SESSION_SECRET=your_session_secret
 ```
 
-### Run Locally
+Create the orders tables (additive and safe to re-run), then start the server:
 
 ```bash
-node server.js
+node scripts/createOrders.js
+npm start
 ```
 
-Visit `http://localhost:8000`
-
-### Test Payment
-
-Use Stripe's test card: `4242 4242 4242 4242` · any future expiry · any CVC
+Open `http://localhost:8000`. To pay, use Stripe's test card `4242 4242 4242 4242`, any future expiry and any CVC.
 
 ---
 
 ## Testing
 
-4 test files, 22 tests, run with [Vitest](https://vitest.dev) and [Supertest](https://github.com/ladjs/supertest):
-
-| File | Type | Covers |
-|---|---|---|
-| `public/js/cartTotal.test.js` | Unit | Cart total math — multi-item sums, empty cart, missing/zero quantity, price as a string |
-| `controllers/paymentsController.test.js` | Unit | Payment amount format validation and server-side cart-total matching |
-| `app.test.js` | Integration | Unauthenticated requests to protected routes return `401` |
-| `controllers/cartController.test.js` | Integration | `DELETE /api/cart/all` empties a logged-in user's cart |
-
 ```bash
-npm test
+npm test            # Vitest: 32 unit + integration tests
+npm run test:e2e    # Playwright: 5 specs in chromium, firefox and webkit
 ```
 
-The integration tests exercise the real Express app in-memory via Supertest (no real port bound) and, for the cart-clearing test, the live Supabase database through a fixed throwaway account that's created and cleaned up automatically on each run — this project doesn't have a separate test database.
+| File | Covers |
+|---|---|
+| `public/js/cartTotal.test.js` | Cart total math |
+| `controllers/paymentsController.test.js` | Payment amount validation and server-side total matching |
+| `app.test.js` | Protected routes return `401` without a session |
+| `controllers/cartController.test.js` | Emptying a bag |
+| `controllers/cartQuantity.test.js` | Setting quantities: invalid values, the stock cap, another user's line |
+| `controllers/ordersController.test.js` | Order completion against Stripe test mode: unpaid and foreign payments, a doubled + retried completion, a mid-payment sell-out refund, two buyers for one copy |
+| `e2e/*.spec.ts` | Home title, add-to-bag logged out / in, empty bag, search with no results |
 
-### End-to-end tests (Playwright)
-
-5 tests, each run in chromium, firefox and webkit.
-
-#### Prerequisites
-
-`.env` containing `DATABASE_URL` and `STRIPE_SECRET_KEY`.
-
-#### Files
-
-- `homepage.spec.ts`: title of the home page
-- `cart.spec.ts`: redirect to the login page when logged out, and logged-in users can add items to the cart
-- `checkout.spec.ts`: empty cart shows the empty message and disables the checkout button
-- `search.spec.ts`: searching for a nonexistent item shows "No records found."
-
-#### How to run tests
-
-```bash
-npm run test:e2e
-```
-
-#### Trade-offs
-
-- Each test registers its own uniquely named account, so the three browsers running in parallel never collide on a shared user.
-- Teardown deletes that account from `users` and `cart_items`, so runs leave no leftover data.
-- Like the Vitest integration tests, these run against the live Supabase database, since there's no separate test database.
+There is no separate test database, so the integration and end-to-end tests run against the live Supabase instance. Every test that writes data uses its own throwaway account (and, for orders, its own temporary record) and deletes it afterwards.
 
 ---
 
 ## CI/CD
 
-- **CI:** GitHub Actions runs `node --check server.js` on every push
-- **CD:** Render auto-deploys on push to `main`
-- **E2E:** `playwright.yml` runs the Playwright suite on pull requests into `main` and on pushes to `main`; `DATABASE_URL` and `STRIPE_SECRET_KEY` are stored as GitHub Actions secrets
+- **CI** — GitHub Actions checks the server on every push and runs the Playwright suite on pull requests into `main` (`DATABASE_URL` and `STRIPE_SECRET_KEY` are repository secrets)
+- **CD** — Render deploys every push to `main`
+
+---
+
+## Notes
+
+- Record metadata and cover art come from the iTunes Search API; covers belong to their respective labels and artists and are used here for a non-commercial portfolio project.
+- The Client Stories portraits and interviews are illustrative, not real customers.
+- Payments run in Stripe test mode.

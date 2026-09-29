@@ -1,0 +1,46 @@
+/* =====================================================================
+   Opening: a red poster plays once when someone first lands on the home
+   page. The record is lowered onto the poster between SPIRAL and SOUNDS,
+   the poster lifts away, and the record glides onto the hero's platter.
+   Only shown when the <head> script adds .opening (see index.html).
+   ===================================================================== */
+
+#opening { display: none; }
+.opening #opening { display: block; }
+.opening-lock body { overflow: hidden; }
+
+#opening { --red: #7f2419; --type: #eadfcc; }
+.op-poster { position: fixed; inset: 0; z-index: 200; overflow: hidden; background: var(--red); cursor: pointer;
+  box-shadow: 0 3vh 6vh rgba(28,26,23,.45); }
+.op-poster::after {
+  content: ''; position: absolute; inset: 0; z-index: 6; pointer-events: none; opacity: .28; mix-blend-mode: multiply;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='240' height='240'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+.op-word {
+  position: absolute; left: 0; right: 0; margin: 0; text-align: center; white-space: nowrap;
+  font: 400 min(23vw, 40vh)/.8 var(--display); text-transform: uppercase; letter-spacing: -.01em;
+  color: var(--type); -webkit-text-stroke: .045em var(--type); paint-order: stroke fill;
+}
+.op-word span { display: inline-block; transform: scaleY(1.28); }
+.op-word.one { top: 3vh; z-index: 1; transform: translateY(-170%); }
+.op-word.one span { transform-origin: center top; }
+.op-word.two { bottom: 3vh; z-index: 3; transform: translateY(170%); }
+.op-word.two span { transform-origin: center bottom; }
+
+/* the record and its shadow are centred on the screen and sized from --D (set by opening.js) */
+.op-round { position: absolute; left: 50%; top: 50%; width: var(--D, 48vw); aspect-ratio: 1; translate: -50% -50%; border-radius: 50%; }
+.op-shadow { z-index: 1; opacity: 0; background: rgba(12,3,1,.85); }
+
+.op-record { position: fixed; z-index: 2; opacity: 0; }
+.op-spin { position: absolute; inset: 0; border-radius: 50%; }
+.op-disc { position: absolute; inset: 0; border-radius: 50%; background: #120f0c; box-shadow: 0 0 .4vmin rgba(0,0,0,.5); }
+/* the grooves catch the light from the label outwards as it touches down */
+.op-grooves { position: absolute; inset: 0; border-radius: 50%;
+  background: repeating-radial-gradient(circle, #0b0a09 0 1.6px, #16130f 1.6px, #1d1914 3.2px); clip-path: circle(18.7% at 50% 50%); }
+.op-sheen { position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+  background: conic-gradient(from 30deg, transparent 0 25deg, rgba(255,235,210,.14) 48deg, transparent 80deg 200deg, rgba(255,235,210,.1) 228deg, transparent 262deg); }
+.op-record svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+
+.op-skip { position: absolute; right: var(--gutter); bottom: 2.4vh; z-index: 7; opacity: 0;
+  font: 600 11px var(--sans); letter-spacing: .32em; text-transform: uppercase; color: var(--type); }

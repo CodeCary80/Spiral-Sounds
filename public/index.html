@@ -10,11 +10,25 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oranienbaum&family=Public+Sans:wght@400;500;600;700;800&display=swap">
   <link rel="stylesheet" href="/css/site.css">
   <link rel="stylesheet" href="/css/home.css">
+  <link rel="stylesheet" href="/css/opening.css">
   <title>Spiral Sounds</title>
   <script>
     // Coming back from a record (/?genre=punk&id=66): show the genre sheet from
     // the very first frame instead of flashing the hero until the data loads.
     if (new URLSearchParams(location.search).has('genre')) document.documentElement.classList.add('sheet-first')
+
+    // The opening plays once per visit, and only when someone arrives at the home
+    // page itself: not from another page of the site, a back/forward step, a
+    // deep link (?genre=, #section), or with reduced motion turned on.
+    try {
+      const nav = performance.getEntriesByType('navigation')[0]
+      const fromSite = document.referrer && new URL(document.referrer).origin === location.origin
+      if (!location.search && !location.hash && !fromSite && nav?.type !== 'back_forward' &&
+          !matchMedia('(prefers-reduced-motion: reduce)').matches && !sessionStorage.getItem('ss-opening')) {
+        sessionStorage.setItem('ss-opening', '1')
+        document.documentElement.classList.add('opening', 'opening-lock')
+      }
+    } catch {}
   </script>
 </head>
 
@@ -24,6 +38,29 @@
     <mask id="ss-mask"><circle cx="50" cy="50" r="48" fill="#fff"/><path d="M78 4 C 30 0, 14 36, 44 50 C 66 60, 62 86, 22 96 C 72 94, 84 58, 56 46 C 34 37, 36 12, 78 4 Z" fill="#000"/></mask>
     <symbol id="ss-mark" viewBox="0 0 100 100"><circle cx="50" cy="50" r="48" fill="currentColor" mask="url(#ss-mask)"/></symbol>
   </defs></svg>
+
+  <!-- ===== Opening (plays once per visit; see css/opening.css, js/opening.js) ===== -->
+  <div id="opening" aria-hidden="true">
+    <div class="op-poster" id="op-poster">
+      <p class="op-word one" id="op-one"><span>Spiral</span></p>
+      <div class="op-round op-shadow" id="op-shadow"></div>
+      <div class="op-round op-record" id="op-record">
+        <div class="op-spin" id="op-spin">
+          <div class="op-disc"></div>
+          <div class="op-grooves" id="op-grooves"></div>
+          <!-- same label as the hero deck (colour, size, orientation) so the hand-off is invisible -->
+          <svg viewBox="0 0 600 600">
+            <circle cx="300" cy="300" r="112" fill="#efe4d2"/>
+            <use href="#ss-mark" x="188" y="188" width="224" height="224" style="color:#a8392a"/>
+            <circle cx="300" cy="300" r="6.6" fill="#0d0c0b"/>
+          </svg>
+        </div>
+        <div class="op-sheen" id="op-sheen"></div>
+      </div>
+      <p class="op-word two" id="op-two"><span>Sounds</span></p>
+      <div class="op-skip" id="op-skip">Click to skip</div>
+    </div>
+  </div>
 
   <!-- ===== Hero ===== -->
   <section class="hero" id="hero">
@@ -242,6 +279,7 @@
     </div>
   </div>
 
+  <script src="/js/opening.js" defer></script>
   <script src="/js/home.js" type="module"></script>
 </body>
 </html>

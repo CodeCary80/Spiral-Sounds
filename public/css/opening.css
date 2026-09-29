@@ -44,3 +44,10 @@
 
 .op-skip { position: absolute; right: var(--gutter); bottom: 2.4vh; z-index: 7; opacity: 0;
   font: 600 11px var(--sans); letter-spacing: .32em; text-transform: uppercase; color: var(--type); }
+
+/* phones held upright: pull the words in to hug the record, as they do on a
+   wide screen, instead of leaving them stranded at the top and bottom edges */
+@media (orientation: portrait) {
+  .op-word.one { top: calc(50% - var(--D, 72vw) / 2 - min(23vw, 40vh) * .78); transform: translateY(-100vh); }
+  .op-word.two { bottom: calc(50% - var(--D, 72vw) / 2 - min(23vw, 40vh) * .78); transform: translateY(100vh); }
+}

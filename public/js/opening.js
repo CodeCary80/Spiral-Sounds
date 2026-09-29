@@ -22,8 +22,12 @@ function run() {
   const D = Math.min(innerWidth * (innerWidth < innerHeight ? .72 : .48), innerHeight * .66)
   poster.style.setProperty('--D', D + 'px')
 
-  play($('op-one'), [{ transform: 'translateY(-170%)' }, { transform: 'translateY(0)' }], { duration: 750, easing: E.drop })
-  play($('op-two'), [{ transform: 'translateY(170%)' }, { transform: 'translateY(0)' }], { duration: 750, delay: 80, easing: E.drop })
+  // the words start just off screen (further than their own height on phones, where they sit nearer the middle)
+  const one = $('op-one'), two = $('op-two')
+  const fromOne = Math.max(1.7 * one.offsetHeight, one.offsetTop + 1.4 * one.offsetHeight)
+  const fromTwo = Math.max(1.7 * two.offsetHeight, innerHeight - two.offsetTop + .4 * two.offsetHeight)
+  play(one, [{ transform: `translateY(${-fromOne}px)` }, { transform: 'translateY(0)' }], { duration: 750, easing: E.drop })
+  play(two, [{ transform: `translateY(${fromTwo}px)` }, { transform: 'translateY(0)' }], { duration: 750, delay: 80, easing: E.drop })
 
   // lowered by hand: comes in slightly above and larger (closer to us), slows right down before it touches
   play($('op-record'), [

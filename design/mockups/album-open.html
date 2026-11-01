@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="mark.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Album open — Spiral Sounds</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oranienbaum&family=Public+Sans:wght@400;500;600;700;800&display=swap">
+<script src="products.js"></script>
+<style>
+:root {
+  --ink: #1c1a17;
+  --cream: #f3f0ed;
+  --paper: #efebe4;
+  --taupe: #ddd6cb;
+  --muted: #6b655c;
+  --accent: #8b2e22;
+  --sans: 'Public Sans', sans-serif;
+  --display: 'Oranienbaum', serif;
+  --drop-ease: cubic-bezier(.22, 1.18, .36, 1);
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); }
+body.locked { overflow: hidden; }
+a { color: inherit; }
+button { font: inherit; color: inherit; }
+.caps { font: 600 max(10px, .8vw) var(--sans); letter-spacing: .32em; text-transform: uppercase; }
+
+/* ---------- detail page (trimmed copy of detail.html) ---------- */
+.hdr { margin: 0 3.2vw; height: max(64px, 5.4vw); display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; border-bottom: 1.5px solid var(--ink); }
+.hdr .back { text-decoration: none; }
+.logo { font: 400 max(28px, 2.9vw)/1 var(--display); text-transform: uppercase; color: var(--ink); text-decoration: none;
+  -webkit-text-stroke: .045em var(--ink); paint-order: stroke fill; transform: scaleY(1.3); white-space: nowrap; }
+.rec-hero { display: grid; grid-template-columns: 1.08fr 1fr; gap: 5vw; padding: 4vw 3.2vw 4.4vw; align-items: start; }
+.cover { aspect-ratio: 1; background: var(--cover) center / cover var(--ink); border-radius: 2px; border: 0; padding: 0; cursor: pointer; width: 100%;
+  box-shadow: 0 .2vw .3vw rgba(28,26,23,.2), 0 2.6vw 3.6vw -1.4vw rgba(28,26,23,.5); transition: transform .3s cubic-bezier(.2,.8,.2,1); }
+.cover:hover { transform: translateY(-.4vw); }
+.cover:focus-visible { outline: 2px solid var(--accent); outline-offset: 6px; }
+.info { padding-top: 2.2vw; }
+.artist { margin: 0 0 1.2vw; }
+.title { margin: 0 0 1.8vw; padding-bottom: 1.8vw; border-bottom: 1px solid var(--ink); font: 400 6.4vw/1.02 var(--display); color: var(--accent);
+  -webkit-text-stroke: .035em var(--accent); paint-order: stroke fill; }
+.price { margin: 0 0 1.4vw; font: 400 max(34px, 3.8vw)/1 var(--display); -webkit-text-stroke: .03em var(--ink); paint-order: stroke fill; }
+.add-btn { width: 100%; background: var(--ink); color: var(--cream); border: 0; font: 600 max(15px, 1.35vw) var(--sans); padding: 1.35vw; }
+.hint { margin: 1.4vw 0 0; color: var(--muted); font-size: max(13px, 1vw); }
+
+/* ---------- album stage ---------- */
+/* Sizes: D = record (and sleeve), W = insert, g = gap. The deck is laid out in
+   its final, settled position; the animation offsets the pieces from there. */
+.stage { --D: min(30vw, 56vh); --W: calc(var(--D) * .86); --g: calc(var(--D) * .08); --P: 80px;
+  position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; }
+.stage[hidden] { display: none; }
+.stage-base { position: absolute; inset: 0; background: rgba(239,235,228,.95); opacity: 0; }
+/* while a song plays: the cover itself, blurred and enlarged, with a light scrim */
+.stage-blur { position: absolute; inset: 0; overflow: hidden; opacity: 0; transition: opacity 1s ease; }
+.stage-blur::before { content: ''; position: absolute; inset: 0; background: var(--cover) center / cover; filter: blur(60px) saturate(1.25); transform: scale(1.2); }
+.stage-blur::after { content: ''; position: absolute; inset: 0; background: rgba(28,26,23,.18); }
+.stage.playing .stage-blur { opacity: 1; }
+.stage-close { position: absolute; top: 24px; right: 3.2vw; z-index: 3; background: none; border: 0; cursor: pointer; padding: 8px 0; opacity: 0; transition: opacity .3s ease; }
+.stage.open .stage-close { opacity: 1; }
+.stage-close:hover { color: var(--accent); }
+
+.deck { position: relative; z-index: 1; display: grid; grid-template-columns: var(--D) var(--W); grid-template-rows: var(--D) var(--P); gap: var(--g); }
+.deck > * { transform-origin: 0 0; }
+
+/* A picture disc: the whole record is the cover. Only .face turns (cover,
+   grooves, centre hole); the sheen on top stays put, which is what makes the
+   turning read as a record spinning under a light. */
+.disc { position: relative; width: var(--D); height: var(--D); border-radius: 50%; overflow: hidden;
+  box-shadow: 0 0 0 1px rgba(13,12,11,.55), 0 2px 4px rgba(28,26,23,.25), 0 28px 44px -20px rgba(28,26,23,.6); }
+.disc .face { position: absolute; inset: 0; border-radius: 50%; background: var(--cover) center / cover; animation: spin 1.8s linear infinite paused; }
+.disc .face::before { content: ''; position: absolute; inset: 0; border-radius: 50%;
+  background: repeating-radial-gradient(circle, rgba(0,0,0,.07) 0 1px, transparent 1px 3px);
+  -webkit-mask: radial-gradient(circle closest-side, transparent 38%, #000 39%, #000 96%, transparent 96.5%); mask: radial-gradient(circle closest-side, transparent 38%, #000 39%, #000 96%, transparent 96.5%); }
+/* centre label: a flat colour picked opposite the cover's average hue (set in JS),
+   printed like a real one, with the spindle hole in the middle */
+.lbl { --lbl: #b8a06a; --lbl-ink: #1c1a17; position: absolute; left: 50%; top: 50%; width: 36%; height: 36%; margin: -18% 0 0 -18%; border-radius: 50%;
+  background: var(--lbl); color: var(--lbl-ink); box-shadow: 0 0 0 calc(var(--D) * .006) rgba(13,12,11,.45);
+  text-align: center; }
+.lbl > span { position: absolute; left: 12%; right: 12%; }
+.lbl::after { content: ''; position: absolute; left: 50%; top: 50%; width: 8%; height: 8%; margin: -4% 0 0 -4%; border-radius: 50%;
+  background: var(--paper); box-shadow: inset 0 1px 2px rgba(0,0,0,.5); }
+.lbl .caps { font-size: calc(var(--D) * .022); letter-spacing: .22em; }
+/* text sits above and below the spindle hole, never across it */
+.lbl-title { bottom: 58%; font: 400 calc(var(--D) * .036)/1.05 var(--display);
+  display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+.lbl-artist { top: 60%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.lbl-rpm { bottom: 13%; }
+.disc::after { content: ''; position: absolute; inset: 0; border-radius: 50%; pointer-events: none;
+  background: conic-gradient(from 20deg, transparent 0 8%, rgba(255,255,255,.22) 14%, transparent 22% 52%, rgba(255,255,255,.16) 62%, transparent 70%),
+              radial-gradient(circle closest-side, transparent 96%, rgba(13,12,11,.35) 100%); }
+.stage.open .disc .face { animation-play-state: running; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.insert { position: relative; width: var(--W); height: var(--D); background: #f7f4ee; overflow: hidden;
+  box-shadow: 0 1px 2px rgba(28,26,23,.12), 0 18px 30px -16px rgba(28,26,23,.35); }
+.view { position: absolute; inset: 0; padding: calc(var(--D) * .07) calc(var(--D) * .07) 0; display: flex; flex-direction: column;
+  transition: opacity .4s ease, transform .4s cubic-bezier(.2,.8,.2,1); }
+.view.off { opacity: 0; transform: translateY(8px); pointer-events: none; }
+.ins-head { padding-bottom: 12px; border-bottom: 1px solid var(--ink); }
+.ins-head .caps { color: var(--muted); }
+.ins-title { margin: 6px 0 0; font: 400 max(20px, 1.8vw)/1.05 var(--display); color: var(--accent); -webkit-text-stroke: .03em var(--accent); paint-order: stroke fill; }
+.tracks { list-style: none; margin: 0; padding: 4px 0 18px; overflow-y: auto; flex: 1; scrollbar-width: thin; }
+.tracks button { width: 100%; display: grid; grid-template-columns: 2.2em 1fr auto; gap: 6px; align-items: baseline; text-align: left;
+  background: none; border: 0; border-bottom: 1px solid var(--taupe); padding: 9px 0; cursor: pointer; font-size: max(13px, .95vw); }
+.tracks .n, .tracks .d { color: var(--muted); font-variant-numeric: tabular-nums; font-size: .9em; }
+.tracks button:hover .t, .tracks button.on .t { color: var(--accent); }
+.tracks button.on .n { color: var(--accent); }
+.tracks button[disabled] { cursor: default; opacity: .45; }
+.back-link { align-self: flex-start; background: none; border: 0; padding: 0 0 10px; cursor: pointer; }
+.back-link:hover { color: var(--accent); }
+.lyrics { margin: 0; padding: 14px 0 18px; overflow-y: auto; flex: 1; white-space: pre-line; font-size: max(14px, 1.05vw); line-height: 1.7; }
+.lyrics .ph { display: block; height: .6em; margin: 0 0 1.1em; border-radius: 3px; background: var(--taupe); }
+.lyrics-note { margin: 0; padding: 10px 0 14px; border-top: 1px solid var(--taupe); color: var(--muted); font-size: 11px; }
+
+.player { grid-column: 1 / -1; opacity: 0; transform: translateY(12px); transition: opacity .5s ease, transform .5s cubic-bezier(.2,.8,.2,1); }
+.player.on { opacity: 1; transform: none; }
+.player iframe { display: block; border: 0; border-radius: 12px; }
+
+.sleeve { position: fixed; left: 0; top: 0; z-index: 2; width: var(--D); height: var(--D); transform-origin: 0 0; background: var(--cover) center / cover;
+  border-radius: 2px; box-shadow: 0 2px 3px rgba(28,26,23,.2), 0 24px 40px -18px rgba(28,26,23,.55); pointer-events: none; }
+
+@media (max-width: 760px) {
+  .rec-hero { grid-template-columns: 1fr; }
+  .title { font-size: 13vw; }
+  .stage { --D: min(64vw, 34vh); --W: min(86vw, 420px); --g: 14px; }
+  .deck { grid-template-columns: var(--W); grid-template-rows: var(--D) calc(var(--D) * 1.05) var(--P); justify-items: center; }
+  .insert { height: calc(var(--D) * 1.05); }
+  .player { grid-column: 1; width: var(--W); }
+}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <a class="back caps" id="back" href="detail.html">← Back</a>
+  <a class="logo" href="page.html">Spiral Sounds</a>
+  <span></span>
+</header>
+
+<main class="rec-hero">
+  <button class="cover" id="cover" type="button" aria-haspopup="dialog" aria-controls="stage"></button>
+  <div class="info">
+    <p class="artist caps" id="artist"></p>
+    <h1 class="title" id="title"></h1>
+    <p class="price" id="price"></p>
+    <button class="add-btn" type="button">Add to bag +</button>
+    <p class="hint">Mockup: click the cover to open the record.</p>
+  </div>
+</main>
+
+<div class="stage" id="stage" role="dialog" aria-modal="true" aria-label="Record player" hidden>
+  <div class="stage-base" id="stage-base"></div>
+  <div class="stage-blur"></div>
+  <button class="stage-close caps" id="stage-close" type="button">Close ✕</button>
+  <div class="deck" id="deck">
+    <div class="disc" id="disc"><div class="face"><div class="lbl" id="lbl">
+      <span class="lbl-title" id="lbl-title"></span><span class="lbl-artist caps" id="lbl-artist"></span><span class="lbl-rpm caps">Side one · 33⅓</span>
+    </div></div></div>
+    <div class="insert" id="insert">
+      <section class="view" id="view-tracks">
+        <div class="ins-head"><p class="caps" id="ins-meta"></p><h2 class="ins-title" id="ins-title"></h2></div>
+        <ol class="tracks" id="tracks"></ol>
+      </section>
+      <section class="view off" id="view-lyrics" aria-live="polite">
+        <button class="back-link caps" id="to-tracks" type="button">← Tracklist</button>
+        <div class="ins-head"><p class="caps" id="ly-n"></p><h2 class="ins-title" id="ly-title"></h2></div>
+        <p class="lyrics" id="lyrics"></p>
+        <p class="lyrics-note" id="lyrics-note"></p>
+      </section>
+    </div>
+    <div class="player" id="player"><div id="spotify"></div></div>
+  </div>
+  <div class="sleeve" id="sleeve" hidden></div>
+</div>
+
+<script>
+// Spotify track ids for the records this mockup can play, keyed by product id
+// and then by normalised track title (Spotify's track order differs from iTunes').
+// The real build stores these in each tracklist entry via a backfill script.
+const SPOTIFY = {
+  36: {
+    "lovesinneedoflovetoday": "39sdlCugrGBsoC4Flos0HO", "haveatalkwithgod": "5grvrZh5z2jsPjCOy1d8fP",
+    "villageghettoland": "1xZv5HMOdnP1V4pfDFHdA1", "contusion": "7c0442O49LWK1GflGFyS4u", "sirduke": "4pNiE4LCVV74vfIBaUHm1b",
+    "iwish": "687YZan9Gol1UVvbpUSO6Y", "knocksmeoffmyfeet": "4C5GsegFD0j5ujSr1y93Oj", "pastimeparadise": "4Gn4b1qJ12rowCNRw5DHM9",
+    "summersoft": "0eGpcLG96GWVCG4Ix3qLCp", "ordinarypain": "1TF3L6npXn08LjwRdQGBww", "isntshelovely": "6RANU8AS5ICU5PEHh8BYtH",
+    "joyinsidemytears": "35WjWVaGGmA6RU0kgyOxZ6", "blackman": "6nGaPDMcXeY7YS3O8B8C6s",
+    "ngiculelaesunahistoriaiamsinging": "49jWPMEvoGPNRYSd4vEXSo", "ifitsmagic": "4UBzGxrKBZN0NwJ8vTz8AG", "as": "13toFl1UwJPsRxDiD9jgtn",
+    "anotherstar": "5owFj7EOftzR9x5zciL0Bm", "saturn": "5RgWdJs6H52nMyZFQspQWH", "ebonyeyes": "620q3OKfZXyy4dstdxSi9K",
+    "alldaysucker": "3acOX53ZUy4N11zEvNa7N6", "easygoineveningmymamascall": "2pjT0KymaeuWq29iFV9raB",
+  },
+}
+
+const $ = id => document.getElementById(id)
+const norm = s => s.toLowerCase().replace(/[^a-z0-9]/g, '')
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))
+const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
+
+const id = Number(new URLSearchParams(location.search).get('id')) || 36
+const rec = PRODUCTS.find(p => p.id === id) || PRODUCTS.find(p => p.id === 36)
+const ids = SPOTIFY[rec.id] || {}
+const tracks = (rec.tracklist || []).map((t, i) => ({ ...t, n: i + 1, spotify: ids[norm(t.title)] || null }))
+
+// ---------- page ----------
+document.documentElement.style.setProperty('--cover', `url("../../public/images/${rec.image}")`)
+$('back').href = `detail.html?id=${rec.id}`
+$('cover').setAttribute('aria-label', `Open ${rec.title}`)
+$('artist').textContent = rec.artist
+$('title').textContent = rec.title
+$('price').textContent = `$${rec.price}`
+$('ins-meta').textContent = `${rec.artist} · ${rec.year}`
+$('ins-title').textContent = rec.title
+$('lbl-title').textContent = rec.title
+$('lbl-artist').textContent = rec.artist
+
+// Label colour: average the cover (a 24px copy — drawing straight to one pixel
+// just samples the middle), turn the hue halfway round, and print in ink or
+// cream depending on how light the result is.
+const art = new Image()
+art.onload = () => {
+  const N = 24, c = document.createElement('canvas'); c.width = c.height = N
+  const g = c.getContext('2d'); g.drawImage(art, 0, 0, N, N)
+  const px = g.getImageData(0, 0, N, N).data, sum = [0, 0, 0]
+  for (let i = 0; i < px.length; i += 4) { sum[0] += px[i]; sum[1] += px[i + 1]; sum[2] += px[i + 2] }
+  const [r, gr, b] = sum.map(v => v / (N * N) / 255)
+  const max = Math.max(r, gr, b), min = Math.min(r, gr, b), d = max - min
+  const h = d === 0 ? 40 : max === r ? 60 * (((gr - b) / d) % 6) : max === gr ? 60 * ((b - r) / d + 2) : 60 * ((r - gr) / d + 4)
+  const light = (max + min) / 2 < .5 ? 62 : 34 // dark cover → light label, and the other way round
+  const lbl = $('lbl')
+  lbl.style.setProperty('--lbl', `hsl(${Math.round(h + 180)} ${d < .08 ? 18 : 42}% ${light}%)`)
+  lbl.style.setProperty('--lbl-ink', light > 50 ? 'var(--ink)' : 'var(--cream)')
+}
+art.src = `../../public/images/${rec.image}`
+$('tracks').innerHTML = tracks.map(t => `<li><button type="button" data-n="${t.n}" ${t.spotify ? '' : 'disabled title="No Spotify preview for this track"'}>
+  <span class="n">${String(t.n).padStart(2, '0')}</span><span class="t">${esc(t.title)}</span><span class="d">${t.duration || ''}</span></button></li>`).join('')
+
+// ---------- motion helpers ----------
+// Every moving piece remembers where it is ({x, y, s, r, o}); mv() sets the new
+// place as its resting style and animates from the old one, so a sequence can
+// be reversed from wherever it stands.
+const stage = $('stage'), deck = $('deck'), disc = $('disc'), insert = $('insert'), sleeve = $('sleeve'), base = $('stage-base')
+const E = { out: 'cubic-bezier(.2,.8,.2,1)', pull: 'cubic-bezier(.3,.7,.2,1)', fall: 'cubic-bezier(.55,0,.85,.35)', inOut: 'cubic-bezier(.65,0,.25,1)' }
+const at = new Map()
+const css = p => `translate(${p.x}px, ${p.y}px) scale(${p.s ?? 1}) rotate(${p.r ?? 0}deg)`
+function place(el, p) { at.set(el, p); el.style.transform = css(p); el.style.opacity = p.o ?? 1 }
+function mv(el, p, duration, easing, delay = 0) {
+  const from = at.get(el)
+  place(el, p)
+  return el.animate([{ transform: css(from), opacity: from.o ?? 1 }, { transform: css(p), opacity: p.o ?? 1 }],
+    { duration, easing, delay, fill: 'backwards' }).finished
+}
+function fade(el, from, to, duration, delay = 0) {
+  el.style.opacity = to
+  return el.animate([{ opacity: from }, { opacity: to }], { duration, delay, fill: 'backwards', easing: 'ease' }).finished
+}
+
+// Offsets that put an in-flow piece (disc/insert) at a given viewport spot,
+// measured from its settled layout box.
+let home
+function measure() {
+  disc.style.transform = insert.style.transform = ''
+  const d = disc.getBoundingClientRect(), i = insert.getBoundingClientRect()
+  const D = d.width
+  const row = i.top < d.bottom - 1 // insert beside the record (desktop) or below it (phone)
+  const C = { x: (innerWidth - D) / 2, y: (innerHeight - D) / 2 } // sleeve centred on the page
+  const rel = (box, x, y) => ({ x: x - box.left, y: y - box.top })
+  const insetX = (D - i.width) / 2, insetY = Math.max(0, (D - i.height) / 2)
+  home = {
+    D, row, C,
+    disc: { centre: rel(d, C.x, C.y), out: rel(d, ...(row ? [C.x + .5 * D, C.y] : [C.x, C.y + .55 * D])) },
+    insert: {
+      centre: rel(i, C.x + insetX, C.y + insetY),
+      out: rel(i, ...(row ? [C.x + 1.42 * D, C.y + insetY] : [C.x + insetX, C.y + .95 * D])),
+    },
+    sleeve: {
+      centre: { x: C.x, y: C.y },
+      out: row ? { x: C.x - .6 * D, y: C.y } : { x: C.x, y: C.y - .5 * D },
+      gone: { x: (row ? C.x - .6 * D : C.x) - .35 * innerWidth, y: innerHeight + .2 * D, r: -34, o: 0 },
+    },
+  }
+}
+function coverBox() {
+  const r = $('cover').getBoundingClientRect()
+  return { x: r.left, y: r.top, s: r.width / home.D }
+}
+
+// ---------- open / close ----------
+let state = 'closed'
+
+async function openAlbum() {
+  if (state !== 'closed') return
+  state = 'busy'
+  stage.hidden = false
+  document.body.classList.add('locked')
+  measure()
+  ensurePlayer()
+
+  if (reduced) {
+    place(disc, { x: 0, y: 0 }); place(insert, { x: 0, y: 0 })
+    await fade(base, 0, 1, 250)
+    return opened()
+  }
+
+  // 1) the album lifts off the page into the centre; the page fades back
+  sleeve.hidden = false
+  place(sleeve, coverBox())
+  $('cover').style.visibility = 'hidden'
+  place(disc, { ...home.disc.centre, o: 0 }); place(insert, { ...home.insert.centre, o: 0 })
+  await Promise.all([mv(sleeve, home.sleeve.centre, 750, E.out), fade(base, 0, 1, 600)])
+
+  // 2) record and insert slide out to the right (down on phones)
+  place(disc, home.disc.centre); place(insert, home.insert.centre)
+  await Promise.all([
+    mv(sleeve, home.sleeve.out, 950, E.pull),
+    mv(disc, home.disc.out, 950, E.pull),
+    mv(insert, home.insert.out, 1050, E.pull, 120),
+  ])
+
+  // 3) fully out: the sleeve drops away bottom-left, the pair settles in the middle
+  stage.classList.add('open')
+  await Promise.all([
+    mv(sleeve, home.sleeve.gone, 700, E.fall),
+    mv(disc, { x: 0, y: 0 }, 850, E.out, 140),
+    mv(insert, { x: 0, y: 0 }, 850, E.out, 140),
+  ])
+  sleeve.hidden = true
+  opened()
+}
+
+function opened() {
+  state = 'open'
+  stage.classList.add('open')
+  $('stage-close').focus({ preventScroll: true })
+}
+
+async function closeAlbum() {
+  if (state !== 'open') return
+  state = 'busy'
+  pause()
+  stage.classList.remove('open', 'playing')
+  $('player').classList.remove('on')
+  document.querySelectorAll('.tracks button.on').forEach(x => x.classList.remove('on'))
+
+  if (!reduced) {
+    measure()
+    place(disc, { x: 0, y: 0 }); place(insert, { x: 0, y: 0 })
+    sleeve.hidden = false
+    place(sleeve, home.sleeve.gone)
+    // the sleeve comes back up, the pair slides out to meet it, then back inside
+    await Promise.all([mv(sleeve, home.sleeve.out, 650, E.out), mv(disc, home.disc.out, 650, E.out), mv(insert, home.insert.out, 650, E.out)])
+    await Promise.all([mv(sleeve, home.sleeve.centre, 700, E.inOut), mv(disc, home.disc.centre, 700, E.inOut), mv(insert, home.insert.centre, 760, E.inOut)])
+    place(disc, { ...home.disc.centre, o: 0 }); place(insert, { ...home.insert.centre, o: 0 })
+    await Promise.all([mv(sleeve, coverBox(), 650, E.inOut), fade(base, 1, 0, 550, 100)])
+  } else {
+    await fade(base, 1, 0, 250)
+  }
+
+  sleeve.hidden = true
+  stage.hidden = true
+  $('cover').style.visibility = ''
+  document.body.classList.remove('locked')
+  showTracks()
+  state = 'closed'
+  $('cover').focus({ preventScroll: true })
+}
+
+$('cover').addEventListener('click', openAlbum)
+$('stage-close').addEventListener('click', closeAlbum)
+stage.addEventListener('click', e => { if (!deck.contains(e.target) && e.target !== $('stage-close')) closeAlbum() })
+addEventListener('keydown', e => { if (e.key === 'Escape') closeAlbum() })
+
+// ---------- insert: tracklist ⇄ lyrics ----------
+function showTracks() {
+  $('view-tracks').classList.remove('off'); $('view-lyrics').classList.add('off')
+}
+async function showLyrics(t) {
+  $('ly-n').textContent = `Track ${String(t.n).padStart(2, '0')} · ${t.duration || ''}`
+  $('ly-title').textContent = t.title
+  $('lyrics').innerHTML = '<span class="ph" style="width:86%"></span><span class="ph" style="width:70%"></span><span class="ph" style="width:92%"></span><span class="ph" style="width:58%"></span><span class="ph" style="width:80%"></span><span class="ph" style="width:66%"></span>'
+  $('lyrics-note').textContent = 'Lyrics placeholder — Musixmatch (via /api/lyrics) fills this in the real build.'
+  $('view-tracks').classList.add('off'); $('view-lyrics').classList.remove('off')
+  $('lyrics').scrollTop = 0
+}
+$('to-tracks').addEventListener('click', showTracks)
+$('tracks').addEventListener('click', e => {
+  const b = e.target.closest('button[data-n]')
+  if (!b || b.disabled) return
+  const t = tracks[b.dataset.n - 1]
+  document.querySelectorAll('.tracks button.on').forEach(x => x.classList.remove('on'))
+  b.classList.add('on')
+  play(t)
+  showLyrics(t)
+})
+
+// ---------- Spotify (Embed iFrame API) ----------
+// The controller is created when the album opens (inside the click), so a later
+// track click only has to load and play. 30-second previews when not logged in.
+let api = null, ctrl = null, wanted = null
+window.onSpotifyIframeApiReady = IFrameAPI => { api = IFrameAPI; if (stage.hidden === false) ensurePlayer() }
+function ensurePlayer() {
+  if (ctrl || !api) return
+  const first = tracks.find(t => t.spotify)
+  if (!first) return
+  ctrl = 'pending'
+  api.createController($('spotify'), { uri: `spotify:track:${first.spotify}`, width: '100%', height: 80 }, c => {
+    ctrl = c
+    c.addListener('playback_update', e => {
+      const { isPaused, isBuffering, position, duration } = e.data
+      stage.classList.toggle('playing', !isPaused && !isBuffering && position < duration)
+    })
+    if (wanted) play(wanted)
+  })
+}
+function play(t) {
+  $('player').classList.add('on')
+  if (!ctrl || ctrl === 'pending') { wanted = t; return }
+  wanted = null
+  ctrl.loadUri(`spotify:track:${t.spotify}`)
+  ctrl.play()
+}
+function pause() { if (ctrl && ctrl !== 'pending') ctrl.pause() }
+</script>
+<script src="https://open.spotify.com/embed/iframe-api/v1" async></script>
+</body>
+</html>

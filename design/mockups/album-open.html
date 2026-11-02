@@ -174,31 +174,13 @@ button { font: inherit; color: inherit; }
 </div>
 
 <script>
-// Spotify track ids for the records this mockup can play, keyed by product id
-// and then by normalised track title (Spotify's track order differs from iTunes').
-// The real build stores these in each tracklist entry via a backfill script.
-const SPOTIFY = {
-  36: {
-    "lovesinneedoflovetoday": "39sdlCugrGBsoC4Flos0HO", "haveatalkwithgod": "5grvrZh5z2jsPjCOy1d8fP",
-    "villageghettoland": "1xZv5HMOdnP1V4pfDFHdA1", "contusion": "7c0442O49LWK1GflGFyS4u", "sirduke": "4pNiE4LCVV74vfIBaUHm1b",
-    "iwish": "687YZan9Gol1UVvbpUSO6Y", "knocksmeoffmyfeet": "4C5GsegFD0j5ujSr1y93Oj", "pastimeparadise": "4Gn4b1qJ12rowCNRw5DHM9",
-    "summersoft": "0eGpcLG96GWVCG4Ix3qLCp", "ordinarypain": "1TF3L6npXn08LjwRdQGBww", "isntshelovely": "6RANU8AS5ICU5PEHh8BYtH",
-    "joyinsidemytears": "35WjWVaGGmA6RU0kgyOxZ6", "blackman": "6nGaPDMcXeY7YS3O8B8C6s",
-    "ngiculelaesunahistoriaiamsinging": "49jWPMEvoGPNRYSd4vEXSo", "ifitsmagic": "4UBzGxrKBZN0NwJ8vTz8AG", "as": "13toFl1UwJPsRxDiD9jgtn",
-    "anotherstar": "5owFj7EOftzR9x5zciL0Bm", "saturn": "5RgWdJs6H52nMyZFQspQWH", "ebonyeyes": "620q3OKfZXyy4dstdxSi9K",
-    "alldaysucker": "3acOX53ZUy4N11zEvNa7N6", "easygoineveningmymamascall": "2pjT0KymaeuWq29iFV9raB",
-  },
-}
-
 const $ = id => document.getElementById(id)
-const norm = s => s.toLowerCase().replace(/[^a-z0-9]/g, '')
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
 
 const id = Number(new URLSearchParams(location.search).get('id')) || 36
 const rec = PRODUCTS.find(p => p.id === id) || PRODUCTS.find(p => p.id === 36)
-const ids = SPOTIFY[rec.id] || {}
-const tracks = (rec.tracklist || []).map((t, i) => ({ ...t, n: i + 1, spotify: ids[norm(t.title)] || null }))
+const tracks = (rec.tracklist || []).map((t, i) => ({ ...t, n: i + 1, spotify: t.spotifyId || null }))
 
 // ---------- page ----------
 document.documentElement.style.setProperty('--cover', `url("../../public/images/${rec.image}")`)

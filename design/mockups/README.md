@@ -7,7 +7,7 @@ reference for building the redesign into `public/` — not part of the running a
 |---|---|
 | `page.html` | Home: red-panel hero with playable turntable, genre collage, showroom, client stories, red poster finale + footer, and the genre overlay |
 | `detail.html?id=66` | Record detail page with sticky purchase bar |
-| `album-open.html?id=36` | Detail page "album open": click the cover, the record and a tracklist insert slide out, tracks play as Spotify previews over a blurred-cover background (only id 36 has Spotify ids; lyrics are a placeholder) |
+| `album-open.html?id=36` | Detail page "album open": click the cover, the record and a tracklist insert slide out, tracks play as Spotify previews over a blurred-cover background (works for any id; lyrics are a placeholder) |
 | `cart.html` | Bag, payment step, empty and thank-you states |
 | `auth.html` / `auth.html?mode=signup` | Log in / sign up (`?next=cart` shows the checkout notice) |
 

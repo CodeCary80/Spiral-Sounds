@@ -105,6 +105,9 @@ Create `.env` in the project root:
 DATABASE_URL=your_supabase_connection_string
 STRIPE_SECRET_KEY=sk_test_...
 SPIRAL_SESSION_SECRET=your_session_secret
+# only for scripts/importSpotifyIds.js (free app at developer.spotify.com/dashboard)
+SPOTIFY_CLIENT_ID=...
+SPOTIFY_CLIENT_SECRET=...
 ```
 
 Create the orders tables (additive and safe to re-run), then start the server:

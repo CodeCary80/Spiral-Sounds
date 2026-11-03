@@ -4,6 +4,7 @@ import { initHeader, setBagCount } from './header.js'
 import { getProducts } from './productService.js'
 import { getCart, addToCart } from './cartApi.js'
 import { handOffCover } from './handoff.js'
+import { initAlbumStage } from './albumStage.js'
 
 const $ = sel => document.querySelector(sel)
 const esc = t => String(t).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))
@@ -79,7 +80,7 @@ function render(rec, more, inBag) {
     <p class="price">${money(rec.price)}</p>
     <p class="stock${low ? ' low' : ''}${out ? ' out' : ''}">${stockText}</p>
     <button class="add-btn${inBag ? ' done' : ''}" id="add" type="button" data-id="${rec.id}"${out ? ' disabled' : ''}>${addLabel}</button>
-    ${tracks.length ? '<a class="jump" href="#tracklist">View tracklist <span aria-hidden="true">↓</span></a>' : ''}`
+    ${tracks.length ? '<button class="jump" id="open-record" type="button" aria-haspopup="dialog" aria-controls="stage">Play the record <span aria-hidden="true">↗</span></button>' : ''}`
 
   $('#detail-main').insertAdjacentHTML('beforeend', `
     <section class="notes" id="tracklist">
@@ -150,6 +151,7 @@ async function boot() {
   const [sameGenre, cart] = await Promise.all([getProducts({ genre: rec.genre }), name ? getCart() : null])
   const more = sameGenre.filter(p => p.id !== rec.id).slice(0, 4)
   render(rec, more, !!cart?.some(i => i.productId === rec.id))
+  initAlbumStage(rec)
 
   // both buttons add the same record and stay in sync
   const buttons = [$('#add'), $('#add2')]

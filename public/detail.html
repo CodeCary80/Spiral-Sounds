@@ -37,13 +37,39 @@
 
   <main id="detail-main">
     <section class="rec-hero">
-      <div class="cover" id="cover" role="img" aria-label="Record cover"></div>
+      <button class="cover" id="cover" type="button" aria-label="Record cover" aria-haspopup="dialog" aria-controls="stage" disabled></button>
       <div class="info" id="info" aria-live="polite"></div>
     </section>
   </main>
 
   <div class="buybar" id="buybar" aria-hidden="true"></div>
   <footer class="end-bar"><span>© 2026 Spiral Sounds</span><a href="#">Back to top ↑</a></footer>
+
+  <!-- ===== Album open: the record and tracklist insert slide out of the sleeve ===== -->
+  <div class="stage" id="stage" role="dialog" aria-modal="true" aria-label="Record player" hidden>
+    <div class="stage-base" id="stage-base"></div>
+    <div class="stage-blur"></div>
+    <button class="stage-close caps" id="stage-close" type="button">Close ✕</button>
+    <div class="deck" id="deck">
+      <div class="disc" id="disc"><div class="face"><div class="lbl" id="lbl">
+        <span class="lbl-title" id="lbl-title"></span><span class="lbl-artist caps" id="lbl-artist"></span><span class="lbl-rpm caps">Side one · 33⅓</span>
+      </div></div></div>
+      <div class="insert" id="insert">
+        <section class="view" id="view-tracks">
+          <div class="ins-head"><p class="caps" id="ins-meta"></p><h2 class="ins-title" id="ins-title"></h2></div>
+          <ol class="ins-tracks" id="ins-tracks"></ol>
+        </section>
+        <section class="view off" id="view-lyrics" aria-live="polite">
+          <button class="back-link caps" id="to-tracks" type="button">← Tracklist</button>
+          <div class="ins-head"><p class="caps" id="ly-n"></p><h2 class="ins-title" id="ly-title"></h2></div>
+          <p class="lyrics" id="lyrics"></p>
+          <p class="lyrics-note" id="lyrics-note"></p>
+        </section>
+      </div>
+      <div class="player" id="player"><div id="spotify"></div></div>
+    </div>
+    <div class="sleeve" id="sleeve" hidden></div>
+  </div>
 
   <script src="/js/detail.js" type="module"></script>
 </body>

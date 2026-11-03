@@ -69,6 +69,7 @@ class RateLimited extends Error {}
 // told to wait most of a day, so stop instead of sleeping through that.
 async function spotify(path, token) {
   for (let attempt = 0; attempt < 5; attempt++) {
+    await sleep(10000)
     const res = await fetch(path.startsWith('http') ? path : API + path, {
       headers: { Authorization: `Bearer ${token}` }
     })

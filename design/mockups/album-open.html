@@ -47,7 +47,7 @@ button { font: inherit; color: inherit; }
 /* ---------- album stage ---------- */
 /* Sizes: D = record (and sleeve), W = insert, g = gap. The deck is laid out in
    its final, settled position; the animation offsets the pieces from there. */
-.stage { --D: min(30vw, 56vh); --W: calc(var(--D) * .86); --g: calc(var(--D) * .08); --P: 80px;
+.stage { --D: min(30vw, 56vh); --W: calc(var(--D) * 1.1); --g: calc(var(--D) * .08); --P: 80px;
   position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; }
 .stage[hidden] { display: none; }
 .stage-base { position: absolute; inset: 0; background: rgba(239,235,228,.95); opacity: 0; }
@@ -68,7 +68,7 @@ button { font: inherit; color: inherit; }
    turning read as a record spinning under a light. */
 .disc { position: relative; width: var(--D); height: var(--D); border-radius: 50%; overflow: hidden;
   box-shadow: 0 0 0 1px rgba(13,12,11,.55), 0 2px 4px rgba(28,26,23,.25), 0 28px 44px -20px rgba(28,26,23,.6); }
-.disc .face { position: absolute; inset: 0; border-radius: 50%; background: var(--cover) center / cover; animation: spin 1.8s linear infinite paused; }
+.disc .face { position: absolute; inset: 0; border-radius: 50%; background: var(--cover) center / cover; animation: spin 8s linear infinite paused; }
 .disc .face::before { content: ''; position: absolute; inset: 0; border-radius: 50%;
   background: repeating-radial-gradient(circle, rgba(0,0,0,.07) 0 1px, transparent 1px 3px);
   -webkit-mask: radial-gradient(circle closest-side, transparent 38%, #000 39%, #000 96%, transparent 96.5%); mask: radial-gradient(circle closest-side, transparent 38%, #000 39%, #000 96%, transparent 96.5%); }
@@ -354,13 +354,49 @@ addEventListener('keydown', e => { if (e.key === 'Escape') closeAlbum() })
 function showTracks() {
   $('view-tracks').classList.remove('off'); $('view-lyrics').classList.add('off')
 }
+// Mockup stand-in for the app's /api/lyrics route (this page has no server), with
+// the same exact-lookup-then-search order and retries while LRCLIB is busy.
+async function askLrclib(endpoint, q) {
+  for (let i = 0; i < 4; i++) {
+    const r = await fetch(`https://lrclib.net/api/${endpoint}?${q}`)
+    if (r.status === 404) return null
+    if (r.ok) return r.json()
+    await new Promise(done => setTimeout(done, 1000))
+  }
+  throw new Error('LRCLIB is busy')
+}
+async function lyricsFor(t) {
+  const q = new URLSearchParams({
+    track_name: t.title.replace(/\s+[-–]\s+.*$/, '').replace(/\s*[([].*?[)\]]/g, '').trim() || t.title,
+    artist_name: rec.artist.split(/\s*(?:&|,)\s*/)[0],
+  })
+  const exact = await askLrclib('get', q)
+  const results = exact?.plainLyrics?.trim() ? [exact] : [...(exact ? [exact] : []), ...(await askLrclib('search', q) || [])]
+  const hit = results.find(r => r.plainLyrics?.trim())
+  return { lyrics: hit ? hit.plainLyrics.trim() : null, instrumental: !hit && results.some(r => r.instrumental) }
+}
+
+let lyricsTurn = 0
 async function showLyrics(t) {
+  const turn = ++lyricsTurn
   $('ly-n').textContent = `Track ${String(t.n).padStart(2, '0')} · ${t.duration || ''}`
   $('ly-title').textContent = t.title
   $('lyrics').innerHTML = '<span class="ph" style="width:86%"></span><span class="ph" style="width:70%"></span><span class="ph" style="width:92%"></span><span class="ph" style="width:58%"></span><span class="ph" style="width:80%"></span><span class="ph" style="width:66%"></span>'
-  $('lyrics-note').textContent = 'Lyrics placeholder — Musixmatch (via /api/lyrics) fills this in the real build.'
+  $('lyrics-note').textContent = ''
   $('view-tracks').classList.add('off'); $('view-lyrics').classList.remove('off')
   $('lyrics').scrollTop = 0
+
+  let text, note = ''
+  try {
+    const { lyrics, instrumental } = await lyricsFor(t)
+    text = lyrics || (instrumental ? 'Instrumental — no words to this one.' : 'No lyrics found for this track.')
+    if (lyrics) note = 'Lyrics from LRCLIB'
+  } catch {
+    text = 'Couldn’t load the lyrics right now.'
+  }
+  if (turn !== lyricsTurn) return // another track was clicked while this one loaded
+  $('lyrics').textContent = text
+  $('lyrics-note').textContent = note
 }
 $('to-tracks').addEventListener('click', showTracks)
 $('tracks').addEventListener('click', e => {

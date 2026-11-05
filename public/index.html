@@ -48,7 +48,7 @@
         <div class="op-spin" id="op-spin">
           <div class="op-disc"></div>
           <div class="op-grooves" id="op-grooves"></div>
-          <!-- same label as the hero deck (colour, size, orientation) so the hand-off is invisible -->
+          <!-- same label as the hero record (colour, size) so the hand-off is invisible -->
           <svg viewBox="0 0 600 600">
             <circle cx="300" cy="300" r="112" fill="#efe4d2"/>
             <use href="#ss-mark" x="188" y="188" width="224" height="224" style="color:#a8392a"/>
@@ -77,28 +77,44 @@
     </header>
 
     <div class="hero-body">
-      <h1 class="hero-h">
-        <span class="ln"><span><i>Records for those</i></span></span>
-        <span class="ln"><span><i>who listen with vision.</i></span></span>
-      </h1>
-      <div class="deck-view">
+      <div class="hero-copy">
+        <h1 class="hero-h">
+          <span class="ln"><span><i>Records for those</i></span></span>
+          <span class="ln"><span><i>who listen</i></span></span>
+          <span class="ln"><span><i>with vision.</i></span></span>
+        </h1>
+        <a class="hero-cta" href="#collection">Explore the collection <span aria-hidden="true">↘</span></a>
+      </div>
+
+      <div class="featured">
         <div class="deck" id="deck">
-          <img class="tt-base" src="/images/turntable-base.png" alt="A walnut and ivory turntable with a record on the platter">
-          <div class="record-plane">
-            <img class="record-static" src="/images/vinyl-record-disc.png" alt="">
-            <div class="record-rotor">
-              <svg class="label-mark" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="48" fill="#efe4d2"/><use href="#ss-mark" width="100" height="100"/><circle cx="50" cy="50" r="2.2" fill="#0d0c0b"/></svg>
+          <div class="record-slide">
+            <div class="record-plane">
+              <img class="record-static" src="/images/vinyl-record-disc.png" alt="">
+              <div class="record-rotor">
+                <svg class="label-mark" viewBox="0 0 100 100" aria-hidden="true"><circle cx="50" cy="50" r="48" fill="#efe4d2"/><use href="#ss-mark" width="100" height="100"/><circle cx="50" cy="50" r="2.2" fill="#0d0c0b"/></svg>
+              </div>
             </div>
           </div>
-          <img class="tt-tonearm" src="/images/tonearm-cutout-v2.png" alt="">
-          <button class="record-hit" id="record-hit" type="button" aria-label="Play or pause the record"></button>
-          <div class="play-control"><button class="tt-power" id="tt-power" type="button" aria-label="Play record"></button></div>
-          <audio id="tt-audio" preload="none" src="https://audio-ssl.itunes.apple.com/itunes-assets/AudioPreview211/v4/54/e8/0a/54e80a8b-1d60-6b59-e908-6fd65c4ff783/mzaf_2469862574651846302.plus.aac.p.m4a"></audio>
+          <img class="hero-sleeve" id="hero-sleeve" alt="">
         </div>
-      </div>
-      <div class="hero-foot">
-        <a class="hero-cta" href="#collection">Explore the collection <span aria-hidden="true">↘</span></a>
-        <button class="hero-cue" id="hero-cue" type="button"></button>
+        <div class="featured-meta">
+          <div class="featured-who">
+            <a class="featured-name" id="featured-name" data-view-album></a>
+            <div class="featured-sub">
+              <span id="featured-about"></span>
+              <a class="featured-view" data-view-album>View album</a>
+            </div>
+          </div>
+          <div class="featured-actions">
+            <button class="hero-end" id="hero-end" type="button" hidden>End</button>
+            <button class="hero-preview" id="hero-preview" type="button"></button>
+          </div>
+        </div>
+        <div class="hero-player-slot">
+          <div class="hero-player" id="hero-player"><div id="hero-spotify"></div></div>
+          <p class="hero-note" id="hero-note" role="status"></p>
+        </div>
       </div>
     </div>
   </section>

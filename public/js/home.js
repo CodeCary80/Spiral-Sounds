@@ -1,4 +1,4 @@
-// Home page (redesign): hero turntable, genre collage, showroom scroll,
+// Home page (redesign): hero record, genre collage, showroom scroll,
 // client stories, finale, and the genre/search overlay ("sheet").
 // Reference: design/mockups/page.html.
 
@@ -7,6 +7,7 @@ import { getProducts, getGenres } from './productService.js'
 import { getCart, addToCart, setQuantity, removeFromCart } from './cartApi.js'
 import { stepper } from './qty.js'
 import { handOffCover } from './handoff.js'
+import { initHeroRecord } from './heroRecord.js'
 
 const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches
 const $ = sel => document.querySelector(sel)
@@ -31,51 +32,18 @@ const GENRE_DESC = {
 // genre the catalogue gains later is appended after these.
 const GENRE_ORDER = ['punk', 'ambient', 'rock', 'soul', 'indie', 'pop', 'jazz', 'blues', 'metal', 'folk', 'classical', 'electronic']
 
-// ===================== Hero turntable =====================
-// One `playing` flag drives the audio, the eased label spin, the tonearm and
-// the cue line. The spin runs through the Web Animations API so its
-// playbackRate can ramp up and down instead of stopping dead.
+// ===================== Hero record =====================
+// The server picks the week's record. This one stands in if it can't answer quickly,
+// so the hero never waits long or comes up empty.
+const FALLBACK_FEATURED = {
+  id: 36, title: 'Songs in the Key of Life', artist: 'Stevie Wonder', genre: 'soul', year: 1976, image: 'vinyl36.jpg',
+  previewTrack: { title: 'Sir Duke', spotifyId: '4pNiE4LCVV74vfIBaUHm1b' },
+}
 const deck = $('#deck')
-;(() => {
-  const dial = $('#tt-power'), cue = $('#hero-cue'), audio = $('#tt-audio')
-  const spin = deck.querySelector('.record-rotor').animate(
-    [{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }],
-    { duration: 5200, iterations: Infinity, easing: 'linear' })
-  spin.pause()
-  spin.playbackRate = 0
-  let rampId = null, playing = false
-
-  function rampTo(target, ms) {
-    if (rampId) cancelAnimationFrame(rampId)
-    if (reduced) { spin.pause(); return }
-    const from = spin.playbackRate, t0 = performance.now()
-    if (spin.playState !== 'running') spin.play()
-    const step = now => {
-      const t = Math.min(1, (now - t0) / ms)
-      spin.playbackRate = from + (target - from) * t
-      if (t < 1) rampId = requestAnimationFrame(step)
-      else if (target === 0) { spin.pause(); rampId = null }
-    }
-    rampId = requestAnimationFrame(step)
-  }
-  function render() {
-    deck.classList.toggle('is-playing', playing)
-    dial.setAttribute('aria-label', playing ? 'Pause record' : 'Play record')
-    cue.innerHTML = playing
-      ? '<b aria-hidden="true">&#8545;</b> Now playing &middot; press to pause'
-      : '<b aria-hidden="true">&#9654;</b> Press the silver dial to play'
-  }
-  function stop() { playing = false; audio.pause(); rampTo(0, 600); render() }
-  async function start() {
-    playing = true; render(); rampTo(1, 900)
-    try { await audio.play() } catch { stop() }
-  }
-  const toggle = () => (playing ? stop() : start())
-  ;[dial, cue, $('#record-hit')].forEach(el => el.addEventListener('click', toggle))
-  audio.addEventListener('ended', stop)
-  audio.addEventListener('error', stop)
-  render()
-})()
+const heroRecordReady = Promise.race([
+  fetch('/api/products/featured').then(res => (res.ok ? res.json() : null)).catch(() => null),
+  new Promise(r => setTimeout(r, 2500)),
+]).then(record => initHeroRecord({ record: record || FALLBACK_FEATURED, reduced }))
 
 // ===================== Genre collage masthead =====================
 const collection = $('#collection')
@@ -145,15 +113,15 @@ document.querySelectorAll('.rotation .sleeve-mini').forEach(a =>
     handOffCover({ id: new URL(a.href).searchParams.get('id'), image: a.dataset.image })
   }))
 
-// The closing record turns with the scroll; while the hero deck is playing it
-// also turns at the deck's speed and the "still playing" line appears.
+// The closing record turns with the scroll; while the hero record is playing it
+// also turns at the same speed and the "still playing" line appears.
 ;(() => {
   const disc = $('#closing-spin'), still = $('#still')
   let free = 0, last = performance.now()
   function tick(now) {
     const dt = now - last; last = now
     const playing = deck.classList.contains('is-playing')
-    if (playing && !reduced) free += dt * 360 / 5200
+    if (playing && !reduced) free += dt * 360 / 8000
     still.classList.toggle('on', playing)
     disc.style.transform = `rotate(${reduced ? 0 : scrollY * .12 + free}deg)`
     requestAnimationFrame(tick)
@@ -300,6 +268,9 @@ function openSheet(nextView, from) {
 function closeSheet() {
   if (busy || !sheet.classList.contains('open')) return
   busy = true
+  // arrived through a "back to <genre>" link: the sheet is closed now, so a refresh
+  // should stay on the home page rather than open it again
+  if (location.search) history.replaceState(history.state, '', location.pathname + location.hash)
   sheet.classList.remove('intro', 'shown')
   sheet.style.transition = `clip-path ${.34 * T}s cubic-bezier(.65,0,.25,1)`
   sheet.style.clipPath = insetOf(origin)
@@ -441,14 +412,15 @@ async function boot() {
   }
 }
 
-// Start the hero once fonts and the deck art are ready, so nothing pops in late.
+// Start the hero once fonts and the record art are ready, so nothing pops in late.
 const hero = $('#hero')
 Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 1500))])
   .then(() => document.fonts.load('100px Oranienbaum', 'COLLECTION'))
   .then(() => {
     fitMasthead()
-    return Promise.all([...hero.querySelectorAll('.deck img')].map(i => i.decode().catch(() => {})))
+    return heroRecordReady
   })
+  .then(() => Promise.all([...hero.querySelectorAll('.deck img')].map(i => i.decode().catch(() => {}))))
   .then(() => {
     hero.classList.add('play')
     once(collection, el => el.classList.add('play'), .35)

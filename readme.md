@@ -4,7 +4,7 @@ A full-stack vinyl record store — Node.js, Express and vanilla JavaScript, wit
 
 **[Live demo](https://spiral-sounds-8dk9.onrender.com)** · hosted on Render's free tier, so the first visit after a quiet spell can take ~30 s to wake up.
 
-![Home page hero: a red panel with a playable turntable under the headline "Records for those who listen with vision."](docs/screenshots/home-hero.jpg)
+![Home page hero: a red panel with the headline "Records for those who listen with vision." beside a record sliding out of its sleeve, playing a Spotify preview](docs/screenshots/home-hero.jpg)
 
 ---
 
@@ -12,7 +12,7 @@ A full-stack vinyl record store — Node.js, Express and vanilla JavaScript, wit
 
 - **Browse** 60 real records across 12 genres, from a hand-laid genre collage or a genre/search overlay
 - **Search** by title, artist or genre, including subgenres ("new wave" still finds the right records)
-- **Play** the hero turntable — press the silver dial and a preview plays while the label spins
+- **Play** the hero record, a random pick that changes every Monday — Preview slides it out of its sleeve and it spins once Spotify starts playing; on a record's page, the cover opens to its tracklist, previews and lyrics
 - **Buy** — bag with quantities, Stripe Payment Element checkout, stock taken exactly once per order
 - **Accounts** — sign up / log in with session cookies; the bag and checkout require an account
 
@@ -34,7 +34,7 @@ A full-stack vinyl record store — Node.js, Express and vanilla JavaScript, wit
 The site was redesigned in September 2026: static HTML mockups first ([`design/mockups/`](design/mockups/)), iterated page by page, then rebuilt into the app.
 
 - **System** — cream paper with a fine grain, one red for display type and the closing poster, a condensed Didone (Oranienbaum) for headlines, Public Sans for everything else, and a spiral mark used for the logo, favicon and record labels
-- **Motion with a job** — the turntable's label is the only part of the record that turns (the grooves' baked-in highlights stay still, as reflections would on a real deck); the genre overlay grows out of the sleeve you clicked; covers morph into the detail page with cross-document View Transitions
+- **Motion with a job** — the hero record's label is the only part that turns (the grooves' baked-in highlights stay still, as reflections would on a real record); the genre overlay grows out of the sleeve you clicked; covers morph into the detail page with cross-document View Transitions
 - **Responsive** — one 760 px breakpoint re-lays every page for phones rather than shrinking it
 
 ---

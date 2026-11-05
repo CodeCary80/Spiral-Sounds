@@ -5,10 +5,10 @@
    ===================================================================== */
 
 /* =========================== Hero =========================== */
-/* Exactly one viewport: header, then a red poster panel with the headline,
-   the playable deck and two actions. Same red as the closing poster, so the
-   page opens and closes on the same colour. */
-.hero { position: relative; height: 100vh; height: 100svh; min-height: 520px; display: flex; flex-direction: column; overflow: clip; }
+/* One viewport: header, then a red poster panel with the headline on one side and
+   the featured record on the other, growing only if a long title needs the room.
+   Same red as the closing poster, so the page opens and closes on the same colour. */
+.hero { position: relative; min-height: max(520px, 100vh); min-height: max(520px, 100svh); display: flex; flex-direction: column; overflow: clip; }
 
 .hdr {
   position: relative; flex: none; margin: 0 var(--gutter); height: 5.4vw; min-height: 64px; z-index: 3;
@@ -30,9 +30,11 @@
 .nav { justify-self: end; display: flex; align-items: center; gap: max(18px, 1.5vw); font: 500 max(13px, 1.05vw) var(--sans); color: var(--ink); }
 
 .hero-body {
-  position: relative; flex: 1; min-height: 0; overflow: clip;
-  margin: 1.6vw var(--gutter); padding: 2.2vw 2.2vw 2vw; background: var(--accent); color: var(--cream);
-  display: grid; grid-template-rows: auto minmax(0, 1fr) auto; justify-items: center;
+  /* S = sleeve, D = record: sized to fit the panel's height with room for the player */
+  --S: max(220px, min(30vw, calc(100svh - 265px - 13vw))); --D: calc(var(--S) * .94);
+  position: relative; flex: 1; overflow: clip;
+  margin: 1.6vw var(--gutter); padding: 2.2vw 3vw; background: var(--accent); color: var(--cream);
+  display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: 3vw; align-items: center;
 }
 .hero-body::before {
   content: ''; position: absolute; inset: 0; pointer-events: none; opacity: .22; mix-blend-mode: multiply;
@@ -41,67 +43,74 @@
 .hero-body > * { position: relative; }
 
 .hero-h {
-  margin: 1vw 0 0; text-align: center; white-space: nowrap;
-  font: 400 min(5.6vw, 8.2svh)/1.02 var(--display); letter-spacing: -.012em;
+  margin: 0; white-space: nowrap;
+  font: 400 min(5vw, 9svh)/1.08 var(--display); letter-spacing: -.012em;
   color: var(--cream); -webkit-text-stroke: .03em var(--cream); paint-order: stroke fill;
 }
 /* each line rises out of its own mask; padding keeps the stroke and serifs inside it */
 .hero-h .ln { display: block; overflow: hidden; padding: .26em .03em .1em; margin: -.26em -.03em -.1em; }
 .hero-h .ln span { display: block; transform: translateY(110%); }
-.hero-h .ln span i { font-style: normal; display: inline-block; transform: scaleY(1.18); transform-origin: center bottom; }
+.hero-h .ln span i { font-style: normal; display: inline-block; transform: scaleY(1.18); transform-origin: left bottom; }
 
-/* ---- the deck: layers positioned on the base art's 1448x1086 grid ---- */
-.deck-view { width: 100%; height: 100%; min-height: 0; display: flex; justify-content: center; align-items: center; padding: .6vw 0; }
-.deck { position: relative; height: 100%; max-width: 100%; aspect-ratio: 1448 / 1086; scale: 1.14; opacity: 0; transform: translateY(3vw); }
-.deck::before {
-  content: ''; position: absolute; z-index: 0; left: 6%; right: 5%; bottom: 3%; height: 22%;
-  background: radial-gradient(50% 50% at 50% 50%, rgba(40,8,4,.55), rgba(40,8,4,0) 70%);
-  filter: blur(1.2vw); transform: translateY(18%);
-}
-.deck .tt-base, .deck .tt-tonearm { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: contain; }
-.deck .tt-base { z-index: 1; filter: drop-shadow(0 1.4vw 1.6vw rgba(40,8,4,.45)); }
-/* The record is a flat top-down image laid onto the platter's ellipse (fitted
-   from the base art: 0.627 squash). Only the label turns: the grooves and their
-   baked-in highlights stay still, because on a real deck the reflections come
-   from the room's lights and don't travel with the record. */
-.record-plane {
-  position: absolute; z-index: 2; left: 16.16%; top: 14.92%; width: 55.52%; height: 74.03%;
-  transform: scaleY(.627); transform-origin: top center; pointer-events: none;
-}
+/* ---- the featured record: a sleeve with the record behind it ---- */
+/* The deck stays put, tilted a little; only the record moves, along the sleeve. */
+.featured { width: calc(var(--S) + var(--D) * .66); }
+.deck { position: relative; width: var(--S); height: var(--S); margin-bottom: 3vw; rotate: -3deg; opacity: 0; transform: translateY(3vw); }
+.hero-sleeve { position: absolute; inset: 0; z-index: 2; width: 100%; height: 100%; display: block; object-fit: cover; border-radius: 2px;
+  box-shadow: 0 .2vw .3vw rgba(40,8,4,.35), 0 1.6vw 2.4vw -.8vw rgba(40,8,4,.65); transition: transform .8s cubic-bezier(.2,.8,.2,1), opacity .15s linear; }
+/* during the opening the record lands first, then the sleeve comes over it */
+.opening .hero-sleeve { opacity: 0; transform: translateX(-16%); }
+.record-slide { position: absolute; z-index: 1; width: var(--D); height: var(--D); left: calc(var(--S) - var(--D) * .8); top: calc((var(--S) - var(--D)) / 2);
+  transition: transform .9s cubic-bezier(.3,.7,.2,1); }
+.deck.is-out .record-slide { transform: translateX(calc(var(--D) * .46)); }
+/* Only the label turns: the grooves and their baked-in highlights stay still, because
+   on a real record the reflections come from the room's lights and don't travel with it. */
+.record-plane { position: absolute; inset: 0; border-radius: 50%; filter: drop-shadow(0 .8vw 1vw rgba(40,8,4,.5)); }
 .record-plane img { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
 .record-static { -webkit-mask: radial-gradient(circle closest-side, transparent 35.7%, #000 36.2%); mask: radial-gradient(circle closest-side, transparent 35.7%, #000 36.2%); }
 .record-rotor { position: absolute; inset: 0; will-change: transform; clip-path: circle(18% at 50% 50%); }
 .label-mark { position: absolute; left: 50%; top: 50%; width: 37.3%; height: 37.3%; transform: translate(-50%, -50%); color: #a8392a; }
-.deck .tt-tonearm {
-  z-index: 4; pointer-events: none; transform-origin: 82.39% 29%; transform: rotate(-13deg);
-  transition: transform 1s cubic-bezier(.22,.61,.36,1);
-}
-.deck.is-playing .tt-tonearm { transform: rotate(0deg); }
-.record-hit { position: absolute; z-index: 5; left: 16.16%; top: 14.92%; width: 55.52%; height: 46.4%; border-radius: 50%; cursor: pointer; background: none; border: 0; padding: 0; }
-.play-control { position: absolute; z-index: 5; left: 79.07%; top: 64.46%; width: 9%; height: 11.4%; transform: translate(-50%, -50%); }
-.tt-power {
-  position: absolute; inset: 0; margin: auto; width: 100%; height: 100%; min-width: 44px; min-height: 44px;
-  padding: 0; border: 0; border-radius: 50%; background: transparent; cursor: pointer;
-}
-.tt-power:hover { background: radial-gradient(circle at 42% 38%, rgba(255,255,255,.22), rgba(255,255,255,0) 68%); }
-.tt-power:focus { outline: none; }
-.tt-power:focus-visible, .record-hit:focus-visible { outline: 2px solid var(--cream); outline-offset: 3px; }
 
-.hero-foot { width: 100%; display: flex; justify-content: space-between; align-items: flex-end; }
+/* The info and buttons sit side by side, centred on each other, and start from the
+   tilted sleeve's bottom-left corner, as the player does below them. Nothing in the
+   block changes size between states, because it's centred in the panel and any change
+   would nudge the sleeve: the buttons have a set height and End's space is always kept. */
+.featured-meta, .hero-player-slot { margin-left: calc(var(--S) * .027); }
+.featured-meta { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; column-gap: 1.6vw; }
+.featured-who { min-width: 0; }
+.featured-name { display: block; color: var(--cream); text-decoration: none; font: 400 max(20px, 2.1vw)/1.1 var(--display); -webkit-text-stroke: .02em var(--cream); paint-order: stroke fill; }
+.featured-name:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: .15em; }
+.featured-sub { min-width: 0; margin-top: .3vw; }
+.featured-who span { display: block; font: 400 max(13px, 1vw) var(--sans); }
+.featured-actions { flex: none; display: flex; align-items: center; gap: .7vw; }
+.featured-view { display: inline-block; margin-top: .35vw; color: var(--cream); font: 500 max(13px, 1vw) var(--sans); text-underline-offset: .2em; white-space: nowrap; }
+.featured-view:hover { text-decoration: none; }
+.hero-preview { min-width: 7.6em; height: 2.8em; padding: 0 1.1em; background: var(--cream); color: var(--ink); border: 0; border-radius: 3px; cursor: pointer; font: 600 max(13px, 1vw) var(--sans); white-space: nowrap; transition: background .2s ease, color .2s ease; }
+.hero-preview[hidden] { display: none; }
+.hero-preview:hover { background: var(--ink); color: var(--cream); }
+.hero-preview[aria-busy="true"] { cursor: progress; }
+.hero-end { height: 2.8em; padding: 0 1.1em; background: none; color: var(--cream); border: 1px solid var(--cream); border-radius: 3px; cursor: pointer; font: 600 max(13px, 1vw) var(--sans); transition: background .2s ease, color .2s ease; }
+.hero-end[hidden] { display: inline-block; visibility: hidden; }
+.hero-end:hover { background: var(--cream); color: var(--ink); }
+.hero-end:focus-visible, .hero-preview:focus-visible, .featured-view:focus-visible, .featured-name:focus-visible, .hero-cta:focus-visible { outline: 2px solid var(--cream); outline-offset: 3px; }
+
+/* The player's slot is always reserved, so nothing above it moves when it appears. */
+.hero-player-slot { position: relative; height: 80px; margin-top: 1.2vw; }
+.hero-player { position: absolute; inset: 0; opacity: 0; pointer-events: none; transform: translateY(10px); transition: opacity .5s ease, transform .5s cubic-bezier(.2,.8,.2,1); }
+.hero-player.on { opacity: 1; pointer-events: auto; transform: none; }
+.hero-player iframe { display: block; border: 0; border-radius: 12px; }
+.hero-note { position: absolute; left: 0; right: 0; top: 0; margin: 0; font: 400 max(13px, 1vw) var(--sans); }
+
+.hero-copy { min-width: 0; }
 .hero-cta {
-  display: inline-flex; gap: .7vw; padding-bottom: .45vw; font: 500 max(14px, 1.35vw) var(--sans);
+  display: inline-flex; gap: .7vw; margin-top: 2.4vw; padding-bottom: .45vw; font: 500 max(14px, 1.35vw) var(--sans);
   color: var(--cream); text-decoration: none; border-bottom: 1.5px solid var(--cream);
 }
 .hero-cta:hover { border-color: transparent; }
-.hero-cue {
-  display: flex; align-items: center; gap: .8vw; margin: 0; padding: 0; background: none; border: 0; cursor: pointer;
-  font: 600 max(10px, .82vw) var(--sans); letter-spacing: .3em; text-transform: uppercase; color: var(--cream); white-space: nowrap;
-}
-.hero-cue b { font-weight: 600; letter-spacing: 0; }
 
 /* entrance: everything starts together */
-.hero .hdr, .hero-cta, .hero-cue { opacity: 0; }
-.hero.play .hdr, .hero.play .hero-cta, .hero.play .hero-cue { animation: fadeIn .7s ease forwards; }
+.hero .hdr, .hero-cta, .featured-meta { opacity: 0; }
+.hero.play .hdr, .hero.play .hero-cta, .hero.play .featured-meta { animation: fadeIn .7s ease forwards; }
 .hero.play .hero-h .ln span { animation: rise .9s var(--drop-ease) forwards; }
 .hero.play .deck { animation: deckIn .9s cubic-bezier(.2,.8,.2,1) forwards; }
 @keyframes deckIn { to { opacity: 1; transform: none; } }
@@ -464,9 +473,9 @@
 
 /* ======================= Reduced motion ======================= */
 @media (prefers-reduced-motion: reduce) {
-  .hero .hdr, .hero-cta, .hero-cue, .deck { opacity: 1 !important; transform: none !important; animation: none !important; }
+  .hero .hdr, .hero-cta, .featured-meta, .deck { opacity: 1 !important; transform: none !important; animation: none !important; }
+  .record-slide, .hero-sleeve, .hero-player, .hero-preview { transition: none; }
   .hero-h .ln span, .showroom-h .ln span, .stories-h .ln span, .finale-h .ln > span, .word .ch span { transform: none !important; animation: none !important; }
-  .deck .tt-tonearm { transition: none; }
   .genre-tile .fall { transform: rotate(var(--r)) !important; animation: none !important; }
   .collection .label, .collection .fade, .story, .finale-browse { opacity: 1 !important; transform: none !important; animation: none !important; }
   .collection .label::after { transform: scaleX(1) !important; animation: none !important; }
@@ -487,14 +496,20 @@
   .search { grid-area: search; width: 100%; min-width: 0; padding: 6px 0 8px; }
   .nav { grid-area: nav; gap: 14px; }
 
-  /* hero: headline wraps, the whole deck fits the width, actions stack */
-  .hero-body { margin: 12px var(--gutter) 16px; padding: 28px 16px 20px; }
-  .hero-h { white-space: normal; text-wrap: balance; font-size: 11vw; line-height: 1.04; }
-  .deck-view { padding: 0; }
-  .deck { height: auto; width: 100%; scale: 1.06; }
-  .hero-foot { flex-direction: column; align-items: flex-start; gap: 16px; }
-  .hero-cta { font-size: 16px; padding-bottom: 4px; }
-  .hero-cue { font-size: 10px; letter-spacing: .24em; gap: 8px; }
+  /* hero: one column */
+  .hero-body { --S: 52vw; margin: 12px var(--gutter) 16px; padding: 28px 16px 20px; grid-template-columns: minmax(0, 1fr); row-gap: 28px; align-content: start; }
+  .hero-h { font-size: 11vw; line-height: 1.08; }
+  .hero-cta { margin-top: 16px; font-size: 16px; padding-bottom: 4px; gap: 8px; }
+  .featured { width: 100%; }
+  .deck { margin: 4px 0 26px 2px; }
+  .featured-meta { grid-template-columns: minmax(0, 1fr); }
+  .featured-sub { margin-top: 4px; }
+  .featured-view { margin-top: 6px; }
+  .featured-actions { margin-top: 12px; }
+  .hero-end { order: 1; }
+  .featured-name { font-size: 24px; }
+  .featured-actions { gap: 10px; }
+  .hero-player-slot { margin-top: 12px; }
 
   /* collage: a taller spread with bigger sleeves in two loose columns */
   .collection { aspect-ratio: 20 / 42; }

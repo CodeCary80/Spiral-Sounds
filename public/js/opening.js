@@ -5,7 +5,8 @@
 // 0     SPIRAL drops in from the top, SOUNDS rises from the bottom
 // 250   the record is held just above the paper, then lowered onto it
 // 1250  it touches down softly; the grooves catch the light and it spins up
-// 2350  the poster lifts away; the record glides down onto the hero's platter
+// 2350  the poster lifts away; the record glides to its place in the hero and
+//       the sleeve comes over it
 const root = document.documentElement
 const poster = document.getElementById('opening')
 
@@ -58,14 +59,19 @@ function run() {
     requestAnimationFrame(step)
   }, LAND - 50)
 
-  // The hero deck starts its own entrance once fonts and art are ready (home.js),
-  // which can be late on a cold server. Only land on the platter once it has settled.
+  // The hero starts its own entrance once fonts and art are ready (home.js), which
+  // can be late on a cold server. Only land in it once it has settled.
   const deck = document.getElementById('deck')
   const settled = () => document.getElementById('hero')?.classList.contains('play') &&
     deck.getAnimations().every(a => a.playState === 'finished')
-  function platterRect() {
-    const r = settled() && deck.querySelector('.record-plane')?.getBoundingClientRect()
-    return r && r.width && r.bottom > 0 && r.top < innerHeight ? r : null
+  // The deck is tilted, so the box's size is read from the layout and only its
+  // centre from the screen.
+  function recordSpot() {
+    const plane = settled() && deck.querySelector('.record-plane')
+    if (!plane) return null
+    const r = plane.getBoundingClientRect()
+    if (!r.width || r.bottom <= 0 || r.top >= innerHeight) return null
+    return { x: r.left + r.width / 2, y: r.top + r.height / 2, size: plane.offsetWidth, tilt: parseFloat(getComputedStyle(deck).rotate) || 0 }
   }
 
   function reveal(fast) {
@@ -87,22 +93,27 @@ function run() {
       { duration: 750 * T, easing: 'cubic-bezier(.76,0,.24,1)', fill: 'forwards' })
       .finished.then(() => $('op-poster').remove())
 
-    // wind the spin down so the label comes to rest upright, matching the deck's
+    // wind the spin down so the label comes to rest upright, matching the hero's
     const angle = (spin.currentTime % 2400) / 2400 * 360
     spin.cancel()
     const stopAt = Math.ceil((angle + 120) / 360) * 360
     $('op-spin').animate([{ transform: `rotate(${angle}deg)` }, { transform: `rotate(${stopAt}deg)` }], { duration: 900 * T, easing: 'cubic-bezier(.2,.7,.3,1)', fill: 'forwards' })
 
-    // glide down onto the platter: centre on it, match its width, squash to the deck's perspective
-    const p = platterRect()
+    // glide to the record's place in the hero: centre on it, match its size and tilt
+    const p = recordSpot()
     const land = p
-      ? rec.animate([{ transform: 'translate(0,0) scale(1, 1)' },
-          { transform: `translate(${p.left + p.width / 2 - innerWidth / 2}px, ${p.top + p.height / 2 - innerHeight / 2}px) scale(${p.width / D}, ${p.height / D})` }],
+      ? rec.animate([{ transform: 'translate(0,0) scale(1) rotate(0deg)' },
+          { transform: `translate(${p.x - innerWidth / 2}px, ${p.y - innerHeight / 2}px) scale(${p.size / D}) rotate(${p.tilt}deg)` }],
           { duration: 900 * T, delay: 150 * T, easing: 'cubic-bezier(.6,0,.2,1)', fill: 'forwards' })
       : rec.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 400, fill: 'forwards' })
     $('op-sheen').animate([{ opacity: 1 }, { opacity: 0 }], { duration: 600 * T, delay: 300 * T, fill: 'forwards' })
-    // cross-fade into the deck's own record near the end, so the tonearm is never covered
-    if (p) rec.animate([{ opacity: 1 }, { opacity: 0 }], { duration: 320 * T, delay: (150 + 900 * .68) * T, fill: 'forwards' })
+    // cross-fade into the hero's own record at the end (it stays hidden until then, or
+    // it would show as a second edge); removing .opening then brings the sleeve in
+    if (p) {
+      const fade = { duration: 320 * T, delay: (150 + 900 * .68) * T }
+      rec.animate([{ opacity: 1 }, { opacity: 0 }], { ...fade, fill: 'forwards' })
+      deck.querySelector('.record-slide').animate([{ opacity: 0 }, { opacity: 1 }], { ...fade, fill: 'backwards' })
+    }
     land.finished.then(() => { poster.remove(); root.classList.remove('opening') })
   }
 

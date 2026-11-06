@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<link rel="icon" type="image/svg+xml" href="mark.svg">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D record — Spiral Sounds</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Oranienbaum&family=Public+Sans:wght@400;500;600;700;800&display=swap">
+<script src="products.js"></script>
+<script type="importmap">{ "imports": { "three": "../../node_modules/three/build/three.module.js" } }</script>
+<style>
+:root {
+  --ink: #1c1a17; --cream: #f3f0ed; --paper: #efebe4; --muted: #6b655c; --accent: #8b2e22;
+  --sans: 'Public Sans', sans-serif; --display: 'Oranienbaum', serif;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--sans); min-height: 100vh; }
+button { font: inherit; color: inherit; }
+.caps { font: 600 max(10px, .8vw) var(--sans); letter-spacing: .32em; text-transform: uppercase; }
+.hdr { margin: 0 3.2vw; height: max(64px, 5.4vw); display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; border-bottom: 1.5px solid var(--ink); }
+.logo { font: 400 max(28px, 2.9vw)/1 var(--display); text-transform: uppercase; color: var(--ink); text-decoration: none;
+  -webkit-text-stroke: .045em var(--ink); paint-order: stroke fill; transform: scaleY(1.3); white-space: nowrap; }
+
+main { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(280px, 1fr); gap: 4vw; padding: 3vw 3.2vw 4vw; align-items: center; }
+.stage { position: relative; aspect-ratio: 1; max-height: calc(100vh - 140px); width: 100%; justify-self: center; }
+.stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
+.stage .hint { position: absolute; left: 0; right: 0; bottom: 2%; text-align: center; color: var(--muted); pointer-events: none; transition: opacity .6s ease; }
+.stage.touched .hint { opacity: 0; }
+.stage .fallback { position: absolute; inset: 0; display: grid; place-items: center; color: var(--muted); text-align: center; padding: 10%; }
+
+.artist { margin: 0 0 1vw; }
+.title { margin: 0 0 1.6vw; padding-bottom: 1.6vw; border-bottom: 1px solid var(--ink); font: 400 max(34px, 4.2vw)/1.02 var(--display); color: var(--accent);
+  -webkit-text-stroke: .035em var(--accent); paint-order: stroke fill; }
+.swatch { display: flex; align-items: center; gap: 12px; margin: 0 0 1.8vw; color: var(--muted); font-size: max(13px, .95vw); }
+.swatch i { width: 22px; height: 22px; border-radius: 50%; background: var(--c, #7a2a24); box-shadow: inset 0 0 0 1px rgba(0,0,0,.15); }
+.ctrls { display: flex; flex-wrap: wrap; gap: 10px; margin: 0 0 2.4vw; }
+.styles { display: inline-flex; border: 1.5px solid var(--ink); margin: 0 0 1.4vw; }
+.styles button { background: none; border: 0; padding: .7em 1.2em; cursor: pointer; font-weight: 600; font-size: max(12px, .85vw); letter-spacing: .04em; }
+.styles button[aria-pressed="true"] { background: var(--ink); color: var(--cream); }
+.ctrls button { background: none; border: 1.5px solid var(--ink); padding: .8em 1.3em; cursor: pointer; font-weight: 600; font-size: max(13px, .95vw); }
+.ctrls button[aria-pressed="true"], .ctrls button:hover { background: var(--ink); color: var(--cream); }
+.pick-label { margin: 0 0 1vw; color: var(--muted); }
+.picks { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+.picks button { aspect-ratio: 1; padding: 0; border: 0; cursor: pointer; background: center / cover; border-radius: 2px; outline-offset: 3px;
+  box-shadow: 0 2px 6px rgba(28,26,23,.2); transition: transform .2s ease; }
+.picks button:hover { transform: translateY(-2px); }
+.picks button[aria-current="true"] { outline: 2px solid var(--accent); }
+
+@media (max-width: 760px) {
+  main { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <span></span>
+  <a class="logo" href="page.html">Spiral Sounds</a>
+  <span></span>
+</header>
+
+<main>
+  <div class="stage" id="stage">
+    <canvas id="vinyl" aria-label="3D record — drag to turn it"></canvas>
+    <p class="hint caps">Drag to turn the record</p>
+  </div>
+
+  <section>
+    <p class="artist caps" id="artist"></p>
+    <h1 class="title" id="title"></h1>
+    <div class="styles" role="group" aria-label="Record style">
+      <button type="button" data-style="picture" aria-pressed="true">Picture disc</button>
+      <button type="button" data-style="colour" aria-pressed="false">Coloured vinyl</button>
+    </div>
+    <p class="swatch"><i id="chip"></i><span id="chip-text"></span></p>
+    <div class="ctrls">
+      <button type="button" id="play" aria-pressed="false">Spin 33⅓</button>
+      <button type="button" id="reset">Reset view</button>
+    </div>
+    <p class="pick-label caps">Try another record</p>
+    <div class="picks" id="picks"></div>
+  </section>
+</main>
+
+<script type="module">
+import { createVinyl } from './vinyl3d.js';
+
+const products = window.PRODUCTS;
+const img = p => `../../public/images/${p.image}`;
+// a spread of covers with different colours, plus a near-greyscale one for the smoky fallback
+const PICK_IDS = [36, 28, 15, 41, 46, 53, 58, 22, 66, 12];
+const picks = PICK_IDS.map(id => products.find(p => p.id === id)).filter(Boolean);
+const params = new URLSearchParams(location.search);
+const startId = Number(params.get('id')) || picks[0].id;
+let style = params.get('style') === 'colour' ? 'colour' : 'picture';
+let shown = null, shownColour = '';
+
+const stage = document.getElementById('stage');
+let vinyl;
+try {
+  vinyl = await createVinyl({ canvas: document.getElementById('vinyl'), background: getComputedStyle(document.body).backgroundColor, style });
+} catch (err) {
+  stage.innerHTML = '<p class="fallback">This browser can’t draw the 3D record (no WebGL). The site would show the flat record image here.</p>';
+  throw err;
+}
+stage.addEventListener('pointerdown', () => stage.classList.add('touched'), { once: true });
+
+async function show(p) {
+  const { color } = await vinyl.setProduct(p, img(p));
+  shown = p; shownColour = color;
+  document.getElementById('artist').textContent = p.artist;
+  document.getElementById('title').textContent = p.title;
+  document.querySelectorAll('.picks button').forEach(b => b.setAttribute('aria-current', String(Number(b.dataset.id) === p.id)));
+  describe();
+}
+
+function describe() {
+  const tracks = (shown.tracklist || []).length || 'no';
+  const chip = document.getElementById('chip');
+  chip.hidden = style === 'picture';
+  chip.style.setProperty('--c', shownColour);
+  document.getElementById('chip-text').textContent = style === 'picture'
+    ? `Picture disc · the cover printed edge to edge under clear vinyl · ${tracks} tracks cut into the grooves`
+    : `Vinyl colour ${shownColour} · from the cover · ${tracks} tracks cut into the grooves`;
+  history.replaceState(null, '', `?id=${shown.id}${style === 'colour' ? '&style=colour' : ''}`);
+}
+
+document.querySelectorAll('.styles button').forEach(b => {
+  b.setAttribute('aria-pressed', String(b.dataset.style === style));
+  b.addEventListener('click', () => {
+    style = b.dataset.style;
+    vinyl.setStyle(style);
+    document.querySelectorAll('.styles button').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    describe();
+  });
+});
+
+const box = document.getElementById('picks');
+for (const p of picks) {
+  const b = document.createElement('button');
+  b.type = 'button';
+  b.dataset.id = p.id;
+  b.style.backgroundImage = `url(${img(p)})`;
+  b.setAttribute('aria-label', `${p.title} — ${p.artist}`);
+  b.addEventListener('click', () => show(p));
+  box.append(b);
+}
+
+const playBtn = document.getElementById('play');
+playBtn.addEventListener('click', () => {
+  const on = playBtn.getAttribute('aria-pressed') !== 'true';
+  playBtn.setAttribute('aria-pressed', String(on));
+  vinyl.setSpinning(on);
+});
+document.getElementById('reset').addEventListener('click', () => vinyl.resetView());
+
+await show(products.find(p => p.id === startId) || picks[0]);
+</script>
+</body>
+</html>

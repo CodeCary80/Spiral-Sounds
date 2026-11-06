@@ -1,7 +1,9 @@
 // The "album open" stage on the record detail page: click the cover and the record
 // and a tracklist insert slide out of the sleeve. Tracks play as Spotify previews,
 // the insert switches to that song's lyrics, and the background turns to the
-// blurred cover while one plays. Reference: design/mockups/album-open.html.
+// blurred cover while one plays. The record is a 3D picture disc (vinyl3d.js) you
+// can drag round once it's out, where WebGL allows; otherwise the flat CSS disc.
+// Reference: design/mockups/album-open-3d.html.
 
 const $ = id => document.getElementById(id)
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]))
@@ -97,6 +99,51 @@ export function initAlbumStage(rec) {
     return { x: r.left, y: r.top, s: r.width / home.D }
   }
 
+  // ---------- 3D record ----------
+  // three.js is fetched only once a visit shows interest (pointer or focus on the
+  // cover, or opening it), so a page view that never opens the record loads none
+  // of it. Until it's ready, or if WebGL isn't there, the flat disc stands in.
+  //   sliding in and out of the sleeve: flat on, like the cover it came from
+  //   open: leaning a little so its edge shows, and toward the pointer; drag to
+  //         turn it, let go and it settles back
+  //   a track playing: settles back and spins at 33⅓
+  let vinyl = null, vinylLoad = null, vinylPose = null, vinylPlaying = false
+  function loadRecord3d() {
+    vinylLoad ??= (async () => {
+      const canvas = document.createElement('canvas')
+      canvas.className = 'disc-3d'
+      canvas.setAttribute('aria-hidden', 'true')
+      disc.prepend(canvas)
+      try {
+        const { createVinyl } = await import('./vinyl3d.js')
+        const v = await createVinyl({ canvas, dragTarget: disc })
+        await v.setCover(`/images/${rec.image}`)
+        vinyl = v
+        disc.classList.add('gl')
+        syncRecord()
+      } catch (err) {
+        canvas.remove()
+        console.warn('3D record unavailable, keeping the flat one:', err)
+      }
+    })()
+  }
+  function syncRecord() {
+    if (!vinyl) return
+    const open = state === 'open', playing = stage.classList.contains('playing')
+    const pose = open ? 'lean' : 'face'
+    vinyl.setActive(!stage.hidden)
+    vinyl.setDragEnabled(open)
+    // a new pose, or a track starting, eases it back from wherever it was dragged
+    if (pose !== vinylPose || (playing && !vinylPlaying)) vinyl.setPose(pose)
+    vinylPose = pose
+    vinylPlaying = playing
+    vinyl.setSpinning(playing)
+  }
+  for (const el of [cover, $('open-record')]) {
+    for (const type of ['pointerenter', 'focus', 'touchstart']) el?.addEventListener(type, loadRecord3d, { once: true, passive: true })
+  }
+  disc.addEventListener('pointerdown', () => { if (state === 'open') disc.classList.add('turned') })
+
   // ---------- open / close ----------
   let state = 'closed'
 
@@ -108,6 +155,8 @@ export function initAlbumStage(rec) {
     backdrop.forEach(el => { el.inert = true })
     measure()
     loadPlayer()
+    loadRecord3d()
+    syncRecord()
 
     if (reduced) {
       place(disc, { x: 0, y: 0 }); place(insert, { x: 0, y: 0 })
@@ -144,6 +193,7 @@ export function initAlbumStage(rec) {
   function opened() {
     state = 'open'
     stage.classList.add('open')
+    syncRecord()
     closeBtn.focus({ preventScroll: true })
   }
 
@@ -154,6 +204,7 @@ export function initAlbumStage(rec) {
     stage.classList.remove('open', 'playing')
     player.classList.remove('on')
     stage.querySelectorAll('.ins-tracks button.on').forEach(x => x.classList.remove('on'))
+    syncRecord() // flat on again before it goes back into the sleeve
 
     if (!reduced) {
       measure()
@@ -176,6 +227,7 @@ export function initAlbumStage(rec) {
     document.body.classList.remove('locked')
     showTracks()
     state = 'closed'
+    syncRecord()
     cover.focus({ preventScroll: true })
   }
 
@@ -253,6 +305,7 @@ export function initAlbumStage(rec) {
       c.addListener('playback_update', e => {
         const { isPaused, isBuffering, position, duration } = e.data
         stage.classList.toggle('playing', state !== 'busy' && !isPaused && !isBuffering && position < duration)
+        syncRecord()
       })
       if (wanted) play(wanted)
     })

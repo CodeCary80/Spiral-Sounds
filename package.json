@@ -8,7 +8,8 @@
     "start": "node server.js",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "postinstall": "npm rebuild sqlite3"
+    "postinstall": "npm rebuild sqlite3",
+    "build:three": "esbuild scripts/three-entry.js --bundle --minify --format=esm --legal-comments=inline --outfile=public/vendor/three.min.js"
   },
   "author": "Tom Chant",
   "license": "ISC",
@@ -27,8 +28,10 @@
   "devDependencies": {
     "@playwright/test": "^1.63.0",
     "@types/node": "^26.6.2",
+    "esbuild": "^0.28.2",
     "nodemon": "^3.1.14",
     "supertest": "^7.2.2",
+    "three": "^0.187.0",
     "vitest": "^3.2.7"
   }
 }

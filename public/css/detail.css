@@ -159,7 +159,20 @@ body.locked { overflow: hidden; }
 .stage.open .disc .face { animation-play-state: running; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-.insert { position: relative; width: var(--W); height: var(--D); background: #f7f4ee; overflow: hidden;
+/* The 3D picture disc (js/vinyl3d.js), once it's ready, in place of the flat one.
+   Its canvas is half as big again as the disc's box, so the record can lean and
+   turn without being clipped; clicks pass through it to the box, which takes the
+   drag. The shadow follows the record's outline whichever way it's turned. */
+.disc.gl { overflow: visible; box-shadow: none; }
+.disc.gl .face, .disc.gl::after { display: none; }
+.disc-3d { position: absolute; left: -25%; top: -25%; width: 150%; height: 150%; pointer-events: none;
+  filter: drop-shadow(0 2px 3px rgba(28,26,23,.25)) drop-shadow(0 26px 26px rgba(28,26,23,.32)); }
+.disc-hint { position: absolute; left: 0; right: 0; top: calc(100% + var(--g) * .55); margin: 0; text-align: center; color: var(--muted);
+  pointer-events: none; opacity: 0; visibility: hidden; transition: opacity .5s ease, visibility .5s; }
+.stage.open .disc.gl .disc-hint { opacity: 1; visibility: visible; }
+.stage.playing .disc-hint, .disc.turned .disc-hint { opacity: 0 !important; visibility: hidden !important; }
+
+.insert { position: relative; z-index: 1; width: var(--W); height: var(--D); background: #f7f4ee; overflow: hidden;
   box-shadow: 0 1px 2px rgba(28,26,23,.12), 0 18px 30px -16px rgba(28,26,23,.35); }
 .view { position: absolute; inset: 0; padding: calc(var(--D) * .07) calc(var(--D) * .07) 0; display: flex; flex-direction: column;
   transition: opacity .4s ease, transform .4s cubic-bezier(.2,.8,.2,1), visibility .4s; }
@@ -194,7 +207,7 @@ body.locked { overflow: hidden; }
   .cover { transition: none; }
   .cover:not(:disabled):hover { transform: none; }
   .disc .face { animation: none; }
-  .stage-blur, .stage-close, .view, .player { transition: none; }
+  .stage-blur, .stage-close, .view, .player, .disc-hint { transition: none; }
 }
 
 /* ======================= Phones (≤ 760px) ======================= */
@@ -232,6 +245,7 @@ body.locked { overflow: hidden; }
   .stage { --D: min(64vw, 34vh); --W: min(86vw, 420px); --g: 14px; }
   .deck { grid-template-columns: var(--W); grid-template-rows: var(--D) calc(var(--D) * 1.05) var(--P); justify-items: center; }
   .insert { height: calc(var(--D) * 1.05); }
+  .disc-hint { top: auto; bottom: calc(100% + 10px); } /* the insert sits right below, so the hint goes above */
   .player { grid-column: 1; width: var(--W); }
   .stage-close { top: 12px; }
 }

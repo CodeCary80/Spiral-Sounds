@@ -69,6 +69,10 @@ test('the record turns into a 3D picture disc, and three.js loads only once the 
   const three: string[] = [];
   page.on('request', r => { if (/vinyl3d\.js|three\.min\.js/.test(r.url())) three.push(r.url()); });
   await page.goto(RECORD);
+  // Some headless browsers (Firefox on the CI runner) can't make a WebGL2 context;
+  // there the page keeps the flat disc, which the next test covers.
+  const webgl2 = await page.evaluate(() => !!document.createElement('canvas').getContext('webgl2'));
+  test.skip(!webgl2, 'no WebGL2 in this browser, so the record stays flat');
   await expect(page.locator('#cover')).toBeEnabled();
   await page.waitForLoadState('networkidle');
   expect(three).toEqual([]);

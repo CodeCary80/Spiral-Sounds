@@ -106,7 +106,7 @@ export function initAlbumStage(rec) {
   //   sliding in and out of the sleeve: flat on, like the cover it came from
   //   open: leaning a little so its edge shows, and toward the pointer; drag to
   //         turn it, let go and it settles back
-  //   a track playing: settles back and spins at 33⅓
+  //   a track playing: settles back and spins (at half of 33⅓, see vinyl3d.js)
   let vinyl = null, vinylLoad = null, vinylPose = null, vinylPlaying = false
   function loadRecord3d() {
     vinylLoad ??= (async () => {

@@ -22,7 +22,7 @@ import {
 const HOLE_R = 0.024
 const RIM_IN = 0.965
 const T = 0.009 // half the thickness, exaggerated a touch so the edge reads
-const RPM = 33 + 1 / 3
+const RPM = 50 / 3 // half of a real 33⅓: at full speed the print blurs past too fast
 const DRAG_K = 0.0085 // radians per pixel dragged
 const POSES = { face: [0, 0], lean: [-0.38, 0.5] }
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -181,7 +181,7 @@ export async function createVinyl({ canvas, dragTarget = canvas, frame = 1.5, fo
         dirty = true
       }
     }
-    // ease up to and down from 33⅓, like a platter; clockwise seen from the front
+    // ease up to and down from RPM, like a platter; clockwise seen from the front
     const target = spinning ? (RPM / 60) * Math.PI * 2 : 0
     spinRate += (target - spinRate) * Math.min(1, dt * 2.2)
     if (Math.abs(spinRate) < 1e-3 && !spinning) spinRate = 0
